@@ -98,6 +98,23 @@
     .fbpanel { display: none; position: absolute; right: 0; bottom: 66px; width: min(360px, calc(100vw - 36px)); background: var(--paper); border: 1px solid var(--line); padding: 16px; box-shadow: var(--shadow); }
     .feedback.open .fbpanel { display: block; }
     .source { margin-top: 22px; color: var(--muted); font-size: 13px; line-height: 1.6; }
+
+    .keyword-lab { display: grid; grid-template-columns: 310px minmax(0, 1fr); gap: 18px; }
+    .keyword-buttons { display: grid; gap: 10px; }
+    .keyword-button { width: 100%; min-height: 46px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); padding: 0 14px; text-align: left; font-weight: 900; cursor: pointer; border-radius: 2px; }
+    .keyword-button:hover, .keyword-button.active { background: var(--black); color: white; border-color: var(--black); }
+    .keyword-result { min-height: 100%; padding: 26px; background: var(--paper); border: 1px solid var(--line); box-shadow: var(--shadow); }
+    .keyword-result h3 { margin: 0 0 10px; font-size: 28px; }
+    .keyword-result .hint { margin: 0 0 18px; color: var(--muted); line-height: 1.75; }
+    .result-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .result-box { border: 1px solid var(--line); background: #fbf8f1; padding: 14px; min-height: 120px; }
+    .result-box b { display: block; color: var(--deep-gold); margin-bottom: 8px; }
+    .result-box p { margin: 0; line-height: 1.75; color: var(--soft-ink); }
+    .example-strip { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+    .example-chip { border: 1px solid rgba(185,150,88,.42); background: #fffaf0; color: var(--deep-gold); padding: 8px 10px; font-size: 13px; font-weight: 900; cursor: pointer; }
+    .word { cursor: pointer; transition: transform .16s ease, opacity .16s ease; }
+    .word:hover { transform: translateY(-2px); opacity: .78; }
+
     @media (max-width: 980px) {
       .topbar { height: auto; padding: 16px 18px; align-items: flex-start; gap: 14px; flex-direction: column; }
       .nav { flex-wrap: wrap; gap: 12px; }
@@ -162,6 +179,29 @@
       </div>
     </section>
 
+
+    <section id="keyword-lab">
+      <div class="section-head"><h2>關鍵字操作台</h2><p>同事不知道從哪裡看時，先點一個關鍵字。每個詞都整理成「客戶真正想解決什麼、業務去哪找、怎麼開口、可以產什麼內容」。</p></div>
+      <div class="keyword-lab">
+        <div class="card">
+          <h3>先選一個切入點</h3>
+          <p>建議業務先從客戶狀態選，不要一開始就講產品。</p>
+          <div class="keyword-buttons" aria-label="可點選關鍵字">
+            <button class="keyword-button active" data-key="taste">好吃</button>
+            <button class="keyword-button" data-key="convenience">方便</button>
+            <button class="keyword-button" data-key="effect">有感／有效</button>
+            <button class="keyword-button" data-key="sports">運動補給</button>
+            <button class="keyword-button" data-key="lutein">葉黃素</button>
+            <button class="keyword-button" data-key="sleep">睡眠</button>
+            <button class="keyword-button" data-key="family">小孩接受度</button>
+            <button class="keyword-button" data-key="price">不便宜</button>
+          </div>
+        </div>
+        <div class="keyword-result" id="keywordResult" aria-live="polite"></div>
+      </div>
+    </section>
+
+
     <section id="persona">
       <div class="section-head"><h2>客戶樣貌</h2><p>同一批關鍵字要拆成不同購買動機，業務面對不同族群時，開場問題也要不同。</p></div>
       <div class="grid2">
@@ -217,7 +257,37 @@
       content: '社群題材：保健品不是買了就有效，能不能持續吃才是關鍵。從客戶回饋看見三個高頻詞：好吃、方便、有感。當產品不再像藥，而是變成日常可以期待的小補給，回購才會自然發生。',
       meeting: '會議摘要：目前關鍵字呈現三個主要價值：好吃降低食用阻力、方便提高持續率、有感支撐回購。建議業務優先鎖定運動族群與家庭保健族，並依場域發展不同話術。'
     };
+    const keywordInsights = {
+      taste: { title: '好吃', hint: '這不是單純口味，而是「願不願意開始、能不能持續」的門檻。', need: '客戶真正想解決的是：保健品不好吃、像藥、吃起來有壓力，最後買了也不會持續。', where: '親子社群、熟齡健康社群、團購、送禮情境、不敢吞膠囊族群。', opener: '你之前買保健品最常遇到的是忘記吃，還是吃起來太像藥所以不想吃？', content: '為什麼保健食品好吃很重要？因為能持續吃，才有機會真的有感。', examples: ['好吃的葉黃素', '好吃又方便', '沒有藥感', '像果凍一樣好入口'] },
+      convenience: { title: '方便', hint: '方便代表降低使用阻力，讓產品進入日常節奏。', need: '客戶真正想解決的是：忙、懶、出門不想帶一堆東西、不想配水、不想分裝。', where: '上班族、外勤、跑者、出差族、媽媽族群、公司團購。', opener: '你平常保健品是會固定吃，還是常常因為麻煩就忘記？', content: '保健品要被吃掉才有價值：方便攜帶如何提高持續率。', examples: ['方便攜帶', '不用配水', '獨立包裝', '拿了就走'] },
+      effect: { title: '有感／有效', hint: '有感是回購與推薦的核心，但要連到具體情境。', need: '客戶真正想解決的是：花錢後不知道有沒有用，需要睡眠、眼睛、體力或恢復上的明確感受。', where: '老客回訪、見證分享、試吃體驗、KOL 口碑、客服追蹤。', opener: '你最希望先有感的是睡眠、眼睛疲勞，還是運動後體力恢復？', content: '客戶說「有感」時，其實在說什麼？拆解四種高回購情境。', examples: ['真的有感', '體力比較好', '睡眠有改善', '眼睛比較舒服'] },
+      sports: { title: '運動補給', hint: '運動族群買的是表現、續航與比賽中吃得下去。', need: '客戶真正想解決的是：後段沒力、補給吃不下、吃了胃不舒服、怕抽筋、恢復慢。', where: '跑團、馬拉松賽事、三鐵活動、自行車社群、健身房、教練。', opener: '你長距離最怕的是後段撞牆、補給吃不下，還是吃了胃不舒服？', content: '跑者補給不是只看成分，還要看比賽中吃不吃得下去。', examples: ['續航力', '體力', '果膠', '半馬包／全馬包'] },
+      lutein: { title: '葉黃素', hint: '葉黃素的切入點常常不是成分，而是眼睛疲勞與家庭接受度。', need: '客戶真正想解決的是：眼睛乾澀、看螢幕久、飛蚊症困擾、小孩或長輩不願意吃。', where: '上班族、學生家長、親子社群、熟齡族群、3C 高使用者。', opener: '你是自己眼睛容易累，還是想幫小孩或長輩找比較願意吃的葉黃素？', content: '小孩願意吃的葉黃素，家長才真的能持續補。', examples: ['好吃的葉黃素', '眼睛乾澀', '飛蚊症', '小孩主動吃'] },
+      sleep: { title: '睡眠', hint: '睡眠要分清楚：入睡困難、睡眠品質、醒來精神，是不同痛點。', need: '客戶真正想解決的是：壓力大睡不著、睡了但醒來累、白天精神差。', where: '上班族、壓力族群、熟齡健康社群、客服回訪、會員 EDM。', opener: '你是不好入睡，還是睡得著但醒來還是覺得累？', content: '睡不好不只是一個問題：入睡、深睡、白天精神要分開看。', examples: ['幫助入眠', '睡眠品質', '白天精神', '思緒清楚'] },
+      family: { title: '小孩接受度', hint: '家庭保健的關鍵是降低照顧者阻力。', need: '客戶真正想解決的是：小孩不願意吃、長輩不敢吞、每天提醒很累。', where: '媽媽社團、親子活動、學齡兒童家長、熟齡照護族群。', opener: '你比較在意成分，還是小孩願不願意每天主動吃？', content: '家長救星不是誇張，是小孩願意吃後，保健才可能變日常。', examples: ['小孩接受度高', '長輩接受度高', '不敢吞膠囊', '家長救星'] },
+      price: { title: '不便宜', hint: '價格不是不能講，而是要把價值感講清楚。', need: '客戶真正想解決的是：怕買貴、怕沒效、怕只是包裝好看但沒有差。', where: '猶豫客、團購主、企業送禮、回購前客服、比較型客戶。', opener: '你會在意價格很正常，所以我會先幫你看：你要的是口味、方便，還是體感最明顯？', content: '高價不是問題，價值感沒有被說清楚才是問題。', examples: ['不便宜但有用', '高品質', '一分錢一分貨', '有體感'] }
+    };
+    const wordToKey = { '好吃':'taste', '方便':'convenience', '有感':'effect', '有效':'effect', '運動補給':'sports', '續航力':'sports', '體力':'sports', '果膠':'sports', '葉黃素':'lutein', '眼睛':'lutein', '乾澀':'lutein', '飛蚊症':'lutein', '睡眠':'sleep', '小孩':'family', '接受度高':'family', '不便宜':'price', 'CP值':'price' };
+    function renderKeyword(key) {
+      const data = keywordInsights[key] || keywordInsights.taste;
+      document.querySelectorAll('.keyword-button').forEach(btn => btn.classList.toggle('active', btn.dataset.key === key));
+      const result = document.querySelector('#keywordResult');
+      if (!result) return;
+      result.innerHTML = '<h3>' + data.title + '</h3><p class="hint">' + data.hint + '</p><div class="result-grid"><div class="result-box"><b>客戶真正想解決</b><p>' + data.need + '</p></div><div class="result-box"><b>業務去哪裡找</b><p>' + data.where + '</p></div><div class="result-box"><b>開場話術</b><p>' + data.opener + '</p></div><div class="result-box"><b>內容題材</b><p>' + data.content + '</p></div></div><div class="example-strip">' + data.examples.map(item => '<button class="example-chip" type="button">' + item + '</button>').join('') + '</div>';
+    }
     function setOut(k){ document.querySelector('#out').textContent = examples[k] || examples.sales; }
+    document.querySelectorAll('.keyword-button').forEach(btn => btn.addEventListener('click', () => renderKeyword(btn.dataset.key)));
+    document.querySelectorAll('.word').forEach(word => {
+      const key = wordToKey[word.textContent.trim()];
+      if (key) {
+        word.setAttribute('title', '點選查看「' + word.textContent.trim() + '」可以怎麼用');
+        word.addEventListener('click', () => {
+          document.querySelector('#keyword-lab').scrollIntoView({behavior:'smooth'});
+          renderKeyword(key);
+        });
+      }
+    });
+    renderKeyword('taste');
   </script>
 </body>
 </html>
