@@ -87,6 +87,19 @@
     .tagrow { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
     .tag { min-height: 30px; display: inline-flex; align-items: center; border: 1px solid rgba(185,150,88,.34); color: var(--deep-gold); background: #fbf5e9; padding: 0 10px; font-size: 13px; font-weight: 900; }
     .place { min-height: 176px; }
+
+    .where-map { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+    .where-card { min-height: 310px; display: flex; flex-direction: column; gap: 12px; }
+    .where-top { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+    .win-rate { min-width: 74px; text-align: center; border: 1px solid rgba(185,150,88,.48); background: #fff7e8; color: var(--deep-gold); padding: 7px 8px; font-weight: 900; font-size: 13px; }
+    .win-rate.high { background: var(--black); color: var(--gold); border-color: var(--black); }
+    .win-rate.mid { background: #fbf8f1; color: var(--deep-gold); }
+    .win-rate.seed { background: #eef1ed; color: var(--green); border-color: #cdd8cf; }
+    .where-meta { display: grid; gap: 8px; margin-top: auto; }
+    .where-line { border-top: 1px solid var(--line); padding-top: 10px; }
+    .where-line b { display: block; color: var(--deep-gold); font-size: 14px; margin-bottom: 4px; }
+    .where-line span { display: block; color: var(--soft-ink); line-height: 1.65; }
+
     .script { display: grid; grid-template-columns: 150px 1fr; gap: 14px; padding: 18px 0; border-top: 1px solid var(--line); }
     .script:first-child { border-top: 0; padding-top: 0; }
     .script:last-child { padding-bottom: 0; }
@@ -148,7 +161,7 @@
       .section-head p { margin-top: 10px; }
       .script { grid-template-columns: 1fr; }
 
-      .keyword-lab, .result-grid, .output-grid, .sample-grid, .refine-layout { grid-template-columns: 1fr; }
+      .where-map, .keyword-lab, .result-grid, .output-grid, .sample-grid, .refine-layout { grid-template-columns: 1fr; }
       .sample-grid { gap: 8px; }
       .result-box, .output-card { min-height: auto; }
       .output-card.wide { grid-column: auto; }
@@ -230,33 +243,27 @@
           </div>
         </div>
         <div class="keyword-result" id="keywordResult" aria-live="polite"></div>
+      </d<section id="where">
+      <div class="section-head"><h2>業務去哪裡找</h2><p>這裡用「勝率」幫業務排序：高＝痛點明確且容易試吃或見證；中＝需要找到對的人；培養＝適合鋪口碑與長期合作。</p></div>
+      <div class="where-map">
+        <div class="card place where-card"><div class="where-top"><h3>跑團／馬拉松賽事</h3><span class="win-rate high">高勝率</span></div><p>痛點最明確：後段沒力、補給吃不下、怕腸胃不舒服。最適合用果膠、續航力、半馬包切入。</p><div class="where-meta"><div class="where-line"><b>敲門磚</b><span>賽前補給小包、跑團試吃、半馬／全馬補給建議表。</span></div><div class="where-line"><b>破冰話術</b><span>你們團裡跑長距離時，最常遇到的是後段沒力，還是補給吃不下？</span></div></div></div>
+        <div class="card place where-card"><div class="where-top"><h3>自行車店／車友社群</h3><span class="win-rate high">高勝率</span></div><p>車友常有長時間續航需求，也重視攜帶、撕口、吃起來是否順。可從「騎乘中好不好補」切入。</p><div class="where-meta"><div class="where-line"><b>敲門磚</b><span>車店櫃台試吃、長騎補給組、車友團購。</span></div><div class="where-line"><b>破冰話術</b><span>長騎時你們比較怕沒力，還是補給吃了胃不舒服？</span></div></div></div>
+        <div class="card place where-card"><div class="where-top"><h3>親子／媽媽社團</h3><span class="win-rate high">高勝率</span></div><p>葉黃素與好吃關鍵字高度吻合。家長真正買的是「小孩願意吃，才補得到」。</p><div class="where-meta"><div class="where-line"><b>敲門磚</b><span>小孩接受度試吃、葉黃素情境貼文、親子團購。</span></div><div class="where-line"><b>破冰話術</b><span>你幫小孩補葉黃素時，最困擾的是不願意吃，還是每天都要提醒？</span></div></div></div>
+        <div class="card place where-card"><div class="where-top"><h3>企業福委／團購主</h3><span class="win-rate mid">中高</span></div><p>適合健康禮盒、生日禮、員工福利。勝率取決於是否能把「體面、方便分享、有話題」說清楚。</p><div class="where-meta"><div class="where-line"><b>敲門磚</b><span>健康禮盒提案、員工試吃包、節慶團購方案。</span></div><div class="where-line"><b>破冰話術</b><span>你們今年員工禮想走實用健康，還是有記憶點、大家會真的吃的方向？</span></div></div></div>
+        <div class="card place where-card"><div class="where-top"><h3>健身房／教練工作室</h3><span class="win-rate mid">中高</span></div><p>不是只賣運動補給，還可連到恢復、提神、日常訓練。關鍵是教練是否願意成為推薦者。</p><div class="where-meta"><div class="where-line"><b>敲門磚</b><span>教練試用組、課後恢復包、會員挑戰活動。</span></div><div class="where-line"><b>破冰話術</b><span>你們會員最常問的是訓練後恢復，還是運動中怎麼補才不會累？</span></div></div></div>
+        <div class="card place where-card"><div class="where-top"><h3>眼科／藥局／健康門市</h3><span class="win-rate mid">中高</span></div><p>眼睛乾澀、螢幕族、熟齡族都吻合，但需注意專業合規表述，避免誇大療效。</p><div class="where-meta"><div class="where-line"><b>敲門磚</b><span>葉黃素試吃、3C 族眼睛保健小卡、門市陳列。</span></div><div class="where-line"><b>破冰話術</b><span>來問眼睛保健的人，最常是螢幕看太久，還是家長想幫小孩補？</span></div></div></div>
+        <div class="card place where-card"><div class="where-top"><h3>上班族／高壓社群</h3><span class="win-rate mid">中</span></div><p>睡眠與精神需求明確，但族群分散。適合用「不好入睡、醒來累、白天精神差」分情境溝通。</p><div class="where-meta"><div class="where-line"><b>敲門磚</b><span>睡眠自評小測、辦公室團購、壓力族群內容。</span></div><div class="where-line"><b>破冰話術</b><span>你是不好入睡，還是睡得著但醒來還是覺得累？</span></div></div></div>
+        <div class="card place where-card"><div class="where-top"><h3>熟齡照顧者社群</h3><span class="win-rate mid">中</span></div><p>長輩接受度、不敢吞膠囊、沒有藥感是切入點。需要從照顧者負擔出發，不是只講產品好。</p><div class="where-meta"><div class="where-line"><b>敲門磚</b><span>長輩好入口試吃、照顧者分享文、家庭保健組合。</span></div><div class="where-line"><b>破冰話術</b><span>家裡長輩是不好吞膠囊，還是吃到有藥味就會抗拒？</span></div></div></div>
+        <div class="card place where-card"><div class="where-top"><h3>KOL／口碑見證</h3><span class="win-rate seed">培養</span></div><p>不一定立刻成交，但能放大「吃了就知道」「很多人推薦」的信任感。適合長期鋪品牌心智。</p><div class="where-meta"><div class="where-line"><b>敲門磚</b><span>真實使用心得、體驗包、賽事或親子情境合作。</span></div><div class="where-line"><b>破冰話術</b><span>我們想找的不是硬廣，而是你真實覺得哪個情境有感、願意分享。</span></div></div></div>
       </div>
     </section>
 
-
-    <section id="persona">
-      <div class="section-head"><h2>客戶樣貌</h2><p>同一批關鍵字要拆成不同購買動機，業務面對不同族群時，開場問題也要不同。</p></div>
-      <div class="grid2">
-        <article class="card"><h3>運動補給型</h3><p>跑步、馬拉松、騎車、三鐵、健身族群。重視續航力、體力、恢復、補給方便，尤其在比賽中要吃得下去。</p><div class="tagrow"><span class="tag">馬拉松</span><span class="tag">續航力</span><span class="tag">果膠</span></div></article>
-        <article class="card"><h3>家庭保健型</h3><p>小孩、長輩、不敢吞膠囊的人。真正需求是願意吃、能持續、沒有藥感，好吃本身就是降低阻力。</p><div class="tagrow"><span class="tag">小孩接受度</span><span class="tag">長輩</span><span class="tag">無藥感</span></div></article>
-        <article class="card"><h3>睡眠與精神型</h3><p>困擾不只是不入睡，也包含醒來仍疲勞、白天精神不集中。適合用生活情境切入。</p><div class="tagrow"><span class="tag">入眠</span><span class="tag">白天精神</span><span class="tag">GABA</span></div></article>
+pan class="tag">入眠</span><span class="tag">白天精神</span><span class="tag">GABA</span></div></article>
         <article class="card"><h3>品牌信任型</h3><p>會被推薦者、能見度、台灣品牌、用心與安心感打動。這群人需要看見口碑與品牌做事方式。</p><div class="tagrow"><span class="tag">推薦</span><span class="tag">安心</span><span class="tag">能見度</span></div></article>
       </div>
     </section>
 
-    <section id="where">
-      <div class="section-head"><h2>業務去哪裡找</h2><p>關鍵字已經透露客戶的生活場域。業務可以從「人在哪裡聚集」開始找。</p></div>
-      <div class="grid3">
-        <div class="card place"><h3>運動現場</h3><p>跑團、馬拉松賽事、三鐵活動、自行車聚會、補給攤位。</p></div>
-        <div class="card place"><h3>訓練場域</h3><p>健身房、教練、重訓課程、運動社群。主打恢復、提神與日常訓練支援。</p></div>
-        <div class="card place"><h3>親子與熟齡</h3><p>媽媽社團、親子群組、熟齡健康社群。主打小孩願意吃、長輩接受度。</p></div>
-        <div class="card place"><h3>團購與送禮</h3><p>公司福委、生日禮、健康禮盒、團購主。主打體面、有話題、方便分享。</p></div>
-        <div class="card place"><h3>口碑社群</h3><p>跑友心得、車友心得、KOL 見證、產品試吃。讓「吃了就知道」可被看見。</p></div>
-        <div class="card place"><h3>生活痛點</h3><p>睡不好、眼睛乾澀、上班精神差、不敢吞膠囊。從困擾切入比成分自然。</p></div>
-      </div>
-    </section>
-
-    <section id="scripts">
+        <section id="scripts">
       <div class="section-head"><h2>銷售話術庫</h2><p>原則：先問困擾，再接產品優勢；先讓客戶說出需求，再給解法。</p></div>
       <div class="card">
         <div class="script"><b>好吃型</b><p>很多人不是不想保健，是吃不下去或常常忘記。這類產品先解決「願不願意持續吃」的問題。</p></div>
