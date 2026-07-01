@@ -1,149 +1,223 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-Hant">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GA黃金甲 客戶分析儀表板</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background-color: #f5f5f5; color: #333; }
-        header { background-color: #1a1a1a; color: white; padding: 2rem; text-align: center; border-bottom: 3px solid #4a9d6f; }
-        header h1 { font-size: 1.8rem; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 2rem 1rem; }
-        .tabs { display: flex; border-bottom: 2px solid #ddd; margin-bottom: 2rem; }
-        .tab-button { padding: 1rem 2rem; background: none; border: none; cursor: pointer; color: #666; border-bottom: 3px solid transparent; }
-        .tab-button.active { color: #000; border-bottom-color: #4a9d6f; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        .filters { background-color: white; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .section-title { font-size: 1.5rem; font-weight: 600; margin-bottom: 1.5rem; }
-        .keywords-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
-        .keyword-card { background-color: white; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #4a9d6f; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .keyword-rank { font-size: 2rem; font-weight: 700; color: #4a9d6f; }
-        .wordcloud-container { background-color: white; padding: 2rem; border-radius: 8px; display: flex; flex-wrap: wrap; gap: 1rem; min-height: 300px; }
-        .word { padding: 0.5rem 1rem; background-color: #f5f5f5; border-radius: 4px; cursor: pointer; }
-        .word:hover { background-color: #4a9d6f; color: white; }
-        button { padding: 0.5rem 1rem; border: 1px solid #ddd; background-color: white; cursor: pointer; border-radius: 4px; }
-        button:hover { background-color: #f0f0f0; }
-        .last-updated { text-align: center; margin-top: 3rem; color: #666; font-size: 0.85rem; }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GA 關鍵字洞察站</title>
+  <style>
+    :root {
+      --ink: #1c1c1a;
+      --soft-ink: #3a3833;
+      --muted: #777268;
+      --bg: #f6f2ea;
+      --paper: #fffdf8;
+      --line: #ded7ca;
+      --gold: #b99658;
+      --deep-gold: #8f6f34;
+      --black: #11110f;
+      --warm: #efe5d4;
+      --blue: #183252;
+      --green: #3c5b49;
+      --shadow: 0 18px 48px rgba(22, 20, 16, .12);
+      font-family: "Microsoft JhengHei", "Noto Sans TC", "PingFang TC", Arial, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: var(--bg); color: var(--ink); letter-spacing: 0; }
+    a { color: inherit; }
+    .topbar {
+      position: sticky; top: 0; z-index: 10; height: 72px; display: flex; align-items: center; justify-content: space-between;
+      padding: 0 28px; background: rgba(246,242,234,.92); backdrop-filter: blur(18px); border-bottom: 1px solid rgba(0,0,0,.08);
+    }
+    .brand { display: flex; align-items: center; gap: 12px; font-weight: 900; }
+    .shield { width: 34px; height: 34px; border: 2px solid var(--black); border-radius: 6px 6px 12px 12px; display: grid; place-items: center; font-size: 13px; }
+    .nav { display: flex; gap: 18px; color: var(--soft-ink); font-size: 14px; font-weight: 800; }
+    .nav a { text-decoration: none; }
+    .hero {
+      min-height: 620px; display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(360px, .95fr); background: var(--black); color: white;
+    }
+    .hero-copy { padding: clamp(42px, 7vw, 96px) clamp(28px, 6vw, 86px); display: flex; flex-direction: column; justify-content: center; position: relative; overflow: hidden; }
+    .hero-copy:before { content: ""; position: absolute; inset: auto -15% -35% 18%; width: 520px; height: 520px; border: 1px solid rgba(185,150,88,.28); border-radius: 50%; }
+    .eyebrow { color: var(--gold); font-size: 15px; font-weight: 900; letter-spacing: 0; margin-bottom: 18px; }
+    h1 { margin: 0; font-size: clamp(42px, 6vw, 82px); line-height: 1.02; letter-spacing: 0; position: relative; }
+    .lead { margin: 22px 0 0; max-width: 740px; color: rgba(255,255,255,.78); font-size: 18px; line-height: 1.85; position: relative; }
+    .hero-actions { margin-top: 30px; display: flex; flex-wrap: wrap; gap: 12px; position: relative; }
+    .btn { min-height: 46px; border-radius: 2px; border: 1px solid var(--line); padding: 0 18px; font-weight: 900; background: white; color: var(--ink); cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; }
+    .btn.gold { background: var(--gold); border-color: var(--gold); color: white; }
+    .hero-photo { min-height: 620px; background-image: linear-gradient(90deg, rgba(17,17,15,.2), rgba(17,17,15,.15)), url('https://shoplineimg.com/649c19e82bde2800672d8e11/670e48f6a450f1000b9467fd/1080x.webp?source_format=jpg'); background-size: cover; background-position: center; position: relative; }
+    .hero-card { position: absolute; left: 28px; right: 28px; bottom: 28px; padding: 22px; background: rgba(17,17,15,.76); backdrop-filter: blur(14px); border: 1px solid rgba(255,255,255,.18); }
+    .hero-card strong { display: block; font-size: 22px; margin-bottom: 6px; }
+    .hero-card span { color: rgba(255,255,255,.72); line-height: 1.65; }
+    main { max-width: 1240px; margin: 0 auto; padding: 42px 24px 88px; }
+    section { margin-top: 34px; scroll-margin-top: 92px; }
+    .section-head { display: flex; justify-content: space-between; gap: 24px; align-items: end; margin-bottom: 18px; }
+    h2 { margin: 0; font-size: clamp(28px, 3vw, 42px); line-height: 1.15; }
+    .section-head p { margin: 0; color: var(--muted); line-height: 1.75; max-width: 680px; }
+    .panel { background: var(--paper); border: 1px solid var(--line); box-shadow: var(--shadow); }
+    .top3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); box-shadow: var(--shadow); }
+    .rank { background: var(--paper); padding: 28px; min-height: 210px; position: relative; }
+    .rank small { color: var(--gold); font-weight: 900; }
+    .rank h3 { margin: 16px 0 8px; font-size: 40px; }
+    .rank p { margin: 0; color: var(--muted); line-height: 1.7; }
+    .rank:after { content: ""; position: absolute; left: 28px; right: 28px; bottom: 22px; height: 4px; background: var(--gold); transform-origin: left; }
+    .rank:nth-child(2):after { transform: scaleX(.78); background: var(--green); }
+    .rank:nth-child(3):after { transform: scaleX(.7); background: var(--blue); }
+    .cloud { padding: 32px; min-height: 330px; display: flex; align-content: center; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px 18px; }
+    .word { display: inline-block; white-space: nowrap; line-height: 1; font-weight: 900; }
+    .w1 { font-size: clamp(62px, 8vw, 112px); color: var(--black); }
+    .w2 { font-size: clamp(44px, 5vw, 76px); color: var(--deep-gold); }
+    .w3 { font-size: clamp(32px, 4vw, 58px); color: var(--blue); }
+    .w4 { font-size: clamp(24px, 3vw, 42px); color: var(--green); }
+    .w5 { font-size: clamp(18px, 2vw, 28px); color: #746c60; }
+    .grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+    .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .card { padding: 24px; background: var(--paper); border: 1px solid var(--line); box-shadow: var(--shadow); }
+    .card h3 { margin: 0 0 10px; font-size: 22px; }
+    .card p { margin: 0; color: var(--muted); line-height: 1.8; }
+    .tagrow { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+    .tag { min-height: 30px; display: inline-flex; align-items: center; border: 1px solid rgba(185,150,88,.34); color: var(--deep-gold); background: #fbf5e9; padding: 0 10px; font-size: 13px; font-weight: 900; }
+    .place { min-height: 176px; }
+    .script { display: grid; grid-template-columns: 150px 1fr; gap: 14px; padding: 18px 0; border-top: 1px solid var(--line); }
+    .script:first-child { border-top: 0; padding-top: 0; }
+    .script:last-child { padding-bottom: 0; }
+    .script b { color: var(--deep-gold); }
+    .script p { margin: 0; color: var(--ink); line-height: 1.8; }
+    .ideas { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+    .idea { padding: 18px; min-height: 132px; background: var(--paper); border: 1px solid var(--line); line-height: 1.65; font-weight: 900; }
+    .quote { display: grid; grid-template-columns: 1fr 280px; gap: 28px; align-items: center; padding: 32px; background: var(--black); color: white; }
+    .quote h2 { color: white; }
+    .quote p { color: rgba(255,255,255,.76); line-height: 1.8; }
+    .quote .stamp { border: 1px solid rgba(185,150,88,.55); padding: 22px; color: var(--gold); font-weight: 900; font-size: 22px; text-align: center; }
+    .refine { display: grid; grid-template-columns: minmax(0, 1fr) 220px; gap: 14px; }
+    textarea, select { width: 100%; border: 1px solid var(--line); background: #fff; padding: 13px; font: inherit; color: var(--ink); border-radius: 2px; }
+    textarea { min-height: 118px; resize: vertical; line-height: 1.65; }
+    select { min-height: 46px; font-weight: 900; }
+    .out { margin-top: 14px; padding: 16px; border: 1px solid var(--line); background: #fbf8f1; line-height: 1.8; }
+    .feedback { position: fixed; right: 18px; bottom: 18px; z-index: 20; }
+    .bubble { width: 56px; height: 56px; border: 0; border-radius: 50%; background: var(--gold); color: white; font-weight: 900; box-shadow: var(--shadow); cursor: pointer; }
+    .fbpanel { display: none; position: absolute; right: 0; bottom: 66px; width: min(360px, calc(100vw - 36px)); background: var(--paper); border: 1px solid var(--line); padding: 16px; box-shadow: var(--shadow); }
+    .feedback.open .fbpanel { display: block; }
+    .source { margin-top: 22px; color: var(--muted); font-size: 13px; line-height: 1.6; }
+    @media (max-width: 980px) {
+      .topbar { height: auto; padding: 16px 18px; align-items: flex-start; gap: 14px; flex-direction: column; }
+      .nav { flex-wrap: wrap; gap: 12px; }
+      .hero, .grid2, .grid3, .ideas, .quote, .refine, .top3 { grid-template-columns: 1fr; }
+      .hero { min-height: auto; }
+      .hero-photo { min-height: 460px; }
+      .section-head { display: block; }
+      .section-head p { margin-top: 10px; }
+      .script { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 560px) {
+      main { padding: 28px 16px 72px; }
+      .hero-copy { padding: 42px 22px; }
+      .hero-photo { min-height: 360px; }
+      .cloud { justify-content: flex-start; padding: 22px; }
+      .rank, .card, .quote { padding: 20px; }
+    }
+  </style>
 </head>
 <body>
-    <header>
-        <h1>🏆 GA黃金甲 客戶分析儀表板</h1>
-        <p>客戶心聲洞察平台</p>
-    </header>
+  <header class="topbar">
+    <div class="brand"><span class="shield">GA</span><span>GA黃金甲｜關鍵字洞察站</span></div>
+    <nav class="nav" aria-label="頁面導覽">
+      <a href="#top3">Top 3</a><a href="#cloud">文字雲</a><a href="#persona">客戶樣貌</a><a href="#where">業務場域</a><a href="#scripts">話術</a>
+    </nav>
+  </header>
 
-    <div class="container">
-        <div class="tabs">
-            <button class="tab-button active" onclick="switchTab('keywords')">📊 關鍵字分析</button>
-            <button class="tab-button" onclick="switchTab('questions')">💭 五個問題分析</button>
-        </div>
-
-        <div id="keywords" class="tab-content active">
-            <div class="filters">
-                <label>篩選年月:</label>
-                <div id="monthFilters"></div>
-                <button onclick="selectAllMonths()">全選</button>
-                <button onclick="clearAllMonths()">清除</button>
-            </div>
-            <h2 class="section-title">⭐ Top 3 熱門關鍵字</h2>
-            <div class="keywords-grid" id="topKeywords"></div>
-            <h2 class="section-title">☁️ 文字雲</h2>
-            <div class="wordcloud-container" id="wordcloud"></div>
-        </div>
-
-        <div id="questions" class="tab-content">
-            <div class="filters">
-                <label>篩選產品:</label>
-                <div id="productFilters"></div>
-                <button onclick="selectAllProducts()">全選</button>
-                <button onclick="clearAllProducts()">清除</button>
-            </div>
-            <div id="questionsContainer"></div>
-        </div>
-
-        <div class="last-updated">最後更新：<span id="lastUpdated">加載中...</span></div>
+  <section class="hero">
+    <div class="hero-copy">
+      <div class="eyebrow">CEO推薦保健品牌｜醫療專業｜客戶語言分析</div>
+      <h1>把關鍵字變成<br>業務找得到人的洞察</h1>
+      <p class="lead">這份頁面參考 GA 官網的高信任、黑金質感與真實推薦語氣，把客戶回饋整理成可行動的銷售地圖。核心結論：客戶買的不只是保健品，而是好吃、方便、真的有感，並且願意持續使用的健康守護。</p>
+      <div class="hero-actions">
+        <a class="btn gold" href="#scripts">看業務話術</a>
+        <a class="btn" href="#where">看開發場域</a>
+      </div>
     </div>
+    <div class="hero-photo" role="img" aria-label="GA 官網風格參考人物情境照">
+      <div class="hero-card"><strong>品牌語氣轉譯</strong><span>從「數據圖表」轉成「健康守護、專業信任、真實體感」的內部洞察頁。</span></div>
+    </div>
+  </section>
 
-    <script>
-        let analysisData = null;
+  <main>
+    <section class="quote">
+      <div><h2>一句話洞察</h2><p>客戶買的是：好吃到願意持續吃、方便到不會忘記、吃了真的有感。業務不要先講成分表，要先問客戶現在最想解決的是睡不好、眼睛累、運動沒力，還是小孩不願意吃。</p></div>
+      <div class="stamp">好吃 × 方便 × 有感<br>支撐回購</div>
+    </section>
 
-        async function init() {
-            try {
-                const response = await fetch('data/analysis-data.json');
-                analysisData = await response.json();
-                document.getElementById('lastUpdated').textContent = analysisData.lastUpdated || new Date().toLocaleString('zh-TW');
-                initializeFilters();
-                updateKeywordsTab();
-            } catch (error) {
-                console.error('載入失敗:', error);
-            }
-        }
+    <section id="top3">
+      <div class="section-head"><h2>出現最多 Top 3</h2><p>以核心詞合併判讀：好吃、好吃又方便、好吃的果膠，都回到「好吃」。</p></div>
+      <div class="top3">
+        <article class="rank"><small>RANK 01</small><h3>好吃</h3><p>降低保健品的心理阻力，讓小孩、長輩、不敢吞膠囊的人更容易開始，也更容易持續。</p></article>
+        <article class="rank"><small>RANK 02</small><h3>方便</h3><p>不用配水、獨立包裝、好攜帶、拿了就走，讓保健從「想起來才吃」變成日常節奏。</p></article>
+        <article class="rank"><small>RANK 03</small><h3>有感／有效</h3><p>睡眠、眼睛、體力、續航、恢復都有具體情境，能成為推薦與回購的理由。</p></article>
+      </div>
+    </section>
 
-        function initializeFilters() {
-            if (!analysisData) return;
-            const months = analysisData.months || [];
-            const monthHtml = months.map(m => `<label><input type="checkbox" value="${m}" checked onchange="updateKeywordsTab()">${m}</label>`).join('');
-            document.getElementById('monthFilters').innerHTML = monthHtml;
-            const products = analysisData.products || [];
-            const productHtml = products.map(p => `<label><input type="checkbox" value="${p}" checked onchange="updateQuestionsTab()">${p}</label>`).join('');
-            document.getElementById('productFilters').innerHTML = productHtml;
-        }
+    <section id="cloud">
+      <div class="section-head"><h2>50 詞文字雲</h2><p>字越大代表越核心。這裡不是只看熱詞，而是看客戶用什麼語言描述「為什麼會買」。</p></div>
+      <div class="panel cloud">
+        <span class="word w1">好吃</span><span class="word w2">方便</span><span class="word w2">有感</span><span class="word w3">有效</span><span class="word w3">果膠</span><span class="word w3">葉黃素</span><span class="word w3">運動補給</span><span class="word w4">續航力</span><span class="word w4">體力</span><span class="word w4">睡眠</span><span class="word w4">安心</span><span class="word w4">放心</span><span class="word w4">信任</span><span class="word w4">小孩</span><span class="word w4">接受度高</span><span class="word w5">適口性</span><span class="word w5">好入口</span><span class="word w5">不死甜</span><span class="word w5">沒有藥感</span><span class="word w5">攜帶方便</span><span class="word w5">獨立包裝</span><span class="word w5">好撕</span><span class="word w5">品質</span><span class="word w5">用心</span><span class="word w5">推薦</span><span class="word w5">能見度</span><span class="word w5">台灣品牌</span><span class="word w5">專業</span><span class="word w5">安全</span><span class="word w5">成分</span><span class="word w5">足量</span><span class="word w5">恢復</span><span class="word w5">提神</span><span class="word w5">精神</span><span class="word w5">眼睛</span><span class="word w5">乾澀</span><span class="word w5">飛蚊症</span><span class="word w5">包裝</span><span class="word w5">不便宜</span><span class="word w5">CP值</span><span class="word w5">賽事</span><span class="word w5">馬拉松</span><span class="word w5">跑步</span><span class="word w5">騎車</span><span class="word w5">健身</span><span class="word w5">新手友善</span><span class="word w5">半馬包</span><span class="word w5">全馬包</span><span class="word w5">果凍</span><span class="word w5">保健食品</span>
+      </div>
+    </section>
 
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
-            document.getElementById(tabName).classList.add('active');
-            event.target.classList.add('active');
-        }
+    <section id="persona">
+      <div class="section-head"><h2>客戶樣貌</h2><p>同一批關鍵字要拆成不同購買動機，業務面對不同族群時，開場問題也要不同。</p></div>
+      <div class="grid2">
+        <article class="card"><h3>運動補給型</h3><p>跑步、馬拉松、騎車、三鐵、健身族群。重視續航力、體力、恢復、補給方便，尤其在比賽中要吃得下去。</p><div class="tagrow"><span class="tag">馬拉松</span><span class="tag">續航力</span><span class="tag">果膠</span></div></article>
+        <article class="card"><h3>家庭保健型</h3><p>小孩、長輩、不敢吞膠囊的人。真正需求是願意吃、能持續、沒有藥感，好吃本身就是降低阻力。</p><div class="tagrow"><span class="tag">小孩接受度</span><span class="tag">長輩</span><span class="tag">無藥感</span></div></article>
+        <article class="card"><h3>睡眠與精神型</h3><p>困擾不只是不入睡，也包含醒來仍疲勞、白天精神不集中。適合用生活情境切入。</p><div class="tagrow"><span class="tag">入眠</span><span class="tag">白天精神</span><span class="tag">GABA</span></div></article>
+        <article class="card"><h3>品牌信任型</h3><p>會被推薦者、能見度、台灣品牌、用心與安心感打動。這群人需要看見口碑與品牌做事方式。</p><div class="tagrow"><span class="tag">推薦</span><span class="tag">安心</span><span class="tag">能見度</span></div></article>
+      </div>
+    </section>
 
-        function selectAllMonths() {
-            document.querySelectorAll('#monthFilters input').forEach(cb => cb.checked = true);
-            updateKeywordsTab();
-        }
+    <section id="where">
+      <div class="section-head"><h2>業務去哪裡找</h2><p>關鍵字已經透露客戶的生活場域。業務可以從「人在哪裡聚集」開始找。</p></div>
+      <div class="grid3">
+        <div class="card place"><h3>運動現場</h3><p>跑團、馬拉松賽事、三鐵活動、自行車聚會、補給攤位。</p></div>
+        <div class="card place"><h3>訓練場域</h3><p>健身房、教練、重訓課程、運動社群。主打恢復、提神與日常訓練支援。</p></div>
+        <div class="card place"><h3>親子與熟齡</h3><p>媽媽社團、親子群組、熟齡健康社群。主打小孩願意吃、長輩接受度。</p></div>
+        <div class="card place"><h3>團購與送禮</h3><p>公司福委、生日禮、健康禮盒、團購主。主打體面、有話題、方便分享。</p></div>
+        <div class="card place"><h3>口碑社群</h3><p>跑友心得、車友心得、KOL 見證、產品試吃。讓「吃了就知道」可被看見。</p></div>
+        <div class="card place"><h3>生活痛點</h3><p>睡不好、眼睛乾澀、上班精神差、不敢吞膠囊。從困擾切入比成分自然。</p></div>
+      </div>
+    </section>
 
-        function clearAllMonths() {
-            document.querySelectorAll('#monthFilters input').forEach(cb => cb.checked = false);
-            updateKeywordsTab();
-        }
+    <section id="scripts">
+      <div class="section-head"><h2>銷售話術庫</h2><p>原則：先問困擾，再接產品優勢；先讓客戶說出需求，再給解法。</p></div>
+      <div class="card">
+        <div class="script"><b>好吃型</b><p>很多人不是不想保健，是吃不下去或常常忘記。這類產品先解決「願不願意持續吃」的問題。</p></div>
+        <div class="script"><b>運動型</b><p>你比較在意比賽中續航、補碳水，還是運動後恢復？如果運動中吃不下，再好的補給也很難發揮。</p></div>
+        <div class="script"><b>小孩型</b><p>如果小孩會主動吃，家長會輕鬆很多。這也是很多人把葉黃素變成日常習慣的原因。</p></div>
+        <div class="script"><b>睡眠型</b><p>你是不好入睡，還是睡了但醒來還是累？這兩種情境的溝通方式不一樣。</p></div>
+        <div class="script"><b>價格型</b><p>它不是最低價路線，重點是好吃、方便、有體感，讓你真的能持續使用，而不是買回去放著。</p></div>
+      </div>
+    </section>
 
-        function selectAllProducts() {
-            document.querySelectorAll('#productFilters input').forEach(cb => cb.checked = true);
-        }
+    <section>
+      <div class="section-head"><h2>內容題材庫</h2><p>可直接交給社群、EDM、官網文章或業務簡報使用。</p></div>
+      <div class="ideas">
+        <div class="idea">為什麼保健食品好吃很重要？</div><div class="idea">跑者補給不是只看成分，還要看吃不吃得下去。</div><div class="idea">小孩願意吃的葉黃素，家長才真的能持續補。</div><div class="idea">比賽後半段沒力，可能不是意志力問題。</div><div class="idea">不敢吞膠囊的人，也可以有保健選擇。</div><div class="idea">好吃、方便、有感，是回購的三個關鍵。</div><div class="idea">果凍劑型為什麼更容易被接受？</div><div class="idea">高價不是問題，價值感要說清楚。</div>
+      </div>
+    </section>
 
-        function clearAllProducts() {
-            document.querySelectorAll('#productFilters input').forEach(cb => cb.checked = false);
-        }
+    <section id="refine">
+      <div class="section-head"><h2>微調產出</h2><p>快速把洞察轉成可貼給同事的文字。</p></div>
+      <div class="card"><div class="refine"><textarea id="prompt">請幫我把「好吃、方便、有感」轉成業務可以對跑團使用的開場話術。</textarea><div><select id="mode"><option value="sales">業務話術</option><option value="content">社群題材</option><option value="meeting">會議摘要</option></select><button class="btn gold" style="width:100%;justify-content:center;margin-top:10px" onclick="setOut(document.querySelector('#mode').value)">產出文字</button></div></div><div class="out" id="out">選擇用途後按「產出文字」，這裡會出現可複製內容。</div></div>
+    </section>
 
-        function updateKeywordsTab() {
-            if (!analysisData) return;
-            const keywords = analysisData.keywords?.all || [];
-            const topKeywords = keywords.slice(0, 3);
-            const html = topKeywords.map((kw, i) => `
-                <div class="keyword-card">
-                    <div class="keyword-rank">${i + 1}</div>
-                    <div style="font-weight: 600; margin: 0.5rem 0;">${kw.keyword}</div>
-                    <div style="font-size: 0.9rem; color: #666;">出現次數：${kw.count}</div>
-                </div>
-            `).join('');
-            document.getElementById('topKeywords').innerHTML = html;
+    <p class="source">品牌風格參考：GA黃金甲官網。此頁為內部洞察用途，下一版可接 CSV 精準統計與原文例句。</p>
+  </main>
 
-            const maxCount = Math.max(...keywords.map(k => k.count));
-            const minCount = Math.min(...keywords.map(k => k.count));
-            const wordHtml = keywords.map(kw => {
-                const size = 0.8 + (kw.count - minCount) / (maxCount - minCount) * 1.4;
-                return `<div class="word" style="font-size: ${size}rem;" title="${kw.keyword} × ${kw.count}">${kw.keyword}</div>`;
-            }).join('');
-            document.getElementById('wordcloud').innerHTML = wordHtml;
-        }
-
-        function updateQuestionsTab() {
-            const html = '<div style="padding: 2rem; text-align: center; color: #666;">五個問題分析（待實現）</div>';
-            document.getElementById('questionsContainer').innerHTML = html;
-        }
-
-        window.addEventListener('DOMContentLoaded', init);
-    </script>
+  <div class="feedback" id="fb"><div class="fbpanel"><strong>意見回報</strong><p style="color:var(--muted);line-height:1.6">同事可以記下想補的分類、話術或場域，下一版再整理進去。</p><textarea placeholder="例如：想新增自行車店開發話術"></textarea></div><button class="bubble" onclick="document.querySelector('#fb').classList.toggle('open')">回</button></div>
+  <script>
+    const examples = {
+      sales: '跑團開場：你平常長距離最容易遇到的是後段沒力、補給吃不下，還是吃了胃不舒服？我們這批回饋裡最多人提到的是好吃、方便和有感，重點不是硬推成分，而是讓你比賽中真的吃得下、補得到、能持續。',
+      content: '社群題材：保健品不是買了就有效，能不能持續吃才是關鍵。從客戶回饋看見三個高頻詞：好吃、方便、有感。當產品不再像藥，而是變成日常可以期待的小補給，回購才會自然發生。',
+      meeting: '會議摘要：目前關鍵字呈現三個主要價值：好吃降低食用阻力、方便提高持續率、有感支撐回購。建議業務優先鎖定運動族群與家庭保健族，並依場域發展不同話術。'
+    };
+    function setOut(k){ document.querySelector('#out').textContent = examples[k] || examples.sales; }
+  </script>
 </body>
 </html>
