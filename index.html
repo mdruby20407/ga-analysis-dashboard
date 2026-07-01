@@ -275,7 +275,36 @@
       if (!result) return;
       result.innerHTML = '<h3>' + data.title + '</h3><p class="hint">' + data.hint + '</p><div class="result-grid"><div class="result-box"><b>客戶真正想解決</b><p>' + data.need + '</p></div><div class="result-box"><b>業務去哪裡找</b><p>' + data.where + '</p></div><div class="result-box"><b>開場話術</b><p>' + data.opener + '</p></div><div class="result-box"><b>內容題材</b><p>' + data.content + '</p></div></div><div class="example-strip">' + data.examples.map(item => '<button class="example-chip" type="button">' + item + '</button>').join('') + '</div>';
     }
-    function setOut(k){ document.querySelector('#out').textContent = examples[k] || examples.sales; }
+
+    function detectAudience(text) {
+      const value = (text || '').toLowerCase();
+      if (/小孩|孩子|家長|媽媽|爸爸|親子|葉黃素|不敢吞|願意吃|主動吃/.test(value)) return 'family';
+      if (/睡|入眠|精神|gaba|睿智/.test(value)) return 'sleep';
+      if (/跑|馬拉松|補給|果膠|騎車|三鐵|健身|續航|體力/.test(value)) return 'sports';
+      if (/價格|不便宜|高價|cp|猶豫/.test(value)) return 'price';
+      if (/眼睛|乾澀|飛蚊|螢幕/.test(value)) return 'lutein';
+      if (/方便|攜帶|不用配水|出門/.test(value)) return 'convenience';
+      if (/好吃|口味|沒有藥感|適口/.test(value)) return 'taste';
+      return 'taste';
+    }
+    function buildText(mode, audience, text) {
+      const subject = keywordInsights[audience] || keywordInsights.taste;
+      const familyLine = '家長開場：你在幫小孩補葉黃素時，最困擾的是小孩不願意吃、每天要提醒，還是吃起來太像藥？這批回饋裡很多人提到「好吃、沒有藥感、小孩接受度高」，所以切入點不是先講成分，而是先讓孩子願意開始、願意持續，家長才真的補得到。';
+      const sportsLine = '跑團開場：你平常長距離最容易遇到的是後段沒力、補給吃不下，還是吃了胃不舒服？這批回饋裡最多人提到的是好吃、方便和有感，重點不是硬推成分，而是讓你比賽中真的吃得下、補得到、能持續。';
+      const sleepLine = '睡眠開場：你是不好入睡，還是睡得著但醒來仍然累？如果客戶先說出睡眠困擾，再接「幫助入眠、白天精神比較好、有感」會比直接介紹成分更自然。';
+      const priceLine = '價格開場：會在意價格很正常，所以我們先看你最在意的是好吃、方便，還是體感。這類產品不是最低價路線，價值在於願意持續吃，而且吃了有明確感受。';
+      const baseLine = audience === 'family' ? familyLine : audience === 'sports' ? sportsLine : audience === 'sleep' ? sleepLine : audience === 'price' ? priceLine : subject.opener;
+      if (mode === 'sales') return baseLine;
+      if (mode === 'content') return '社群題材：' + subject.content + ' 可以從客戶原話切入，例如「' + (subject.examples?.[0] || subject.title) + '」，再說明這背後其實是客戶想降低使用阻力，讓保健變成能持續的日常。';
+      if (mode === 'meeting') return '會議摘要：這段需求偏向「' + subject.title + '」族群。客戶真正想解決的是：' + subject.need + ' 建議業務開發場域：' + subject.where + ' 下一步可整理成對應話術與素材。';
+      return baseLine;
+    }
+    function setOut(k){
+      const input = document.querySelector('#prompt')?.value || '';
+      const audience = detectAudience(input);
+      document.querySelector('#out').textContent = buildText(k, audience, input);
+      renderKeyword(audience);
+    }
     document.querySelectorAll('.keyword-button').forEach(btn => btn.addEventListener('click', () => renderKeyword(btn.dataset.key)));
     document.querySelectorAll('.word').forEach(word => {
       const key = wordToKey[word.textContent.trim()];
