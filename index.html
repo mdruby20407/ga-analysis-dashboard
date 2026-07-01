@@ -347,18 +347,115 @@ pan class="tag">入眠</span><span class="tag">白天精神</span><span class="t
       if (/方便|攜帶|不用配水|出門/.test(value)) return 'convenience';
       return 'taste';
     }
+    function extractQuoted(text) {
+      const match = (text || '').match(/[「『](.*?)[」』]/);
+      return match ? match[1] : (text || '').replace(/^請幫我把/, '').replace(/轉成.*$/, '').trim();
+    }
+    function parseNeed(text) {
+      const raw = text || '';
+      const quote = extractQuoted(raw);
+      const audience = detectAudience(raw);
+      const target = /家長|媽媽|爸爸/.test(raw) ? '家長' : /長輩|照顧者/.test(raw) ? '照顧者' : /跑團|跑者|車友|運動/.test(raw) ? '運動族群' : /上班族|高壓/.test(raw) ? '上班族' : '目標客戶';
+      const product = /葉黃素/.test(raw) ? '葉黃素' : /果膠|補給/.test(raw) ? '運動補給' : /睡眠|GABA|gaba|睿智/.test(raw) ? '睡眠保健' : /保健品|保健食品/.test(raw) ? '保健品' : '產品';
+      const pains = [];
+      if (/不喜歡吞|吞膠囊|不敢吞/.test(raw)) pains.push('不喜歡吞膠囊');
+      if (/小孩|孩子|願意吃|主動吃/.test(raw)) pains.push('小孩願不願意吃');
+      if (/好入口|沒有藥感|藥感/.test(raw)) pains.push('吃起來像不像藥、能不能入口');
+      if (/持續|忘記|每天/.test(raw)) pains.push('能不能持續補充');
+      if (/續航|沒力|體力|補給/.test(raw)) pains.push('運動中能不能補得到、撐得住');
+      if (/睡|入眠|精神/.test(raw)) pains.push('睡眠品質與白天精神');
+      if (/價格|不便宜|高價/.test(raw)) pains.push('價格是否值得');
+      const corePain = pains.length ? pains.join('、') : keywordInsights[audience]?.need || '客戶是否真的願意使用並持續';
+      return { raw, quote, audience, target, product, corePain };
+    }
     function scenarioBase(audience, text) {
-      if (/小孩|孩子|家長|媽媽|爸爸|親子|葉黃素/.test(text || '')) return { label: '家長葉黃素', pain: '小孩不願意吃、每天提醒很累，家長真正需要的是能持續補的方式。', open: '你在幫小孩補葉黃素時，最困擾的是小孩不願意吃、每天要提醒，還是吃起來太像藥？', ask: '如果孩子願意主動吃，你會比較在意口味、成分安心，還是能不能每天持續？', value: '這類產品的重點不是先背成分，而是先讓孩子願意開始、願意持續，家長才真的補得到。', objection: '如果客戶擔心只是好吃，可以接著說：好吃只是第一步，真正價值是降低抗拒，讓補充變成日常。', copy: '小孩願意吃，家長才真的補得到。保健不是買回家就好，而是要能每天持續。' };
-      if (/長輩|不敢吞|膠囊|照顧者/.test(text || '')) return { label: '長輩照顧', pain: '長輩不喜歡吞膠囊，也容易覺得保健品像藥。', open: '家裡長輩是不好吞膠囊，還是吃到有藥味就會抗拒？', ask: '如果改成好入口、沒有藥感的形式，長輩會比較願意固定吃嗎？', value: '對照顧者來說，產品再好也要長輩願意吃；好入口就是持續照顧的起點。', objection: '若客戶覺得保健品都差不多，可以補：差異常常不在買下去，而在吃不吃得久。', copy: '照顧長輩，有時不是多買一瓶，而是找到他願意每天吃的方式。' };
-      if (audience === 'sports') return { label: '運動補給', pain: '跑者怕後段沒力、補給吃不下、吃了胃不舒服。', open: '你長距離最怕的是後段撞牆、補給吃不下，還是吃了胃不舒服？', ask: '你平常補給比較看重續航、口味，還是比賽中好不好吞？', value: '運動補給不是只看成分，還要在比賽中真的吃得下、補得到、能持續。', objection: '如果覺得果膠都差不多，可以問：你有沒有遇過越跑越吃不下，或吃了胃不舒服？', copy: '跑者補給，真正重要的是後段還吃得下、補得到、撐得住。' };
-      if (audience === 'sleep') return { label: '睡眠上班族', pain: '客戶可能是入睡困難、睡眠品質差，或睡醒仍疲累。', open: '你是不好入睡，還是睡得著但醒來還是覺得累？', ask: '你最想改善的是晚上比較快入睡，還是白天精神比較穩？', value: '睡眠溝通要先分情境，客戶才會覺得你真的懂他的困擾。', objection: '若客戶覺得睡眠產品都沒用，可以先請他定義最想改善的一個指標，而不是一次期待全解。', copy: '睡不好不是一種問題。入睡、深睡、白天精神，都需要先問清楚。' };
-      if (audience === 'price') return { label: '價格猶豫', pain: '客戶怕買貴、怕沒效、怕只是包裝好看。', open: '會在意價格很正常，所以我想先了解，你最在意的是好吃、方便，還是吃了有感？', ask: '如果它能讓你持續吃，而不是買回去放著，這個價值對你重要嗎？', value: '價格溝通不要硬拗便宜，要把持續率、體感、品質與使用場景說清楚。', objection: '可以承認：它不是最低價路線，但如果能持續吃且有感，才有回購理由。', copy: '高價不是問題，價值感沒有被說清楚才是問題。' };
-      return { label: '好吃方便', pain: '客戶不是不想保健，而是吃不下去、麻煩、容易忘記。', open: '你之前買保健品最常遇到的是忘記吃，還是吃起來太像藥所以不想吃？', ask: '如果它好吃、方便、不用配水，會不會比較容易變成每天的習慣？', value: '好吃和方便不是附加價值，而是讓產品能被持續使用的關鍵。', objection: '若客戶覺得只是在講口味，可以補：持續吃才有機會有感，口味是持續的起點。', copy: '保健品不是買了就有效，吃得下、記得吃、持續吃，才是關鍵。' };
+      const n = parseNeed(text);
+      if (n.target === '家長') return {
+        label: '家長葉黃素',
+        open: '我想先了解，你幫孩子補' + n.product + '時，最卡的是「' + n.corePain + '」哪一個？很多家長不是不知道要補，而是孩子不願意吃，最後就很難持續。',
+        ask: '如果孩子願意吃，你會更在意三件事裡的哪一個：口味接受度、成分安心，還是能不能每天固定補？',
+        value: '這句「' + n.quote + '」真正的重點是持續率。對家長來說，產品不是買回家就完成，而是孩子願意吃、家長不用每天拉扯，才真的補得到。',
+        objection: '如果家長說「我比較在意成分」，可以回：成分當然重要，但如果孩子不吃，再好的成分也進不了日常；所以我們會先解決接受度，再談長期補充。',
+        copy: '小孩願意吃，家長才真的補得到。好吃不是賣點而已，是讓保健能持續發生的第一步。',
+        follow: '下一步可以給小孩試吃，請家長觀察三件事：會不會抗拒、需不需要提醒、隔天還願不願意再吃。'
+      };
+      if (n.target === '照顧者') return {
+        label: '長輩照顧',
+        open: '家裡長輩最常卡在哪裡：不喜歡吞膠囊、覺得有藥味，還是需要你一直提醒？如果入口形式不對，照顧者其實會很辛苦。',
+        ask: '如果改成好入口、沒有藥感的形式，長輩願意固定吃的機會會不會比較高？你比較在意他願意吃，還是你不用天天勸？',
+        value: '你輸入的「' + n.quote + '」其實是在講照顧者負擔。真正要賣的不是口味，而是降低長輩抗拒，讓照顧變得比較順，補充才有機會持續。',
+        objection: '若客戶說「長輩很挑，應該還是不吃」，可以回：所以我們不建議一開始買多，先用小量試吃確認長輩願不願意入口，再談長期補充。',
+        copy: '照顧長輩，有時不是多買一瓶，而是找到他願意每天吃的方式。好入口、沒有藥感，才可能真正持續。',
+        follow: '下一步可提供 3 天試吃，請照顧者記錄長輩是否抗拒、是否需要配水、是否願意第二次吃。'
+      };
+      if (audience === 'sports') return {
+        label: '運動補給',
+        open: '你們跑長距離時，最常遇到的是後段沒力、補給吃不下，還是吃了胃不舒服？',
+        ask: '如果只能先改善一件事，你會選續航力、口味好入口，還是比賽中方便撕開？',
+        value: '「' + n.quote + '」的重點不是補給品多厲害，而是比賽中吃得下、補得到、能持續，這才會影響後段表現。',
+        objection: '如果對方說「我有固定吃的果膠了」，可以問：你現在那款在後段還吃得下嗎？會不會膩、黏、或胃不舒服？',
+        copy: '補給不是放在口袋就有用，是後段還吃得下、補得到、撐得住。',
+        follow: '下一步可從團練試吃開始，讓跑者在 10K 後或長距離後段測口感與腸胃感受。'
+      };
+      if (audience === 'sleep') return {
+        label: '睡眠上班族',
+        open: '你是比較難入睡，還是睡得著但醒來仍然累？這兩種狀況其實要分開看。',
+        ask: '你最想先改善哪個感受：比較快睡著、半夜少醒，還是白天精神比較穩？',
+        value: '「' + n.quote + '」要轉成銷售語言時，不能只說有助睡眠，要先讓客戶說清楚他是哪一種睡眠困擾。',
+        objection: '如果對方說「我吃過很多都沒用」，可以回：那我們先不要期待一次全解，只先設定一個觀察指標，例如入睡時間或隔天精神。',
+        copy: '睡不好不是一種問題。先分清楚入睡、深睡、白天精神，才知道怎麼選。',
+        follow: '下一步可設計 7 天觀察表：入睡時間、夜醒次數、隔天精神，讓有感變得可追蹤。'
+      };
+      if (audience === 'price') return {
+        label: '價格猶豫',
+        open: '你會在意價格很正常，所以我想先了解：你最怕的是買貴，還是買了沒感覺、最後放著？',
+        ask: '如果這個產品能提高持續吃的機會，對你來說值不值得，會取決於口味、方便，還是體感？',
+        value: '「' + n.quote + '」背後是價值感問題。不要硬說便宜，要把持續率、體感與使用場景講清楚。',
+        objection: '如果客戶說太貴，可以回：理解，所以我不會先建議你買多；我們先找最有機會讓你有感、也吃得久的品項。',
+        copy: '高價不是問題，價值感沒有被說清楚才是問題。買了會持續用，才值得。',
+        follow: '下一步先用單品或小組合降低第一次門檻，回訪時問是否好吃、方便、有感。'
+      };
+      return {
+        label: '通用保健需求',
+        open: '你目前找' + n.product + '，最想解決的是「' + n.corePain + '」，還是想先找一個比較容易持續的選擇？',
+        ask: '你過去保健品沒有持續，通常是因為不好吃、麻煩，還是感覺不到差異？',
+        value: '「' + n.quote + '」可以轉成三個銷售重點：降低使用阻力、提高持續率、讓客戶有明確感受。',
+        objection: '如果客戶還沒感覺需求急迫，可以先不要硬推產品，而是請他回想過去最常中斷保健的原因。',
+        copy: '保健不是買了就有效，吃得下、記得吃、持續吃，才是關鍵。',
+        follow: '下一步用試吃或短天數體驗，先確認接受度，再談回購與組合。'
+      };
     }
     function buildFiveOutputs(mode, audience, text) {
       const base = scenarioBase(audience, text);
       const prefix = mode === 'line' ? 'LINE 私訊版' : mode === 'content' ? '社群內容版' : mode === 'meeting' ? '內部簡報版' : '業務開發版';
-      return [ { title: '1. 開場話術', body: base.open }, { title: '2. 追問問題', body: base.ask }, { title: '3. 價值說法', body: base.value }, { title: '4. 異議處理', body: base.objection }, { title: '5. 可直接使用文案', body: '[' + prefix + '] ' + base.copy } ];
+      if (mode === 'line') return [
+        { title: '1. LINE 開場', body: base.open },
+        { title: '2. LINE 追問', body: base.ask },
+        { title: '3. 短版價值說法', body: base.value },
+        { title: '4. 客戶猶豫時回覆', body: base.objection },
+        { title: '5. 下一步邀請', body: base.follow }
+      ];
+      if (mode === 'content') return [
+        { title: '1. 貼文標題', body: base.copy },
+        { title: '2. 開頭鉤子', body: base.open },
+        { title: '3. 洞察段落', body: base.value },
+        { title: '4. 留言互動題', body: base.ask },
+        { title: '5. CTA', body: base.follow }
+      ];
+      if (mode === 'meeting') return [
+        { title: '1. 客戶洞察', body: base.value },
+        { title: '2. 痛點描述', body: base.open },
+        { title: '3. 業務追問', body: base.ask },
+        { title: '4. 風險或異議', body: base.objection },
+        { title: '5. 建議行動', body: base.follow }
+      ];
+      return [
+        { title: '1. 開場話術', body: base.open },
+        { title: '2. 追問問題', body: base.ask },
+        { title: '3. 價值說法', body: base.value },
+        { title: '4. 異議處理', body: base.objection },
+        { title: '5. 可直接使用文案', body: '[' + prefix + '] ' + base.copy + ' ' + base.follow }
+      ];
     }
     function renderOutputs(items) {
       const out = document.querySelector('#out');
