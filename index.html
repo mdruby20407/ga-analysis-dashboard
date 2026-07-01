@@ -115,6 +115,19 @@
     .word { cursor: pointer; transition: transform .16s ease, opacity .16s ease; }
     .word:hover { transform: translateY(-2px); opacity: .78; }
 
+
+    .refine-suite { display: grid; gap: 16px; }
+    .refine-layout { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 16px; align-items: start; }
+    .sample-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+    .sample-card { border: 1px solid var(--line); background: #fffaf0; color: var(--ink); padding: 13px; min-height: 74px; text-align: left; font-weight: 900; cursor: pointer; border-radius: 2px; line-height: 1.45; }
+    .sample-card:hover, .sample-card.active { background: var(--black); color: white; border-color: var(--black); }
+    .output-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .output-card { border: 1px solid var(--line); background: #fbf8f1; padding: 16px; min-height: 156px; }
+    .output-card.wide { grid-column: 1 / -1; }
+    .output-card b { display: block; color: var(--deep-gold); margin-bottom: 8px; font-size: 15px; }
+    .output-card p { margin: 0; color: var(--soft-ink); line-height: 1.8; }
+    .refine-note { color: var(--muted); line-height: 1.7; margin: 0; }
+
     @media (max-width: 980px) {
       .topbar { height: auto; padding: 16px 18px; align-items: flex-start; gap: 14px; flex-direction: column; }
       .nav { flex-wrap: wrap; gap: 12px; }
@@ -243,19 +256,49 @@
     </section>
 
     <section id="refine">
-      <div class="section-head"><h2>微調產出</h2><p>快速把洞察轉成可貼給同事的文字。</p></div>
-      <div class="card"><div class="refine"><textarea id="prompt">請幫我把「好吃、方便、有感」轉成業務可以對跑團使用的開場話術。</textarea><div><select id="mode"><option value="sales">業務話術</option><option value="content">社群題材</option><option value="meeting">會議摘要</option></select><button class="btn gold" style="width:100%;justify-content:center;margin-top:10px" onclick="setOut(document.querySelector('#mode').value)">產出文字</button></div></div><div class="out" id="out">選擇用途後按「產出文字」，這裡會出現可複製內容。</div></div>
+      <div class="section-head"><h2>微調產出</h2><p>選一個範例或輸入自己的需求，一次產出 5 種可用內容，讓同事不用從空白開始。</p></div>
+      <div class="card refine-suite">
+        <div>
+          <h3>範例快速套用</h3>
+          <p class="refine-note">先點一個最接近的情境，再按「產出 5 個內容」。文字仍可再自己改。</p>
+          <div class="sample-grid" aria-label="範例情境">
+            <button class="sample-card active" data-sample="familyLutein">家長葉黃素<br><span>小孩願意吃</span></button>
+            <button class="sample-card" data-sample="sportsGel">跑團補給<br><span>續航與果膠</span></button>
+            <button class="sample-card" data-sample="sleepOffice">睡眠上班族<br><span>入睡與精神</span></button>
+            <button class="sample-card" data-sample="priceValue">價格猶豫<br><span>價值感說明</span></button>
+            <button class="sample-card" data-sample="elderCare">長輩保健<br><span>不吞膠囊</span></button>
+          </div>
+        </div>
+        <div class="refine-layout">
+          <textarea id="prompt">請幫我把「小孩願意吃的葉黃素，家長才真的能持續補。」轉成業務可以對家長使用的開場話術。</textarea>
+          <div>
+            <select id="mode">
+              <option value="sales">業務開發</option>
+              <option value="line">LINE 私訊</option>
+              <option value="content">社群內容</option>
+              <option value="meeting">內部簡報</option>
+            </select>
+            <button class="btn gold" style="width:100%;justify-content:center;margin-top:10px" onclick="setOut(document.querySelector('#mode').value)">產出 5 個內容</button>
+          </div>
+        </div>
+        <div class="output-grid" id="out">
+          <div class="output-card wide"><b>等待產出</b><p>點選範例或輸入需求後，按「產出 5 個內容」。</p></div>
+        </div>
+      </div>
     </section>
+
 
     <p class="source">品牌風格參考：GA黃金甲官網。此頁為內部洞察用途，下一版可接 CSV 精準統計與原文例句。</p>
   </main>
 
   <div class="feedback" id="fb"><div class="fbpanel"><strong>意見回報</strong><p style="color:var(--muted);line-height:1.6">同事可以記下想補的分類、話術或場域，下一版再整理進去。</p><textarea placeholder="例如：想新增自行車店開發話術"></textarea></div><button class="bubble" onclick="document.querySelector('#fb').classList.toggle('open')">回</button></div>
   <script>
-    const examples = {
-      sales: '跑團開場：你平常長距離最容易遇到的是後段沒力、補給吃不下，還是吃了胃不舒服？我們這批回饋裡最多人提到的是好吃、方便和有感，重點不是硬推成分，而是讓你比賽中真的吃得下、補得到、能持續。',
-      content: '社群題材：保健品不是買了就有效，能不能持續吃才是關鍵。從客戶回饋看見三個高頻詞：好吃、方便、有感。當產品不再像藥，而是變成日常可以期待的小補給，回購才會自然發生。',
-      meeting: '會議摘要：目前關鍵字呈現三個主要價值：好吃降低食用阻力、方便提高持續率、有感支撐回購。建議業務優先鎖定運動族群與家庭保健族，並依場域發展不同話術。'
+    const samplePrompts = {
+      familyLutein: '請幫我把「小孩願意吃的葉黃素，家長才真的能持續補。」轉成業務可以對家長使用的開場話術。',
+      sportsGel: '請幫我把「跑者補給要好吃、方便、比賽中吃得下，續航力才有幫助。」轉成業務可以對跑團使用的開場話術。',
+      sleepOffice: '請幫我把「睡不好、白天精神差，想找有感又方便持續吃的保健品。」轉成業務可以對上班族使用的開場話術。',
+      priceValue: '請幫我把「產品不便宜，但如果好吃、方便、有感，就比較願意回購。」轉成業務處理價格猶豫的說法。',
+      elderCare: '請幫我把「長輩不喜歡吞膠囊，保健品要好入口、沒有藥感，才比較能持續。」轉成業務可以對照顧者使用的開場話術。'
     };
     const keywordInsights = {
       taste: { title: '好吃', hint: '這不是單純口味，而是「願不願意開始、能不能持續」的門檻。', need: '客戶真正想解決的是：保健品不好吃、像藥、吃起來有壓力，最後買了也不會持續。', where: '親子社群、熟齡健康社群、團購、送禮情境、不敢吞膠囊族群。', opener: '你之前買保健品最常遇到的是忘記吃，還是吃起來太像藥所以不想吃？', content: '為什麼保健食品好吃很重要？因為能持續吃，才有機會真的有感。', examples: ['好吃的葉黃素', '好吃又方便', '沒有藥感', '像果凍一樣好入口'] },
@@ -268,6 +311,34 @@
       price: { title: '不便宜', hint: '價格不是不能講，而是要把價值感講清楚。', need: '客戶真正想解決的是：怕買貴、怕沒效、怕只是包裝好看但沒有差。', where: '猶豫客、團購主、企業送禮、回購前客服、比較型客戶。', opener: '你會在意價格很正常，所以我會先幫你看：你要的是口味、方便，還是體感最明顯？', content: '高價不是問題，價值感沒有被說清楚才是問題。', examples: ['不便宜但有用', '高品質', '一分錢一分貨', '有體感'] }
     };
     const wordToKey = { '好吃':'taste', '方便':'convenience', '有感':'effect', '有效':'effect', '運動補給':'sports', '續航力':'sports', '體力':'sports', '果膠':'sports', '葉黃素':'lutein', '眼睛':'lutein', '乾澀':'lutein', '飛蚊症':'lutein', '睡眠':'sleep', '小孩':'family', '接受度高':'family', '不便宜':'price', 'CP值':'price' };
+    function detectAudience(text) {
+      const value = text || '';
+      if (/跑|馬拉松|補給|果膠|騎車|三鐵|健身|續航|體力/.test(value)) return 'sports';
+      if (/價格|不便宜|高價|CP|cp|猶豫/.test(value)) return 'price';
+      if (/睡|入眠|精神|GABA|gaba|睿智/.test(value)) return 'sleep';
+      if (/葉黃素|眼睛|乾澀|飛蚊|螢幕/.test(value)) return 'lutein';
+      if (/小孩|孩子|家長|媽媽|爸爸|親子|不敢吞|長輩|照顧者|願意吃|主動吃/.test(value)) return 'family';
+      if (/方便|攜帶|不用配水|出門/.test(value)) return 'convenience';
+      return 'taste';
+    }
+    function scenarioBase(audience, text) {
+      if (/小孩|孩子|家長|媽媽|爸爸|親子|葉黃素/.test(text || '')) return { label: '家長葉黃素', pain: '小孩不願意吃、每天提醒很累，家長真正需要的是能持續補的方式。', open: '你在幫小孩補葉黃素時，最困擾的是小孩不願意吃、每天要提醒，還是吃起來太像藥？', ask: '如果孩子願意主動吃，你會比較在意口味、成分安心，還是能不能每天持續？', value: '這類產品的重點不是先背成分，而是先讓孩子願意開始、願意持續，家長才真的補得到。', objection: '如果客戶擔心只是好吃，可以接著說：好吃只是第一步，真正價值是降低抗拒，讓補充變成日常。', copy: '小孩願意吃，家長才真的補得到。保健不是買回家就好，而是要能每天持續。' };
+      if (/長輩|不敢吞|膠囊|照顧者/.test(text || '')) return { label: '長輩照顧', pain: '長輩不喜歡吞膠囊，也容易覺得保健品像藥。', open: '家裡長輩是不好吞膠囊，還是吃到有藥味就會抗拒？', ask: '如果改成好入口、沒有藥感的形式，長輩會比較願意固定吃嗎？', value: '對照顧者來說，產品再好也要長輩願意吃；好入口就是持續照顧的起點。', objection: '若客戶覺得保健品都差不多，可以補：差異常常不在買下去，而在吃不吃得久。', copy: '照顧長輩，有時不是多買一瓶，而是找到他願意每天吃的方式。' };
+      if (audience === 'sports') return { label: '運動補給', pain: '跑者怕後段沒力、補給吃不下、吃了胃不舒服。', open: '你長距離最怕的是後段撞牆、補給吃不下，還是吃了胃不舒服？', ask: '你平常補給比較看重續航、口味，還是比賽中好不好吞？', value: '運動補給不是只看成分，還要在比賽中真的吃得下、補得到、能持續。', objection: '如果覺得果膠都差不多，可以問：你有沒有遇過越跑越吃不下，或吃了胃不舒服？', copy: '跑者補給，真正重要的是後段還吃得下、補得到、撐得住。' };
+      if (audience === 'sleep') return { label: '睡眠上班族', pain: '客戶可能是入睡困難、睡眠品質差，或睡醒仍疲累。', open: '你是不好入睡，還是睡得著但醒來還是覺得累？', ask: '你最想改善的是晚上比較快入睡，還是白天精神比較穩？', value: '睡眠溝通要先分情境，客戶才會覺得你真的懂他的困擾。', objection: '若客戶覺得睡眠產品都沒用，可以先請他定義最想改善的一個指標，而不是一次期待全解。', copy: '睡不好不是一種問題。入睡、深睡、白天精神，都需要先問清楚。' };
+      if (audience === 'price') return { label: '價格猶豫', pain: '客戶怕買貴、怕沒效、怕只是包裝好看。', open: '會在意價格很正常，所以我想先了解，你最在意的是好吃、方便，還是吃了有感？', ask: '如果它能讓你持續吃，而不是買回去放著，這個價值對你重要嗎？', value: '價格溝通不要硬拗便宜，要把持續率、體感、品質與使用場景說清楚。', objection: '可以承認：它不是最低價路線，但如果能持續吃且有感，才有回購理由。', copy: '高價不是問題，價值感沒有被說清楚才是問題。' };
+      return { label: '好吃方便', pain: '客戶不是不想保健，而是吃不下去、麻煩、容易忘記。', open: '你之前買保健品最常遇到的是忘記吃，還是吃起來太像藥所以不想吃？', ask: '如果它好吃、方便、不用配水，會不會比較容易變成每天的習慣？', value: '好吃和方便不是附加價值，而是讓產品能被持續使用的關鍵。', objection: '若客戶覺得只是在講口味，可以補：持續吃才有機會有感，口味是持續的起點。', copy: '保健品不是買了就有效，吃得下、記得吃、持續吃，才是關鍵。' };
+    }
+    function buildFiveOutputs(mode, audience, text) {
+      const base = scenarioBase(audience, text);
+      const prefix = mode === 'line' ? 'LINE 私訊版' : mode === 'content' ? '社群內容版' : mode === 'meeting' ? '內部簡報版' : '業務開發版';
+      return [ { title: '1. 開場話術', body: base.open }, { title: '2. 追問問題', body: base.ask }, { title: '3. 價值說法', body: base.value }, { title: '4. 異議處理', body: base.objection }, { title: '5. 可直接使用文案', body: '[' + prefix + '] ' + base.copy } ];
+    }
+    function renderOutputs(items) {
+      const out = document.querySelector('#out');
+      if (!out) return;
+      out.innerHTML = items.map((item, index) => '<div class="output-card' + (index === 4 ? ' wide' : '') + '"><b>' + item.title + '</b><p>' + item.body + '</p></div>').join('');
+    }
     function renderKeyword(key) {
       const data = keywordInsights[key] || keywordInsights.taste;
       document.querySelectorAll('.keyword-button').forEach(btn => btn.classList.toggle('active', btn.dataset.key === key));
@@ -275,36 +346,19 @@
       if (!result) return;
       result.innerHTML = '<h3>' + data.title + '</h3><p class="hint">' + data.hint + '</p><div class="result-grid"><div class="result-box"><b>客戶真正想解決</b><p>' + data.need + '</p></div><div class="result-box"><b>業務去哪裡找</b><p>' + data.where + '</p></div><div class="result-box"><b>開場話術</b><p>' + data.opener + '</p></div><div class="result-box"><b>內容題材</b><p>' + data.content + '</p></div></div><div class="example-strip">' + data.examples.map(item => '<button class="example-chip" type="button">' + item + '</button>').join('') + '</div>';
     }
-
-    function detectAudience(text) {
-      const value = (text || '').toLowerCase();
-      if (/小孩|孩子|家長|媽媽|爸爸|親子|葉黃素|不敢吞|願意吃|主動吃/.test(value)) return 'family';
-      if (/睡|入眠|精神|gaba|睿智/.test(value)) return 'sleep';
-      if (/跑|馬拉松|補給|果膠|騎車|三鐵|健身|續航|體力/.test(value)) return 'sports';
-      if (/價格|不便宜|高價|cp|猶豫/.test(value)) return 'price';
-      if (/眼睛|乾澀|飛蚊|螢幕/.test(value)) return 'lutein';
-      if (/方便|攜帶|不用配水|出門/.test(value)) return 'convenience';
-      if (/好吃|口味|沒有藥感|適口/.test(value)) return 'taste';
-      return 'taste';
-    }
-    function buildText(mode, audience, text) {
-      const subject = keywordInsights[audience] || keywordInsights.taste;
-      const familyLine = '家長開場：你在幫小孩補葉黃素時，最困擾的是小孩不願意吃、每天要提醒，還是吃起來太像藥？這批回饋裡很多人提到「好吃、沒有藥感、小孩接受度高」，所以切入點不是先講成分，而是先讓孩子願意開始、願意持續，家長才真的補得到。';
-      const sportsLine = '跑團開場：你平常長距離最容易遇到的是後段沒力、補給吃不下，還是吃了胃不舒服？這批回饋裡最多人提到的是好吃、方便和有感，重點不是硬推成分，而是讓你比賽中真的吃得下、補得到、能持續。';
-      const sleepLine = '睡眠開場：你是不好入睡，還是睡得著但醒來仍然累？如果客戶先說出睡眠困擾，再接「幫助入眠、白天精神比較好、有感」會比直接介紹成分更自然。';
-      const priceLine = '價格開場：會在意價格很正常，所以我們先看你最在意的是好吃、方便，還是體感。這類產品不是最低價路線，價值在於願意持續吃，而且吃了有明確感受。';
-      const baseLine = audience === 'family' ? familyLine : audience === 'sports' ? sportsLine : audience === 'sleep' ? sleepLine : audience === 'price' ? priceLine : subject.opener;
-      if (mode === 'sales') return baseLine;
-      if (mode === 'content') return '社群題材：' + subject.content + ' 可以從客戶原話切入，例如「' + (subject.examples?.[0] || subject.title) + '」，再說明這背後其實是客戶想降低使用阻力，讓保健變成能持續的日常。';
-      if (mode === 'meeting') return '會議摘要：這段需求偏向「' + subject.title + '」族群。客戶真正想解決的是：' + subject.need + ' 建議業務開發場域：' + subject.where + ' 下一步可整理成對應話術與素材。';
-      return baseLine;
-    }
-    function setOut(k){
+    function setOut(mode) {
       const input = document.querySelector('#prompt')?.value || '';
       const audience = detectAudience(input);
-      document.querySelector('#out').textContent = buildText(k, audience, input);
+      renderOutputs(buildFiveOutputs(mode, audience, input));
       renderKeyword(audience);
     }
+    document.querySelectorAll('.sample-card').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.sample-card').forEach(item => item.classList.toggle('active', item === btn));
+        document.querySelector('#prompt').value = samplePrompts[btn.dataset.sample] || samplePrompts.familyLutein;
+        setOut(document.querySelector('#mode')?.value || 'sales');
+      });
+    });
     document.querySelectorAll('.keyword-button').forEach(btn => btn.addEventListener('click', () => renderKeyword(btn.dataset.key)));
     document.querySelectorAll('.word').forEach(word => {
       const key = wordToKey[word.textContent.trim()];
@@ -317,6 +371,7 @@
       }
     });
     renderKeyword('taste');
+    setOut('sales');
   </script>
 </body>
 </html>
