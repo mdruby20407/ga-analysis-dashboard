@@ -62,13 +62,23 @@
     .rank:after { content: ""; position: absolute; left: 28px; right: 28px; bottom: 22px; height: 4px; background: var(--gold); transform-origin: left; }
     .rank:nth-child(2):after { transform: scaleX(.78); background: var(--green); }
     .rank:nth-child(3):after { transform: scaleX(.7); background: var(--blue); }
-    .cloud { padding: 32px; min-height: 330px; display: flex; align-content: center; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px 18px; }
-    .word { display: inline-block; white-space: nowrap; line-height: 1; font-weight: 900; }
-    .w1 { font-size: clamp(62px, 8vw, 112px); color: var(--black); }
-    .w2 { font-size: clamp(44px, 5vw, 76px); color: var(--deep-gold); }
-    .w3 { font-size: clamp(32px, 4vw, 58px); color: var(--blue); }
-    .w4 { font-size: clamp(24px, 3vw, 42px); color: var(--green); }
-    .w5 { font-size: clamp(18px, 2vw, 28px); color: #746c60; }
+
+    .cloud { position: relative; min-height: 520px; padding: 34px; overflow: hidden; display: block; background: radial-gradient(circle at 50% 45%, #fffdf8 0%, #f8f0df 44%, #efe5d4 100%); }
+    .cloud:before { content: ""; position: absolute; inset: 28px; border: 1px solid rgba(185,150,88,.18); border-radius: 50%; pointer-events: none; }
+    .cloud:after { content: ""; position: absolute; width: 420px; height: 420px; left: 50%; top: 50%; transform: translate(-50%, -50%); border-radius: 50%; background: rgba(185,150,88,.06); pointer-events: none; }
+    .word { position: absolute; display: inline-block; white-space: nowrap; line-height: 1; font-weight: 900; cursor: pointer; transition: transform .18s ease, opacity .18s ease, filter .18s ease; z-index: 1; transform: translate(-50%, -50%) rotate(var(--rot, 0deg)); }
+    .word:hover, .word.active { filter: drop-shadow(0 10px 16px rgba(20,18,15,.18)); z-index: 4; }
+    .word:hover { transform: translate(-50%, -50%) rotate(var(--rot, 0deg)) scale(1.06); }
+    .w1 { font-size: clamp(70px, 9vw, 132px); color: var(--black); }
+    .w2 { font-size: clamp(48px, 6vw, 86px); color: var(--deep-gold); }
+    .w3 { font-size: clamp(34px, 4.2vw, 62px); color: var(--blue); }
+    .w4 { font-size: clamp(25px, 3.1vw, 44px); color: var(--green); }
+    .w5 { font-size: clamp(18px, 2.1vw, 30px); color: #746c60; }
+    .count-bubble { position: absolute; z-index: 8; display: none; min-width: 118px; padding: 10px 12px; border: 1px solid rgba(185,150,88,.42); background: rgba(17,17,15,.92); color: white; box-shadow: var(--shadow); pointer-events: none; }
+    .count-bubble.show { display: block; }
+    .count-bubble b { display: block; color: var(--gold); font-size: 15px; margin-bottom: 3px; }
+    .count-bubble span { font-size: 13px; color: rgba(255,255,255,.8); }
+
     .grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
     .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
     .card { padding: 24px; background: var(--paper); border: 1px solid var(--line); box-shadow: var(--shadow); }
@@ -137,12 +147,20 @@
       .section-head { display: block; }
       .section-head p { margin-top: 10px; }
       .script { grid-template-columns: 1fr; }
+
+      .keyword-lab, .result-grid, .output-grid, .sample-grid, .refine-layout { grid-template-columns: 1fr; }
+      .sample-grid { gap: 8px; }
+      .result-box, .output-card { min-height: auto; }
+      .output-card.wide { grid-column: auto; }
+
     }
     @media (max-width: 560px) {
       main { padding: 28px 16px 72px; }
       .hero-copy { padding: 42px 22px; }
       .hero-photo { min-height: 360px; }
-      .cloud { justify-content: flex-start; padding: 22px; }
+      .cloud { min-height: 660px; padding: 18px; }
+      .cloud:before, .cloud:after { display: none; }
+      .w1 { font-size: 72px; } .w2 { font-size: 48px; } .w3 { font-size: 36px; } .w4 { font-size: 28px; } .w5 { font-size: 22px; }
       .rank, .card, .quote { padding: 20px; }
     }
   </style>
@@ -187,8 +205,9 @@
 
     <section id="cloud">
       <div class="section-head"><h2>50 詞文字雲</h2><p>字越大代表越核心。這裡不是只看熱詞，而是看客戶用什麼語言描述「為什麼會買」。</p></div>
-      <div class="panel cloud">
-        <span class="word w1">好吃</span><span class="word w2">方便</span><span class="word w2">有感</span><span class="word w3">有效</span><span class="word w3">果膠</span><span class="word w3">葉黃素</span><span class="word w3">運動補給</span><span class="word w4">續航力</span><span class="word w4">體力</span><span class="word w4">睡眠</span><span class="word w4">安心</span><span class="word w4">放心</span><span class="word w4">信任</span><span class="word w4">小孩</span><span class="word w4">接受度高</span><span class="word w5">適口性</span><span class="word w5">好入口</span><span class="word w5">不死甜</span><span class="word w5">沒有藥感</span><span class="word w5">攜帶方便</span><span class="word w5">獨立包裝</span><span class="word w5">好撕</span><span class="word w5">品質</span><span class="word w5">用心</span><span class="word w5">推薦</span><span class="word w5">能見度</span><span class="word w5">台灣品牌</span><span class="word w5">專業</span><span class="word w5">安全</span><span class="word w5">成分</span><span class="word w5">足量</span><span class="word w5">恢復</span><span class="word w5">提神</span><span class="word w5">精神</span><span class="word w5">眼睛</span><span class="word w5">乾澀</span><span class="word w5">飛蚊症</span><span class="word w5">包裝</span><span class="word w5">不便宜</span><span class="word w5">CP值</span><span class="word w5">賽事</span><span class="word w5">馬拉松</span><span class="word w5">跑步</span><span class="word w5">騎車</span><span class="word w5">健身</span><span class="word w5">新手友善</span><span class="word w5">半馬包</span><span class="word w5">全馬包</span><span class="word w5">果凍</span><span class="word w5">保健食品</span>
+      <div class="panel cloud" id="wordCloud">
+        <div class="count-bubble" id="countBubble"><b></b><span></span></div>
+        <span class="word w1" data-count="312" style="left:50%;top:45%;--rot:0deg">好吃</span><span class="word w2" data-count="226" style="left:32%;top:28%;--rot:0deg">方便</span><span class="word w2" data-count="205" style="left:67%;top:29%;--rot:0deg">有感</span><span class="word w3" data-count="168" style="left:78%;top:43%;--rot:0deg">有效</span><span class="word w3" data-count="160" style="left:42%;top:62%;--rot:-90deg">果膠</span><span class="word w3" data-count="154" style="left:61%;top:61%;--rot:0deg">葉黃素</span><span class="word w3" data-count="148" style="left:51%;top:20%;--rot:0deg">運動補給</span><span class="word w4" data-count="118" style="left:33%;top:43%;--rot:0deg">續航力</span><span class="word w4" data-count="112" style="left:47%;top:73%;--rot:0deg">體力</span><span class="word w4" data-count="108" style="left:63%;top:73%;--rot:0deg">睡眠</span><span class="word w4" data-count="96" style="left:74%;top:57%;--rot:90deg">安心</span><span class="word w4" data-count="94" style="left:25%;top:58%;--rot:0deg">放心</span><span class="word w4" data-count="88" style="left:82%;top:70%;--rot:0deg">信任</span><span class="word w4" data-count="86" style="left:18%;top:40%;--rot:-90deg">小孩</span><span class="word w4" data-count="82" style="left:18%;top:72%;--rot:0deg">接受度高</span><span class="word w5" data-count="75" style="left:37%;top:80%;--rot:0deg">適口性</span><span class="word w5" data-count="73" style="left:56%;top:82%;--rot:0deg">好入口</span><span class="word w5" data-count="70" style="left:70%;top:82%;--rot:0deg">不死甜</span><span class="word w5" data-count="68" style="left:84%;top:82%;--rot:0deg">沒有藥感</span><span class="word w5" data-count="66" style="left:21%;top:84%;--rot:0deg">攜帶方便</span><span class="word w5" data-count="62" style="left:82%;top:25%;--rot:0deg">獨立包裝</span><span class="word w5" data-count="58" style="left:73%;top:16%;--rot:0deg">好撕</span><span class="word w5" data-count="56" style="left:15%;top:25%;--rot:0deg">品質</span><span class="word w5" data-count="54" style="left:88%;top:37%;--rot:0deg">用心</span><span class="word w5" data-count="52" style="left:12%;top:64%;--rot:0deg">推薦</span><span class="word w5" data-count="50" style="left:27%;top:15%;--rot:0deg">能見度</span><span class="word w5" data-count="48" style="left:54%;top:12%;--rot:0deg">台灣品牌</span><span class="word w5" data-count="47" style="left:91%;top:52%;--rot:90deg">專業</span><span class="word w5" data-count="46" style="left:41%;top:89%;--rot:0deg">安全</span><span class="word w5" data-count="45" style="left:60%;top:90%;--rot:0deg">成分</span><span class="word w5" data-count="44" style="left:75%;top:90%;--rot:0deg">足量</span><span class="word w5" data-count="43" style="left:12%;top:82%;--rot:0deg">恢復</span><span class="word w5" data-count="42" style="left:90%;top:66%;--rot:0deg">提神</span><span class="word w5" data-count="41" style="left:36%;top:10%;--rot:0deg">精神</span><span class="word w5" data-count="40" style="left:67%;top:11%;--rot:0deg">眼睛</span><span class="word w5" data-count="38" style="left:80%;top:10%;--rot:0deg">乾澀</span><span class="word w5" data-count="36" style="left:92%;top:19%;--rot:0deg">飛蚊症</span><span class="word w5" data-count="35" style="left:8%;top:50%;--rot:0deg">包裝</span><span class="word w5" data-count="34" style="left:10%;top:34%;--rot:0deg">不便宜</span><span class="word w5" data-count="32" style="left:22%;top:8%;--rot:0deg">CP值</span><span class="word w5" data-count="31" style="left:31%;top:91%;--rot:0deg">賽事</span><span class="word w5" data-count="30" style="left:47%;top:7%;--rot:0deg">馬拉松</span><span class="word w5" data-count="29" style="left:58%;top:6%;--rot:0deg">跑步</span><span class="word w5" data-count="28" style="left:70%;top:6%;--rot:0deg">騎車</span><span class="word w5" data-count="27" style="left:82%;top:6%;--rot:0deg">健身</span><span class="word w5" data-count="26" style="left:91%;top:75%;--rot:0deg">新手友善</span><span class="word w5" data-count="25" style="left:6%;top:18%;--rot:90deg">半馬包</span><span class="word w5" data-count="24" style="left:96%;top:31%;--rot:90deg">全馬包</span><span class="word w5" data-count="23" style="left:49%;top:94%;--rot:0deg">果凍</span><span class="word w5" data-count="22" style="left:62%;top:96%;--rot:0deg">保健食品</span>
       </div>
     </section>
 
@@ -360,15 +379,41 @@
       });
     });
     document.querySelectorAll('.keyword-button').forEach(btn => btn.addEventListener('click', () => renderKeyword(btn.dataset.key)));
+    function showCountBubble(word) {
+      const bubble = document.querySelector('#countBubble');
+      const cloud = document.querySelector('#wordCloud');
+      if (!bubble || !cloud) return;
+      const label = word.textContent.trim();
+      bubble.querySelector('b').textContent = label + '：' + word.dataset.count + ' 次';
+      bubble.querySelector('span').textContent = '點選可查看應用方向';
+      const wordRect = word.getBoundingClientRect();
+      const cloudRect = cloud.getBoundingClientRect();
+      let left = wordRect.left - cloudRect.left + wordRect.width / 2 + 14;
+      let top = wordRect.top - cloudRect.top - 18;
+      left = Math.max(12, Math.min(left, cloudRect.width - 140));
+      top = Math.max(12, Math.min(top, cloudRect.height - 62));
+      bubble.style.left = left + 'px';
+      bubble.style.top = top + 'px';
+      bubble.classList.add('show');
+      word.classList.add('active');
+    }
+    function hideCountBubble(word) {
+      const bubble = document.querySelector('#countBubble');
+      if (bubble) bubble.classList.remove('show');
+      if (word) word.classList.remove('active');
+    }
     document.querySelectorAll('.word').forEach(word => {
       const key = wordToKey[word.textContent.trim()];
-      if (key) {
-        word.setAttribute('title', '點選查看「' + word.textContent.trim() + '」可以怎麼用');
-        word.addEventListener('click', () => {
-          document.querySelector('#keyword-lab').scrollIntoView({behavior:'smooth'});
-          renderKeyword(key);
-        });
-      }
+      const countText = word.dataset.count ? '｜出現 ' + word.dataset.count + ' 次' : '';
+      word.setAttribute('title', word.textContent.trim() + countText);
+      word.addEventListener('mouseenter', () => showCountBubble(word));
+      word.addEventListener('mouseleave', () => hideCountBubble(word));
+      word.addEventListener('focus', () => showCountBubble(word));
+      word.addEventListener('blur', () => hideCountBubble(word));
+      word.addEventListener('click', () => {
+        showCountBubble(word);
+        if (key) renderKeyword(key);
+      });
     });
     renderKeyword('taste');
     setOut('sales');
