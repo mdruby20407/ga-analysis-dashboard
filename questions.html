@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GA 客戶洞察站｜關鍵五問洞察</title>
+  <style>
+    :root {
+      --ink: #1c1c1a;
+      --soft-ink: #3a3833;
+      --muted: #777268;
+      --bg: #f6f2ea;
+      --paper: #fffdf8;
+      --line: #ded7ca;
+      --gold: #b99658;
+      --deep-gold: #8f6f34;
+      --black: #11110f;
+      --warm: #efe5d4;
+      --blue: #183252;
+      --green: #3c5b49;
+      --shadow: 0 18px 48px rgba(22, 20, 16, .12);
+      font-family: "Microsoft JhengHei", "Noto Sans TC", "PingFang TC", Arial, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: var(--bg); color: var(--ink); letter-spacing: 0; }
+    a { color: inherit; }
+    .topbar {
+      position: sticky; top: 0; z-index: 10; height: 72px; display: flex; align-items: center; justify-content: space-between;
+      padding: 0 28px; background: rgba(246,242,234,.92); backdrop-filter: blur(18px); border-bottom: 1px solid rgba(0,0,0,.08);
+    }
+    .brand { display: flex; align-items: center; gap: 12px; font-weight: 900; }
+    .shield { width: 34px; height: 34px; border: 2px solid var(--black); border-radius: 6px 6px 12px 12px; display: grid; place-items: center; font-size: 13px; }
+    .nav { display: flex; gap: 18px; color: var(--soft-ink); font-size: 14px; font-weight: 800; }
+    .nav a { text-decoration: none; }
+    .hero {
+      min-height: 620px; display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(360px, .95fr); background: var(--black); color: white;
+    }
+    .hero-copy { padding: clamp(42px, 7vw, 96px) clamp(28px, 6vw, 86px); display: flex; flex-direction: column; justify-content: center; position: relative; overflow: hidden; }
+    .hero-copy:before { content: ""; position: absolute; inset: auto -15% -35% 18%; width: 520px; height: 520px; border: 1px solid rgba(185,150,88,.28); border-radius: 50%; }
+    .eyebrow { color: var(--gold); font-size: 15px; font-weight: 900; letter-spacing: 0; margin-bottom: 18px; }
+    h1 { margin: 0; font-size: clamp(42px, 6vw, 82px); line-height: 1.02; letter-spacing: 0; position: relative; }
+    .lead { margin: 22px 0 0; max-width: 740px; color: rgba(255,255,255,.78); font-size: 18px; line-height: 1.85; position: relative; }
+    .hero-actions { margin-top: 30px; display: flex; flex-wrap: wrap; gap: 12px; position: relative; }
+    .btn { min-height: 46px; border-radius: 2px; border: 1px solid var(--line); padding: 0 18px; font-weight: 900; background: white; color: var(--ink); cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; }
+    .btn.gold { background: var(--gold); border-color: var(--gold); color: white; }
+    .hero-photo { min-height: 620px; background-image: linear-gradient(90deg, rgba(17,17,15,.2), rgba(17,17,15,.15)), url('https://shoplineimg.com/649c19e82bde2800672d8e11/670e48f6a450f1000b9467fd/1080x.webp?source_format=jpg'); background-size: cover; background-position: center; position: relative; }
+    .hero-card { position: absolute; left: 28px; right: 28px; bottom: 28px; padding: 22px; background: rgba(17,17,15,.76); backdrop-filter: blur(14px); border: 1px solid rgba(255,255,255,.18); }
+    .hero-card strong { display: block; font-size: 22px; margin-bottom: 6px; }
+    .hero-card span { color: rgba(255,255,255,.72); line-height: 1.65; }
+    main { max-width: 1240px; margin: 0 auto; padding: 42px 24px 88px; }
+    section { margin-top: 34px; scroll-margin-top: 92px; }
+    .section-head { display: flex; justify-content: space-between; gap: 24px; align-items: end; margin-bottom: 18px; }
+    h2 { margin: 0; font-size: clamp(28px, 3vw, 42px); line-height: 1.15; }
+    .section-head p { margin: 0; color: var(--muted); line-height: 1.75; max-width: 680px; }
+    .panel { background: var(--paper); border: 1px solid var(--line); box-shadow: var(--shadow); }
+    .top3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); box-shadow: var(--shadow); }
+    .rank { background: var(--paper); padding: 28px; min-height: 210px; position: relative; }
+    .rank small { color: var(--gold); font-weight: 900; }
+    .rank h3 { margin: 16px 0 8px; font-size: 40px; }
+    .rank p { margin: 0; color: var(--muted); line-height: 1.7; }
+    .rank:after { content: ""; position: absolute; left: 28px; right: 28px; bottom: 22px; height: 4px; background: var(--gold); transform-origin: left; }
+    .rank:nth-child(2):after { transform: scaleX(.78); background: var(--green); }
+    .rank:nth-child(3):after { transform: scaleX(.7); background: var(--blue); }
+
+    .cloud { position: relative; min-height: 520px; padding: 34px; overflow: hidden; display: block; background: radial-gradient(circle at 50% 45%, #fffdf8 0%, #f8f0df 44%, #efe5d4 100%); }
+    .cloud:before { content: ""; position: absolute; inset: 28px; border: 1px solid rgba(185,150,88,.18); border-radius: 50%; pointer-events: none; }
+    .cloud:after { content: ""; position: absolute; width: 420px; height: 420px; left: 50%; top: 50%; transform: translate(-50%, -50%); border-radius: 50%; background: rgba(185,150,88,.06); pointer-events: none; }
+    .word { position: absolute; display: inline-block; white-space: nowrap; line-height: 1; font-weight: 900; cursor: pointer; transition: transform .18s ease, opacity .18s ease, filter .18s ease; z-index: 1; transform: translate(-50%, -50%) rotate(var(--rot, 0deg)); }
+    .word:hover, .word.active { filter: drop-shadow(0 10px 16px rgba(20,18,15,.18)); z-index: 4; }
+    .word:hover { transform: translate(-50%, -50%) rotate(var(--rot, 0deg)) scale(1.06); }
+    .w1 { font-size: clamp(70px, 9vw, 132px); color: var(--black); }
+    .w2 { font-size: clamp(48px, 6vw, 86px); color: var(--deep-gold); }
+    .w3 { font-size: clamp(34px, 4.2vw, 62px); color: var(--blue); }
+    .w4 { font-size: clamp(25px, 3.1vw, 44px); color: var(--green); }
+    .w5 { font-size: clamp(18px, 2.1vw, 30px); color: #746c60; }
+    .count-bubble { position: absolute; z-index: 8; display: none; min-width: 220px; max-width: 340px; padding: 12px 14px; border: 1px solid rgba(185,150,88,.42); background: rgba(17,17,15,.94); color: white; box-shadow: var(--shadow); pointer-events: none; line-height: 1.55; }
+    .count-bubble.show { display: block; }
+    .count-bubble b { display: block; color: var(--gold); font-size: 15px; margin-bottom: 3px; }
+    .count-bubble span { display: block; font-size: 13px; color: rgba(255,255,255,.82); }
+
+    .grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+    .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .card { padding: 24px; background: var(--paper); border: 1px solid var(--line); box-shadow: var(--shadow); }
+    .card h3 { margin: 0 0 10px; font-size: 22px; }
+    .card p { margin: 0; color: var(--muted); line-height: 1.8; }
+    .tagrow { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+    .tag { min-height: 30px; display: inline-flex; align-items: center; border: 1px solid rgba(185,150,88,.34); color: var(--deep-gold); background: #fbf5e9; padding: 0 10px; font-size: 13px; font-weight: 900; }
+    .place { min-height: 176px; }
+
+    .where-map { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+    .where-card { min-height: 310px; display: flex; flex-direction: column; gap: 12px; }
+    .where-top { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+    .win-rate { min-width: 74px; text-align: center; border: 1px solid rgba(185,150,88,.48); background: #fff7e8; color: var(--deep-gold); padding: 7px 8px; font-weight: 900; font-size: 13px; }
+    .win-rate.high { background: var(--black); color: var(--gold); border-color: var(--black); }
+    .win-rate.mid { background: #fbf8f1; color: var(--deep-gold); }
+    .win-rate.seed { background: #eef1ed; color: var(--green); border-color: #cdd8cf; }
+    .where-meta { display: grid; gap: 8px; margin-top: auto; }
+    .where-line { border-top: 1px solid var(--line); padding-top: 10px; }
+    .where-line b { display: block; color: var(--deep-gold); font-size: 14px; margin-bottom: 4px; }
+    .where-line span { display: block; color: var(--soft-ink); line-height: 1.65; }
+
+    .script { display: grid; grid-template-columns: 150px 1fr; gap: 14px; padding: 18px 0; border-top: 1px solid var(--line); }
+    .script:first-child { border-top: 0; padding-top: 0; }
+    .script:last-child { padding-bottom: 0; }
+    .script b { color: var(--deep-gold); }
+    .script p { margin: 0; color: var(--ink); line-height: 1.8; }
+    .ideas { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+    .idea { padding: 18px; min-height: 132px; background: var(--paper); border: 1px solid var(--line); line-height: 1.65; font-weight: 900; }
+    .quote { display: grid; grid-template-columns: 1fr 280px; gap: 28px; align-items: center; padding: 32px; background: var(--black); color: white; }
+    .quote h2 { color: white; }
+    .quote p { color: rgba(255,255,255,.76); line-height: 1.8; }
+    .quote .stamp { border: 1px solid rgba(185,150,88,.55); padding: 22px; color: var(--gold); font-weight: 900; font-size: 22px; text-align: center; }
+    .refine { display: grid; grid-template-columns: minmax(0, 1fr) 220px; gap: 14px; }
+    textarea, select { width: 100%; border: 1px solid var(--line); background: #fff; padding: 13px; font: inherit; color: var(--ink); border-radius: 2px; }
+    textarea { min-height: 118px; resize: vertical; line-height: 1.65; }
+    select { min-height: 46px; font-weight: 900; }
+    .out { margin-top: 14px; padding: 16px; border: 1px solid var(--line); background: #fbf8f1; line-height: 1.8; }
+    .feedback { position: fixed; right: 18px; bottom: 18px; z-index: 20; }
+    .bubble { width: 56px; height: 56px; border: 0; border-radius: 50%; background: var(--gold); color: white; font-weight: 900; box-shadow: var(--shadow); cursor: pointer; }
+    .fbpanel { display: none; position: absolute; right: 0; bottom: 66px; width: min(360px, calc(100vw - 36px)); background: var(--paper); border: 1px solid var(--line); padding: 16px; box-shadow: var(--shadow); }
+    .feedback.open .fbpanel { display: block; }
+    .source { margin-top: 22px; color: var(--muted); font-size: 13px; line-height: 1.6; }
+
+    .keyword-lab { display: grid; grid-template-columns: 310px minmax(0, 1fr); gap: 18px; }
+    .keyword-buttons { display: grid; gap: 10px; }
+    .keyword-button { width: 100%; min-height: 46px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); padding: 0 14px; text-align: left; font-weight: 900; cursor: pointer; border-radius: 2px; }
+    .keyword-button:hover, .keyword-button.active { background: var(--black); color: white; border-color: var(--black); }
+    .keyword-result { min-height: 100%; padding: 26px; background: var(--paper); border: 1px solid var(--line); box-shadow: var(--shadow); }
+    .keyword-result h3 { margin: 0 0 10px; font-size: 28px; }
+    .keyword-result .hint { margin: 0 0 18px; color: var(--muted); line-height: 1.75; }
+    .result-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .result-box { border: 1px solid var(--line); background: #fbf8f1; padding: 14px; min-height: 120px; }
+    .result-box b { display: block; color: var(--deep-gold); margin-bottom: 8px; }
+    .result-box p { margin: 0; line-height: 1.75; color: var(--soft-ink); }
+    .example-strip { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+    .example-chip { border: 1px solid rgba(185,150,88,.42); background: #fffaf0; color: var(--deep-gold); padding: 8px 10px; font-size: 13px; font-weight: 900; cursor: pointer; }
+    .word { cursor: pointer; transition: transform .16s ease, opacity .16s ease; }
+    .word:hover { transform: translateY(-2px); opacity: .78; }
+
+
+    .refine-suite { display: grid; gap: 16px; }
+    .refine-layout { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 16px; align-items: start; }
+    .sample-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+    .sample-card { border: 1px solid var(--line); background: #fffaf0; color: var(--ink); padding: 13px; min-height: 74px; text-align: left; font-weight: 900; cursor: pointer; border-radius: 2px; line-height: 1.45; }
+    .sample-card:hover, .sample-card.active { background: var(--black); color: white; border-color: var(--black); }
+    .output-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .output-card { border: 1px solid var(--line); background: #fbf8f1; padding: 16px; min-height: 156px; }
+    .output-card.wide { grid-column: 1 / -1; }
+    .output-card b { display: block; color: var(--deep-gold); margin-bottom: 8px; font-size: 15px; }
+    .output-card p { margin: 0; color: var(--soft-ink); line-height: 1.8; }
+    .refine-note { color: var(--muted); line-height: 1.7; margin: 0; }
+
+    @media (max-width: 980px) {
+      .topbar { height: auto; padding: 16px 18px; align-items: flex-start; gap: 14px; flex-direction: column; }
+      .nav { flex-wrap: wrap; gap: 12px; }
+      .hero, .grid2, .grid3, .ideas, .quote, .refine, .top3 { grid-template-columns: 1fr; }
+      .hero { min-height: auto; }
+      .hero-photo { min-height: 460px; }
+      .section-head { display: block; }
+      .section-head p { margin-top: 10px; }
+      .script { grid-template-columns: 1fr; }
+
+      .where-map, .keyword-lab, .result-grid, .output-grid, .sample-grid, .refine-layout { grid-template-columns: 1fr; }
+      .sample-grid { gap: 8px; }
+      .result-box, .output-card { min-height: auto; }
+      .output-card.wide { grid-column: auto; }
+
+    }
+    @media (max-width: 560px) {
+      main { padding: 28px 16px 72px; }
+      .hero-copy { padding: 42px 22px; }
+      .hero-photo { min-height: 360px; }
+      .cloud { min-height: 660px; padding: 18px; }
+      .cloud:before, .cloud:after { display: none; }
+      .w1 { font-size: 72px; } .w2 { font-size: 48px; } .w3 { font-size: 36px; } .w4 { font-size: 28px; } .w5 { font-size: 22px; }
+      .rank, .card, .quote { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="shield">GA</span><span>GA黃金甲｜客戶洞察站</span></div>
+    <nav class="nav" aria-label="頁面導覽">
+      <a href="index.html">關鍵字分析洞察</a><a href="questions.html" aria-current="page">關鍵五問洞察</a>
+    </nav>
+  </header>
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <div class="eyebrow">客戶洞察站｜子頁面：關鍵五問洞察</div>
+        <h1>關鍵五問洞察<br>把客戶回答變成業務判斷</h1>
+        <p class="lead">這個頁面會用來分析先前收集的五個客戶問題，整理出每題的答案分布、真實需求、客戶分群，以及業務可以直接使用的追問與推薦方向。</p>
+        <div class="hero-actions">
+          <a class="btn gold" href="#framework">看分析架構</a>
+          <a class="btn" href="index.html">回關鍵字分析</a>
+        </div>
+      </div>
+      <div class="hero-photo" role="img" aria-label="客戶訪談洞察情境">
+        <div class="stamp">五問 × 分群 × 話術<br>支撐業務判斷</div>
+      </div>
+    </section>
+
+    <section id="framework">
+      <div class="section-head"><h2>關鍵五問分析架構</h2><p>等五問原始回答匯入後，這裡會自動整理每題洞察與可執行建議。</p></div>
+      <div class="grid3">
+        <article class="card"><h3>1. 每題答案分布</h3><p>統計每一題的主要回答、關鍵詞、常見語氣與重複出現的需求訊號。</p><div class="tagrow"><span class="tag">答案比例</span><span class="tag">高頻詞</span><span class="tag">原文例句</span></div></article>
+        <article class="card"><h3>2. 客戶真實需求</h3><p>把表面回答轉成背後動機，判斷客戶真正想解決的是口味、便利、體感、價格、安心或使用情境。</p><div class="tagrow"><span class="tag">表面回答</span><span class="tag">背後需求</span><span class="tag">品牌意義</span></div></article>
+        <article class="card"><h3>3. 業務應用</h3><p>每一題對應可使用的開場、追問、產品推薦方向、破冰話術與異議處理。</p><div class="tagrow"><span class="tag">開場問法</span><span class="tag">追問</span><span class="tag">推薦方向</span></div></article>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head"><h2>未來資料接法</h2><p>建議五問資料也放在 Google Sheet，欄位可用：客戶ID、問題1、問題2、問題3、問題4、問題5、備註。</p></div>
+      <div class="panel">
+        <p class="lead" style="margin:0">下一步匯入資料後，這頁可以做出：五題總覽、每題洞察、客戶分群、產品推薦邏輯、業務話術套用，以及每週自動更新。</p>
+      </div>
+    </section>
+
+    <p class="source">GA 客戶洞察站｜子頁面架構已建立，等待五問資料匯入後可啟用完整分析。</p>
+  </main>
+</body>
+</html>
