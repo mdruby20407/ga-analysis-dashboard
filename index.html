@@ -176,13 +176,44 @@
       .w1 { font-size: 72px; } .w2 { font-size: 48px; } .w3 { font-size: 36px; } .w4 { font-size: 28px; } .w5 { font-size: 22px; }
       .rank, .card, .quote { padding: 20px; }
     }
+  
+    .brand-direction { background: #11110f; color: white; border: 1px solid rgba(185,150,88,.45); box-shadow: var(--shadow); overflow: hidden; }
+    .brand-direction .direction-wrap { display: grid; grid-template-columns: minmax(360px,.95fr) minmax(0,1.05fr); gap: 28px; padding: clamp(24px,4vw,42px); align-items: center; }
+    .energy-visual { position: relative; min-height: 560px; display: grid; place-items: center; background: radial-gradient(circle at 50% 50%, rgba(185,150,88,.18), rgba(17,17,15,.25) 42%, rgba(17,17,15,.9) 72%); border: 1px solid rgba(255,255,255,.12); overflow: hidden; }
+    .energy-visual:before { content: ""; position: absolute; inset: 28px; border: 1px solid rgba(185,150,88,.18); transform: rotate(45deg); }
+    .energy-core { position: relative; z-index: 2; width: 178px; height: 178px; border-radius: 50%; display: grid; place-items: center; text-align: center; background: radial-gradient(circle, #f5d997, #b99658 52%, #5f451c 100%); color: #11110f; box-shadow: 0 0 38px rgba(185,150,88,.42), 0 0 120px rgba(185,150,88,.22); font-weight: 900; line-height: 1.35; }
+    .energy-ring { position: absolute; border-radius: 50%; border: 2px solid rgba(185,150,88,.35); box-shadow: 0 0 calc(var(--glow)*1px) rgba(185,150,88,.42); opacity: calc(.34 + var(--power) * .006); }
+    .ring-1 { width: calc(210px + var(--power) * 1.55px); height: calc(210px + var(--power) * 1.55px); }
+    .ring-2 { width: calc(280px + var(--power) * 1.25px); height: calc(280px + var(--power) * 1.25px); border-color: rgba(61,91,73,.48); box-shadow: 0 0 calc(var(--glow)*.8px) rgba(61,91,73,.48); }
+    .ring-3 { width: calc(350px + var(--power) * .95px); height: calc(350px + var(--power) * .95px); border-color: rgba(255,255,255,.25); }
+    .ring-4 { width: calc(420px + var(--power) * .75px); height: calc(420px + var(--power) * .75px); border-color: rgba(24,50,82,.5); box-shadow: 0 0 calc(var(--glow)*.65px) rgba(24,50,82,.5); }
+    .energy-label { position: absolute; z-index: 3; min-width: 142px; max-width: 190px; padding: 10px 12px; background: rgba(255,253,248,.94); color: var(--ink); border: 1px solid rgba(185,150,88,.48); font-weight: 900; line-height: 1.45; }
+    .energy-label small { display:block; color: var(--deep-gold); font-size: 12px; margin-top: 3px; }
+    .label-1 { left: 7%; top: 15%; } .label-2 { right: 5%; top: 21%; } .label-3 { left: 8%; bottom: 17%; } .label-4 { right: 8%; bottom: 13%; }
+    .direction-copy h3 { margin: 0 0 14px; color: var(--gold); font-size: clamp(28px,3vw,42px); }
+    .direction-copy .direction-lead { margin: 0 0 20px; color: rgba(255,255,255,.78); line-height: 1.85; font-size: 17px; }
+    .direction-score-grid { display: grid; gap: 12px; }
+    .direction-score { padding: 16px; background: rgba(255,253,248,.06); border: 1px solid rgba(255,255,255,.14); }
+    .direction-score-top { display: flex; justify-content: space-between; gap: 14px; font-weight: 900; color: white; }
+    .direction-score-top span:last-child { color: var(--gold); white-space: nowrap; }
+    .direction-bar { height: 9px; background: rgba(255,255,255,.14); margin: 10px 0 10px; overflow: hidden; }
+    .direction-bar span { display:block; height:100%; width: var(--w); background: linear-gradient(90deg, var(--gold), #fff1b9); }
+    .direction-score p { margin: 0; color: rgba(255,255,255,.75); line-height: 1.65; }
+    .direction-tags { display:flex; flex-wrap:wrap; gap:7px; margin-top:10px; }
+    .direction-tags b { display:inline-flex; min-height:28px; align-items:center; padding:0 9px; background:#fff7e8; color:var(--deep-gold); font-size:12px; }
+    .direction-verdict { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; padding: 0 clamp(24px,4vw,42px) clamp(24px,4vw,42px); }
+    .verdict-card { background: #fffdf8; color: var(--ink); border: 1px solid rgba(185,150,88,.4); padding: 18px; min-height: 150px; }
+    .verdict-card b { color: var(--deep-gold); display:block; margin-bottom:8px; }
+    .verdict-card p { margin:0; color:var(--soft-ink); line-height:1.7; }
+    @media (max-width: 980px) { .brand-direction .direction-wrap, .direction-verdict { grid-template-columns: 1fr; } .energy-visual { min-height: 520px; } .label-1,.label-2,.label-3,.label-4 { position: static; margin: 4px; } .energy-visual { display:flex; flex-wrap:wrap; align-content:center; justify-content:center; gap:8px; padding: 24px; } .energy-core { order:-1; flex:0 0 178px; } .energy-ring { display:none; } }
+
   </style>
 </head>
 <body>
   <header class="topbar">
     <div class="brand"><span class="shield">GA</span><span>GA黃金甲｜客戶洞察站</span></div>
     <nav class="nav" aria-label="頁面導覽">
-      <a href="index.html" aria-current="page">關鍵字分析洞察</a><a href="questions.html">關鍵五問洞察</a><a href="#top3">Top 3</a><a href="#cloud">文字雲</a><a href="#where">業務場域</a><a href="#scripts">話術</a>
+      <a href="index.html" aria-current="page">關鍵字分析洞察</a><a href="questions.html">關鍵五問洞察</a><a href="#top3">Top 3</a><a href="#cloud">文字雲</a><a href="#where">業務場域</a><a href="#scripts">話術</a><a href="#brand-direction">品牌方向</a>
     </nav>
   </header>
 
@@ -305,6 +336,30 @@
         </div>
         <div class="output-grid" id="out">
           <div class="output-card wide"><b>等待產出</b><p>點選範例或輸入需求後，按「產出 5 個內容」。</p></div>
+        </div>
+      </div>
+    </section>
+
+
+    <section id="brand-direction">
+      <div class="section-head"><h2>我們是否正在成為保健食品界的 Red Bull？</h2><p>用客戶實際說出口的關鍵字，檢查品牌是否正朝「陪伴 100 萬人一起更健康」前進。</p></div>
+      <div class="brand-direction">
+        <div class="direction-wrap">
+          <div class="energy-visual" aria-label="品牌能量渲染範圍圖">
+            <div class="energy-ring ring-1" style="--power:100;--glow:136"></div><div class="energy-ring ring-2" style="--power:42;--glow:78"></div><div class="energy-ring ring-3" style="--power:19;--glow:55"></div><div class="energy-ring ring-4" style="--power:29;--glow:65"></div>
+            <div class="energy-core">GA 黃金甲<br><span>陪伴 100 萬人<br>一起更健康</span></div>
+            <div class="energy-label label-1">產品體驗<small>774 次｜62.7%</small></div><div class="energy-label label-2">生活陪伴<small>324 次｜26.3%</small></div><div class="energy-label label-3">信任關係<small>145 次｜11.8%</small></div><div class="energy-label label-4">品牌能量<small>222 次｜18.0%</small></div>
+          </div>
+          <div class="direction-copy">
+            <h3>關鍵字正在把 GA 從產品，推向生活方式品牌。</h3>
+            <p class="direction-lead">目前客戶最強烈記得的是「好吃、方便、有感」，這代表產品體驗已經站穩。下一步要讓「陪伴、跑團、生活、朋友感、一起更健康」更常被客戶說出口，品牌才會更接近保健食品界的 Red Bull。</p>
+            <div class="direction-score-grid"><article class="direction-score"><div class="direction-score-top"><span>產品體驗｜已經很強</span><span>774 次｜62.7%</span></div><div class="direction-bar" style="--w:100%"><span></span></div><p>客戶最直接記得的是好吃、方便、有感，代表產品體驗已經能被說出口。</p><div class="direction-tags"><b>好吃 379</b><b>方便 140</b><b>有感 35</b><b>好入口 29</b><b>攜帶方便 42</b></div></article><article class="direction-score"><div class="direction-score-top"><span>生活陪伴｜正在形成</span><span>324 次｜26.3%</span></div><div class="direction-bar" style="--w:42%"><span></span></div><p>關鍵字開始進入運動、家庭、日常保健場景，已經不只是單一產品功能。</p><div class="direction-tags"><b>運動補給 105</b><b>續航力 41</b><b>體力 42</b><b>小孩 39</b><b>睡眠 25</b></div></article><article class="direction-score"><div class="direction-score-top"><span>信任關係｜穩定累積</span><span>145 次｜11.8%</span></div><div class="direction-bar" style="--w:19%"><span></span></div><p>安心、信任、推薦有出現，代表尊重客戶、不硬賣的關係正在被感受到。</p><div class="direction-tags"><b>安心 30</b><b>放心 19</b><b>信任 17</b><b>推薦 27</b><b>用心 30</b></div></article><article class="direction-score"><div class="direction-score-top"><span>品牌能量｜需要放大</span><span>222 次｜18.0%</span></div><div class="direction-bar" style="--w:29%"><span></span></div><p>活動與社群能量有苗頭，但客戶還比較少用「陪伴、熱血、生活方式」形容品牌。</p><div class="direction-tags"><b>包裝 24</b><b>賽事 5</b><b>跑步 6</b><b>運動補給 105</b><b>能見度 8</b></div></article></div>
+          </div>
+        </div>
+        <div class="direction-verdict">
+          <article class="verdict-card"><b>目前最強：產品體驗</b><p>好吃、方便、有感是明確優勢。這是陪伴型品牌的入口，因為客戶願意持續吃，才有後面的生活改變。</p></article>
+          <article class="verdict-card"><b>正在形成：生活陪伴</b><p>運動補給、續航力、體力、小孩、睡眠已經出現，表示品牌開始進入運動、家庭與日常保健場景。</p></article>
+          <article class="verdict-card"><b>需要放大：品牌能量</b><p>賽事、跑團、活動、朋友感與「不硬賣」還沒有大量出現在關鍵字中。公司做了很多，接下來要讓客戶更容易說出來。</p></article>
         </div>
       </div>
     </section>
