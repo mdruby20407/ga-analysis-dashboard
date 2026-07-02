@@ -176,48 +176,32 @@
       .w1 { font-size: 72px; } .w2 { font-size: 48px; } .w3 { font-size: 36px; } .w4 { font-size: 28px; } .w5 { font-size: 22px; }
       .rank, .card, .quote { padding: 20px; }
     }
+  
+    .filter-panel{display:grid;grid-template-columns:1fr 1fr 2fr;gap:16px}.filter-box{border:1px solid var(--line);background:var(--paper);padding:18px;box-shadow:var(--shadow)}.filter-box h3{margin:0 0 12px;font-size:18px}.select-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.filter-box select{width:100%;min-height:42px;border:1px solid var(--line);background:white;padding:0 10px;font:inherit}.check-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;max-height:230px;overflow:auto}.check-item{display:flex;gap:8px;align-items:center;min-height:34px;border:1px solid rgba(185,150,88,.22);padding:6px 8px;background:#fffaf0;font-weight:800;font-size:13px}.check-actions{display:flex;gap:8px;margin-bottom:10px}.mini-btn{border:1px solid var(--line);background:#fff;min-height:34px;padding:0 10px;font-weight:900;cursor:pointer}.metric-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.metric{background:var(--black);color:white;padding:18px;min-height:118px}.metric small{color:var(--gold);font-weight:900}.metric b{display:block;font-size:32px;margin-top:8px}.question-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}.question-card{border:1px solid var(--line);background:var(--paper);padding:18px;min-height:230px;box-shadow:var(--shadow)}.question-card h3{margin:0 0 10px;font-size:18px}.bar{height:10px;background:#eee6d6;margin:9px 0 14px}.bar span{display:block;height:100%;background:var(--deep-gold)}.insight-list,.quote-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.quote{border-left:4px solid var(--deep-gold);background:#fffaf0;padding:14px 16px;line-height:1.7;color:var(--muted)}.pill-row{display:flex;flex-wrap:wrap;gap:8px}.empty-note{padding:24px;border:1px solid var(--line);background:#fff;color:var(--muted)}@media(max-width:980px){.filter-panel,.metric-row,.question-grid,.insight-list,.quote-list{grid-template-columns:1fr}.check-grid{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
-  <header class="topbar">
-    <div class="brand"><span class="shield">GA</span><span>GA黃金甲｜客戶洞察站</span></div>
-    <nav class="nav" aria-label="頁面導覽">
-      <a href="index.html">關鍵字分析洞察</a><a href="questions.html" aria-current="page">關鍵五問洞察</a>
-    </nav>
-  </header>
+  <header class="topbar"><div class="brand"><span class="shield">GA</span><span>GA黃金甲｜客戶洞察站</span></div><nav class="nav" aria-label="頁面導覽"><a href="index.html">關鍵字分析洞察</a><a href="questions.html" aria-current="page">關鍵五問洞察</a></nav></header>
   <main>
-    <section class="hero">
-      <div class="hero-copy">
-        <div class="eyebrow">客戶洞察站｜子頁面：關鍵五問洞察</div>
-        <h1>關鍵五問洞察<br>把客戶回答變成業務判斷</h1>
-        <p class="lead">這個頁面會用來分析先前收集的五個客戶問題，整理出每題的答案分布、真實需求、客戶分群，以及業務可以直接使用的追問與推薦方向。</p>
-        <div class="hero-actions">
-          <a class="btn gold" href="#framework">看分析架構</a>
-          <a class="btn" href="index.html">回關鍵字分析</a>
-        </div>
-      </div>
-      <div class="hero-photo" role="img" aria-label="客戶訪談洞察情境">
-        <div class="stamp">五問 × 分群 × 話術<br>支撐業務判斷</div>
-      </div>
-    </section>
-
-    <section id="framework">
-      <div class="section-head"><h2>關鍵五問分析架構</h2><p>等五問原始回答匯入後，這裡會自動整理每題洞察與可執行建議。</p></div>
-      <div class="grid3">
-        <article class="card"><h3>1. 每題答案分布</h3><p>統計每一題的主要回答、關鍵詞、常見語氣與重複出現的需求訊號。</p><div class="tagrow"><span class="tag">答案比例</span><span class="tag">高頻詞</span><span class="tag">原文例句</span></div></article>
-        <article class="card"><h3>2. 客戶真實需求</h3><p>把表面回答轉成背後動機，判斷客戶真正想解決的是口味、便利、體感、價格、安心或使用情境。</p><div class="tagrow"><span class="tag">表面回答</span><span class="tag">背後需求</span><span class="tag">品牌意義</span></div></article>
-        <article class="card"><h3>3. 業務應用</h3><p>每一題對應可使用的開場、追問、產品推薦方向、破冰話術與異議處理。</p><div class="tagrow"><span class="tag">開場問法</span><span class="tag">追問</span><span class="tag">推薦方向</span></div></article>
-      </div>
-    </section>
-
-    <section>
-      <div class="section-head"><h2>未來資料接法</h2><p>建議五問資料也放在 Google Sheet，欄位可用：客戶ID、問題1、問題2、問題3、問題4、問題5、備註。</p></div>
-      <div class="panel">
-        <p class="lead" style="margin:0">下一步匯入資料後，這頁可以做出：五題總覽、每題洞察、客戶分群、產品推薦邏輯、業務話術套用，以及每週自動更新。</p>
-      </div>
-    </section>
-
-    <p class="source">GA 客戶洞察站｜子頁面架構已建立，等待五問資料匯入後可啟用完整分析。</p>
+    <section class="hero"><div class="hero-copy"><div class="eyebrow">客戶洞察站｜子頁面：關鍵五問洞察</div><h1>關鍵五問洞察<br>把有效對話變成業務判斷</h1><p class="lead">已排除無效電話與單純活動通知型紀錄，只保留去識別化後、可分析的五問摘要。不公開姓名、電話、Email、地址、生日或完整原始對話。</p><div class="hero-actions"><a class="btn gold" href="#filters">開始篩選</a><a class="btn" href="index.html">回關鍵字分析</a></div></div><div class="hero-photo" role="img" aria-label="客戶訪談洞察情境"><div class="stamp">五問 × 篩選 × 話術<br>支撐業務判斷</div></div></section>
+    <section id="filters"><div class="section-head"><h2>篩選條件</h2><p id="dataNote">資料載入中...</p></div><div class="filter-panel"><div class="filter-box"><h3>年月區間</h3><div class="select-row"><select id="startMonth"></select><select id="endMonth"></select></div></div><div class="filter-box"><h3>客戶條件</h3><div class="select-row"><select id="statusFilter"><option value="all">全部接電狀態</option></select><select id="vipFilter"><option value="all">全部 VIP 狀態</option></select></div></div><div class="filter-box"><h3>產品篩選</h3><div class="check-actions"><button class="mini-btn" id="selectAllProducts">一鍵全選</button><button class="mini-btn" id="clearProducts">一鍵清除</button></div><div class="check-grid" id="productChecks"></div></div></div></section>
+    <section><div class="metric-row" id="metrics"></div></section>
+    <section><div class="section-head"><h2>五問總覽</h2><p>沒在對話中出現的題目會留空；這裡統計的是篩選後有抓到答案的比例。</p></div><div class="question-grid" id="questionGrid"></div></section>
+    <section><div class="section-head"><h2>篩選後洞察</h2><p>從五問答案與對話摘要中整理出業務可行動的訊號。</p></div><div class="insight-list" id="insights"></div></section>
+    <section><div class="section-head"><h2>匿名摘要例句</h2><p>例句經整理與去識別化，保留原意，不顯示個人資訊或完整原始對話。</p></div><div class="quote-list" id="quotes"></div></section>
   </main>
+<script>
+let FIVE_QUESTION_DATA = null;
+const questionDefs=[['q1','最喜歡我們什麼地方？'],['q2','最討厭我們什麼地方？'],['q3','如果您是創辦人，會做什麼改變？'],['q4','怎麼看我們？會用什麼關鍵字形容？'],['q5','使用產品或服務解決了什麼痛點？']];
+const productChecks=document.querySelector('#productChecks'),startMonth=document.querySelector('#startMonth'),endMonth=document.querySelector('#endMonth'),statusFilter=document.querySelector('#statusFilter'),vipFilter=document.querySelector('#vipFilter');
+function option(el,value,label){const o=document.createElement('option');o.value=value;o.textContent=label;el.appendChild(o)}
+function selectedProducts(){return[...productChecks.querySelectorAll('input:checked')].map(i=>i.value)}
+function getFiltered(){const products=selectedProducts();return FIVE_QUESTION_DATA.records.filter(r=>r.month>=startMonth.value&&r.month<=endMonth.value&&(statusFilter.value==='all'||r.status===statusFilter.value)&&(vipFilter.value==='all'||r.vip===vipFilter.value)&&r.products.some(p=>products.includes(p)))}
+function counts(items,getter){const map={};items.forEach(item=>{[].concat(getter(item)||[]).forEach(v=>{if(v)map[v]=(map[v]||0)+1})});return Object.entries(map).sort((a,b)=>b[1]-a[1])}
+function pct(n,d){return d?Math.round(n/d*100):0}
+function render(){const rows=getFiltered(),total=rows.length,vipCount=rows.filter(r=>/是|Y|VIP/i.test(r.vip)).length,validCount=rows.filter(r=>/有效|簡短|已接|成功/.test(r.status)).length,products=counts(rows,r=>r.products).slice(0,5);document.querySelector('#metrics').innerHTML=[['篩選後筆數',total,'去識別化摘要'],['有效接電',validCount,pct(validCount,total)+'%'],['VIP相關',vipCount,pct(vipCount,total)+'%'],['主要產品',products[0]?.[0]||'-',products[0]?products[0][1]+' 筆':'']].map(m=>'<div class="metric"><small>'+m[0]+'</small><b>'+m[1]+'</b><span>'+m[2]+'</span></div>').join('');document.querySelector('#questionGrid').innerHTML=questionDefs.map(([key,title])=>{const hit=rows.filter(r=>r[key]),rate=pct(hit.length,total),sample=hit.find(r=>r[key])?.[key]||'目前篩選條件下未抓到明確回答。';return'<article class="question-card"><h3>'+title+'</h3><div class="bar"><span style="width:'+rate+'%"></span></div><p><b>'+hit.length+'</b> 筆｜'+rate+'%</p><p>'+sample+'</p></article>'}).join('');const tagTop=counts(rows,r=>r.tags).slice(0,8),prodTop=products.slice(0,6),genderTop=counts(rows,r=>r.gender).slice(0,4),statusTop=counts(rows,r=>r.status).slice(0,5),cards=[['客戶重點訊號',tagTop.map(x=>x[0]+' '+x[1]+'筆')],['產品熱點',prodTop.map(x=>x[0]+' '+x[1]+'筆')],['性別分布',genderTop.map(x=>x[0]+' '+x[1]+'筆')],['接電狀態',statusTop.map(x=>x[0]+' '+x[1]+'筆')]];document.querySelector('#insights').innerHTML=cards.map(([t,arr])=>'<article class="card"><h3>'+t+'</h3><div class="pill-row">'+(arr.length?arr:['暫無資料']).map(x=>'<span class="tag">'+x+'</span>').join('')+'</div></article>').join('');const quoteRows=rows.filter(r=>r.q1||r.q3||r.q4||r.q5).slice(0,12);document.querySelector('#quotes').innerHTML=quoteRows.length?quoteRows.map(r=>'<div class="quote"><b>'+r.month+'｜'+r.products.join('、')+'</b><br>'+(r.q1||r.q4||r.q5||r.q3)+'</div>').join(''):'<div class="empty-note">目前篩選條件下沒有可顯示的匿名例句。</div>'}
+function init(data){FIVE_QUESTION_DATA=data;document.querySelector('#dataNote').textContent='已排除無效電話與單純通知；B欄年月空白已沿用上一筆年月。來源 '+data.sourceRows+' 筆，納入 '+data.records.length+' 筆匿名摘要。';data.months.forEach(m=>{option(startMonth,m,m);option(endMonth,m,m)});startMonth.value=data.months.at(-6)||data.months[0]||'';endMonth.value=data.months.at(-1)||'';data.statuses.forEach(s=>option(statusFilter,s,s));data.vips.forEach(v=>option(vipFilter,v,v||'空白'));data.products.forEach(p=>{const label=document.createElement('label');label.className='check-item';label.innerHTML='<input type="checkbox" value="'+p+'" checked> <span>'+p+'</span>';productChecks.appendChild(label)});['change','input'].forEach(ev=>document.addEventListener(ev,e=>{if(e.target.closest('#filters'))render()}));document.querySelector('#selectAllProducts').addEventListener('click',()=>{productChecks.querySelectorAll('input').forEach(i=>i.checked=true);render()});document.querySelector('#clearProducts').addEventListener('click',()=>{productChecks.querySelectorAll('input').forEach(i=>i.checked=false);render()});render()}
+fetch('data/questions-data.json?v='+Date.now()).then(r=>r.json()).then(init).catch(()=>{document.querySelector('#dataNote').textContent='資料載入失敗，請稍後再試。'});
+</script>
 </body>
 </html>
