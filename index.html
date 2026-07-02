@@ -178,23 +178,26 @@
     }
   
     .brand-direction { background: #11110f; color: white; border: 1px solid rgba(185,150,88,.45); box-shadow: var(--shadow); overflow: hidden; }
-    .brand-direction .direction-wrap { display: grid; grid-template-columns: minmax(360px,.95fr) minmax(0,1.05fr); gap: 28px; padding: clamp(24px,4vw,42px); align-items: center; }
-    .brand-radar { position: relative; min-height: 590px; display: grid; place-items: center; background: radial-gradient(circle at 50% 50%, rgba(185,150,88,.18), rgba(17,17,15,.32) 42%, rgba(17,17,15,.94) 74%); border: 1px solid rgba(255,255,255,.12); overflow: hidden; }
-    .brand-radar:before { content: ""; position: absolute; inset: 28px; border: 1px solid rgba(185,150,88,.14); transform: rotate(45deg); }
-    .radar-svg { position: relative; z-index: 1; width: min(78vw, 430px); height: auto; filter: drop-shadow(0 0 22px rgba(185,150,88,.28)); }
-    .radar-grid { fill: none; stroke: rgba(255,255,255,.16); stroke-width: 1; }
-    .radar-axis { stroke: rgba(185,150,88,.25); stroke-width: 1; }
-    .radar-fill { fill: rgba(185,150,88,.36); stroke: #f4d58c; stroke-width: 3; }
-    .radar-dot { fill: #fff4c8; stroke: #11110f; stroke-width: 2; }
-    .radar-core { position: absolute; z-index: 3; width: 128px; height: 128px; border-radius: 50%; display: grid; place-items: center; text-align: center; background: radial-gradient(circle, #fff0b9, #b99658 54%, #65491f 100%); color: #11110f; box-shadow: 0 0 38px rgba(185,150,88,.45), 0 0 120px rgba(185,150,88,.25); font-weight: 900; line-height: 1.35; }
-    .radar-label { position: absolute; z-index: 4; width: 174px; padding: 11px 12px; background: rgba(255,253,248,.95); color: var(--ink); border: 1px solid rgba(185,150,88,.5); box-shadow: 0 12px 30px rgba(0,0,0,.18); font-weight: 900; line-height: 1.45; }
-    .radar-label small { display:block; color: var(--deep-gold); font-size: 12px; margin-top: 3px; }
-    .radar-label span { display:block; color: var(--muted); font-weight: 700; font-size: 12px; margin-top: 3px; }
-    .radar-label.label-entry { left: 50%; top: 7%; transform: translateX(-50%); text-align: center; }
-    .radar-label.label-stamina { right: 4%; top: 30%; }
-    .radar-label.label-action { right: 13%; bottom: 8%; }
-    .radar-label.label-community { left: 13%; bottom: 8%; }
-    .radar-label.label-trust { left: 4%; top: 30%; }
+    .brand-direction .direction-wrap { display: grid; grid-template-columns: minmax(0,1.05fr) minmax(340px,.95fr); gap: 28px; padding: clamp(24px,4vw,42px); align-items: stretch; }
+    .journey-map { position: relative; min-height: 560px; padding: clamp(22px,3vw,34px); background: radial-gradient(circle at 85% 12%, rgba(185,150,88,.16), transparent 28%), linear-gradient(135deg, rgba(255,253,248,.08), rgba(255,253,248,.02)); border: 1px solid rgba(255,255,255,.12); overflow: hidden; }
+    .journey-map:before { content:""; position:absolute; left: 8%; right: 8%; top: 50%; height: 2px; background: linear-gradient(90deg, rgba(185,150,88,.2), rgba(185,150,88,.95), rgba(255,255,255,.24)); transform: translateY(-50%); }
+    .journey-map:after { content:""; position:absolute; right: 7%; top: calc(50% - 7px); width: 14px; height: 14px; border-top: 2px solid rgba(255,241,185,.9); border-right: 2px solid rgba(255,241,185,.9); transform: rotate(45deg); }
+    .journey-origin, .journey-destination { position:absolute; z-index:3; width:min(240px,38%); padding:16px; border:1px solid rgba(185,150,88,.45); background:rgba(255,253,248,.95); color:var(--ink); box-shadow:0 16px 34px rgba(0,0,0,.2); }
+    .journey-origin { left: 5%; top: 7%; }
+    .journey-destination { right: 5%; bottom: 7%; background:linear-gradient(135deg,#fff8dd,#b99658); }
+    .journey-origin b, .journey-destination b { display:block; margin-bottom:6px; color:var(--deep-gold); font-size:18px; }
+    .journey-origin p, .journey-destination p { margin:0; color:var(--soft-ink); line-height:1.55; }
+    .journey-stops { position:relative; z-index:2; min-height: 450px; display:grid; grid-template-columns: repeat(5, minmax(118px,1fr)); gap: 12px; align-items:center; padding: 92px 0 82px; }
+    .journey-stop { position:relative; display:grid; justify-items:center; gap:10px; }
+    .journey-stop:nth-child(even) { transform: translateY(76px); }
+    .stop-node { --fill: 0%; width:96px; height:96px; border-radius:50%; display:grid; place-items:center; text-align:center; color:white; font-weight:900; line-height:1.2; background: conic-gradient(#f1d38a var(--fill), rgba(255,255,255,.13) 0); border:1px solid rgba(255,255,255,.2); box-shadow:0 0 0 8px rgba(185,150,88,.08), 0 16px 40px rgba(0,0,0,.25); }
+    .stop-node span { width:72px; height:72px; border-radius:50%; display:grid; place-items:center; background:#11110f; border:1px solid rgba(255,255,255,.16); font-size:13px; padding:8px; }
+    .stop-card { width:100%; min-height:158px; padding:14px; background:rgba(255,253,248,.94); color:var(--ink); border:1px solid rgba(185,150,88,.42); box-shadow:0 14px 32px rgba(0,0,0,.16); }
+    .stop-card b { display:block; color:var(--deep-gold); margin-bottom:5px; font-size:16px; }
+    .stop-card small { display:block; color:var(--muted); font-weight:800; margin-bottom:8px; }
+    .stop-card p { margin:0; color:var(--soft-ink); line-height:1.55; font-size:14px; }
+    .stop-tags { display:flex; flex-wrap:wrap; gap:5px; margin-top:10px; }
+    .stop-tags span { padding:4px 7px; background:#fff7e8; color:var(--deep-gold); font-size:12px; font-weight:800; }
     .direction-copy h3 { margin: 0 0 14px; color: var(--gold); font-size: clamp(28px,3vw,42px); }
     .direction-copy .direction-lead { margin: 0 0 20px; color: rgba(255,255,255,.78); line-height: 1.85; font-size: 17px; }
     .direction-score-grid { display: grid; gap: 12px; }
@@ -210,7 +213,7 @@
     .verdict-card { background: #fffdf8; color: var(--ink); border: 1px solid rgba(185,150,88,.4); padding: 18px; min-height: 150px; }
     .verdict-card b { color: var(--deep-gold); display:block; margin-bottom:8px; }
     .verdict-card p { margin:0; color:var(--soft-ink); line-height:1.7; }
-    @media (max-width: 980px) { .brand-direction .direction-wrap, .direction-verdict { grid-template-columns: 1fr; } .brand-radar { min-height: 720px; padding: 22px; align-content:center; } .radar-svg { width: min(86vw, 360px); } .radar-core { width: 112px; height: 112px; } .radar-label { width: min(42vw, 165px); font-size: 14px; } .radar-label.label-entry { top: 5%; } .radar-label.label-stamina { right: 2%; top: 28%; } .radar-label.label-trust { left: 2%; top: 28%; } .radar-label.label-action { right: 7%; bottom: 7%; } .radar-label.label-community { left: 7%; bottom: 7%; } }
+    @media (max-width: 980px) { .brand-direction .direction-wrap, .direction-verdict { grid-template-columns: 1fr; } .journey-map { min-height: auto; } .journey-map:before, .journey-map:after { display:none; } .journey-origin, .journey-destination { position:static; width:100%; margin-bottom:12px; } .journey-stops { grid-template-columns:1fr; min-height:0; padding:10px 0 0; } .journey-stop, .journey-stop:nth-child(even) { transform:none; grid-template-columns:96px 1fr; align-items:center; justify-items:stretch; } .stop-card { min-height:0; } }
 
   </style>
 </head>
@@ -347,39 +350,24 @@
 
 
     <section id="brand-direction">
-      <div class="section-head"><h2>我們是否正在成為保健食品界的 Red Bull？</h2><p>用客戶每週更新的關鍵字，檢查品牌是否正朝「陪伴 100 萬人一起更健康」前進。</p></div>
+      <div class="section-head"><h2>我們是否正在成為保健食品界的 Red Bull？</h2><p>用每週更新的客戶關鍵字做方向校準：客戶越常說出後段站點的語言，代表 GA 越接近「陪伴 100 萬人一起更健康」。</p></div>
       <div class="brand-direction">
         <div class="direction-wrap">
-          <div class="brand-radar" aria-label="品牌方向雷達圖">
-            <svg class="radar-svg" viewBox="0 0 360 360" role="img" aria-label="品牌方向五軸雷達圖">
-              <polygon class="radar-grid" points="180,42 311,137 261,291 99,291 49,137"></polygon>
-              <polygon class="radar-grid" points="180,77 278,148 241,263 119,263 82,148"></polygon>
-              <polygon class="radar-grid" points="180,111 246,159 220,235 140,235 114,159"></polygon>
-              <line class="radar-axis" x1="180" y1="180" x2="180" y2="42"></line>
-              <line class="radar-axis" x1="180" y1="180" x2="311" y2="137"></line>
-              <line class="radar-axis" x1="180" y1="180" x2="261" y2="291"></line>
-              <line class="radar-axis" x1="180" y1="180" x2="99" y2="291"></line>
-              <line class="radar-axis" x1="180" y1="180" x2="49" y2="137"></line>
-              <polygon class="radar-fill" id="brandRadarShape" points="180,55 250,157 224,240 132,246 77,146"></polygon>
-              <g id="brandRadarDots"></g>
-            </svg>
-            <div class="radar-core">GA 黃金甲<br><span>Red Bull 方向<br>檢查</span></div>
-            <div class="radar-label label-entry" data-radar-label="entry">入口體驗力<small>好吃、方便、好入口</small><span>--</span></div>
-            <div class="radar-label label-stamina" data-radar-label="stamina">體感續航力<small>有感、續航、精神</small><span>--</span></div>
-            <div class="radar-label label-action" data-radar-label="action">行動能量感<small>運動補給、攜帶、包裝</small><span>--</span></div>
-            <div class="radar-label label-community" data-radar-label="community">社群陪伴力<small>親子、賽事、跑團</small><span>--</span></div>
-            <div class="radar-label label-trust" data-radar-label="trust">安心信任力<small>安心、推薦、用心</small><span>--</span></div>
+          <div class="journey-map" aria-label="品牌目的地導航圖">
+            <div class="journey-origin"><b>目前客戶最常說</b><p>好吃、方便、有感，是客戶願意開始與持續使用的入口。</p></div>
+            <div class="journey-destination"><b>目標目的地</b><p>保健食品界的 Red Bull：被想到的不只是產品，而是能量、行動與陪伴。</p></div>
+            <div class="journey-stops" id="brandJourneyStops"></div>
           </div>
           <div class="direction-copy">
-            <h3 id="brandDirectionTitle">關鍵字正在把 GA 從產品，推向生活方式品牌。</h3>
-            <p class="direction-lead" id="brandDirectionLead">雷達圖會依照每週更新後的 50 詞文字雲重新計算。目標不是只看熱詞多不多，而是看客戶是否開始把 GA 連到入口體驗、體感續航、安心信任、社群陪伴與行動能量。</p>
+            <h3 id="brandDirectionTitle">把客戶關鍵字變成品牌導航。</h3>
+            <p class="direction-lead" id="brandDirectionLead">這張圖不是判斷單一關鍵字紅不紅，而是看客戶語言是否從「產品好吃方便」一路往「體感續航、場景陪伴、安心信任、行動能量」移動。每週更新後，站點會依照最新提及次數重新填滿；越後面的站越滿，代表 GA 越靠近期待的品牌方向。</p>
             <div class="direction-score-grid" id="brandDirectionScores"></div>
           </div>
         </div>
         <div class="direction-verdict" id="brandDirectionVerdict">
-          <article class="verdict-card"><b>目前最強：入口體驗</b><p>好吃、方便、好入口是保健品能不能開始與持續的入口，也是品牌陪伴的第一步。</p></article>
-          <article class="verdict-card"><b>正在形成：體感與行動</b><p>如果運動補給、續航、精神、恢復增加，代表 GA 開始從產品走向能量型生活品牌。</p></article>
-          <article class="verdict-card"><b>需要放大：陪伴與信任</b><p>公司做了很多會員活動與不硬賣的關懷，下一步要讓客戶更常說出陪伴、朋友感、活動與安心。</p></article>
+          <article class="verdict-card"><b>起點要穩</b><p>好吃、方便、有感是目前最強基礎，代表產品已經能被客戶清楚記住。</p></article>
+          <article class="verdict-card"><b>路線要往後推</b><p>接下來要觀察運動、家庭、社群與活動相關字是否增加。</p></article>
+          <article class="verdict-card"><b>終點要被說出口</b><p>當客戶開始主動說出陪伴、能量、活動與朋友感，品牌就更接近 Red Bull 型心智。</p></article>
         </div>
       </div>
     </section>
@@ -600,12 +588,12 @@
       if (word) word.classList.remove('active');
     }
 
-    const brandRadarAxes = [
-      { key: 'entry', title: '入口體驗力', status: '客戶願意開始', words: ['好吃','方便','好入口','適口性','沒有藥感','不死甜','果凍'], note: '這一軸代表產品能不能被吃下去、帶出門、持續使用，是所有陪伴的入口。' },
-      { key: 'stamina', title: '體感續航力', status: '客戶感覺有差', words: ['有感','有效','運動補給','續航力','體力','恢復','提神','精神','睡眠'], note: '這一軸越高，代表客戶不只覺得好吃，而是開始把 GA 連到體力、續航與日常狀態。' },
-      { key: 'action', title: '行動能量感', status: '像 Red Bull 的動能', words: ['運動補給','攜帶方便','獨立包裝','好撕','包裝','賽事','跑步','騎車','健身','半馬包','全馬包'], note: '這一軸是 Red Bull 感的核心：產品跟行動、賽事、出門、運動場景綁在一起。' },
-      { key: 'community', title: '社群陪伴力', status: '一起更健康', words: ['小孩','接受度高','推薦','新手友善','賽事','馬拉松','跑步','騎車','健身','半馬包','全馬包'], note: '這一軸看客戶是否把 GA 放進家庭、跑團、朋友推薦與會員活動，而不是只看單次購買。' },
-      { key: 'trust', title: '安心信任力', status: '朋友式品牌關係', words: ['安心','放心','信任','用心','品質','安全','成分','足量','台灣品牌','專業','推薦'], note: '這一軸對應尊重客戶與家人原則。數字增加，代表客戶開始感受到品牌的態度。' }
+    const brandJourneyStops = [
+      { key: 'entry', title: '入口站', label: '產品願意吃', status: '起點已穩', words: ['好吃','方便','好入口','適口性','沒有藥感','不死甜','果凍'], note: '客戶先願意吃、願意帶、願意持續，品牌才有機會陪伴日常。' },
+      { key: 'effect', title: '體感站', label: '真的有感', status: '推進中', words: ['有感','有效','續航力','體力','恢復','提神','精神','睡眠'], note: '從好吃前進到有感，代表客戶開始把 GA 連到狀態改善與續航。' },
+      { key: 'scene', title: '場景站', label: '進入生活', status: '正在擴張', words: ['運動補給','小孩','葉黃素','眼睛','乾澀','馬拉松','跑步','騎車','健身','半馬包','全馬包'], note: '關鍵字進入運動、親子、用眼與日常場景，代表品牌不只停在單品。' },
+      { key: 'trust', title: '信任站', label: '朋友式信任', status: '需要累積', words: ['安心','放心','信任','用心','品質','安全','成分','足量','台灣品牌','專業','推薦'], note: '這一站對應尊重客戶與家人原則。數字越高，代表客戶越能感受到品牌態度。' },
+      { key: 'energy', title: '能量站', label: 'Red Bull 感', status: '目標放大', words: ['運動補給','攜帶方便','獨立包裝','好撕','包裝','賽事','馬拉松','跑步','騎車','健身','新手友善','半馬包','全馬包'], note: '這是目的地站：客戶把 GA 和行動、活動、出門、運動能量連在一起。' }
     ];
     function getCloudCounts() {
       const counts = {};
@@ -614,37 +602,25 @@
       });
       return counts;
     }
-    function axisPoint(value, index) {
-      const center = 180;
-      const radius = 138 * Math.max(.08, Math.min(1, value / 100));
-      const angle = -90 + index * 72;
-      const rad = angle * Math.PI / 180;
-      return [center + Math.cos(rad) * radius, center + Math.sin(rad) * radius];
-    }
-    function updateBrandRadar() {
+    function updateBrandJourney() {
       const counts = getCloudCounts();
-      const axes = brandRadarAxes.map(axis => {
-        const count = axis.words.reduce((sum, word) => sum + (counts[word] || 0), 0);
-        const topWords = axis.words.map(word => ({ word, count: counts[word] || 0 })).filter(item => item.count > 0).sort((a,b) => b.count - a.count).slice(0, 5);
+      const stops = brandJourneyStops.map(stop => {
+        const count = stop.words.reduce((sum, word) => sum + (counts[word] || 0), 0);
+        const topWords = stop.words.map(word => ({ word, count: counts[word] || 0 })).filter(item => item.count > 0).sort((a,b) => b.count - a.count).slice(0, 4);
         const share = cloudTotal ? ((count / cloudTotal) * 100).toFixed(1) : '0.0';
-        return { ...axis, count, share, topWords };
+        return { ...stop, count, share, topWords };
       });
-      const maxCount = Math.max(...axes.map(axis => axis.count), 1);
-      axes.forEach(axis => { axis.score = Math.round((axis.count / maxCount) * 100); });
-      const points = axes.map((axis, index) => axisPoint(axis.score, index));
-      const shape = document.querySelector('#brandRadarShape');
-      if (shape) shape.setAttribute('points', points.map(point => point.map(n => n.toFixed(1)).join(',')).join(' '));
-      const dots = document.querySelector('#brandRadarDots');
-      if (dots) dots.innerHTML = points.map(point => '<circle class="radar-dot" cx="' + point[0].toFixed(1) + '" cy="' + point[1].toFixed(1) + '" r="5"></circle>').join('');
-      axes.forEach(axis => {
-        const label = document.querySelector('[data-radar-label="' + axis.key + '"] span');
-        if (label) label.textContent = axis.count + ' 次｜' + axis.share + '%｜強度 ' + axis.score;
-      });
+      const maxCount = Math.max(...stops.map(stop => stop.count), 1);
+      stops.forEach(stop => { stop.progress = Math.max(8, Math.round((stop.count / maxCount) * 100)); });
+      const container = document.querySelector('#brandJourneyStops');
+      if (container) container.innerHTML = stops.map((stop, index) => '<article class="journey-stop"><div class="stop-node" style="--fill:' + stop.progress + '%"><span>' + (index + 1) + '<br>' + stop.title + '</span></div><div class="stop-card"><b>' + stop.label + '</b><small>' + stop.count + ' 次｜' + stop.share + '%｜填滿 ' + stop.progress + '%</small><p>' + stop.note + '</p><div class="stop-tags">' + stop.topWords.map(item => '<span>' + item.word + ' ' + item.count + '</span>').join('') + '</div></div></article>').join('');
       const scores = document.querySelector('#brandDirectionScores');
-      if (scores) scores.innerHTML = axes.map(axis => '<article class="direction-score"><div class="direction-score-top"><span>' + axis.title + '｜' + axis.status + '</span><span>' + axis.count + ' 次｜' + axis.share + '%</span></div><div class="direction-bar" style="--w:' + axis.score + '%"><span></span></div><p>' + axis.note + '</p><div class="direction-tags">' + axis.topWords.map(item => '<b>' + item.word + ' ' + item.count + '</b>').join('') + '</div></article>').join('');
-      const sorted = [...axes].sort((a,b) => b.count - a.count);
+      if (scores) scores.innerHTML = stops.map(stop => '<article class="direction-score"><div class="direction-score-top"><span>' + stop.title + '｜' + stop.status + '</span><span>' + stop.count + ' 次｜' + stop.share + '%</span></div><div class="direction-bar" style="--w:' + stop.progress + '%"><span></span></div><p>' + stop.note + '</p><div class="direction-tags">' + stop.topWords.map(item => '<b>' + item.word + ' ' + item.count + '</b>').join('') + '</div></article>').join('');
+      const first = stops[0];
+      const last = stops[stops.length - 1];
+      const weakest = [...stops].sort((a,b) => a.progress - b.progress)[0];
       const verdict = document.querySelector('#brandDirectionVerdict');
-      if (verdict) verdict.innerHTML = '<article class="verdict-card"><b>目前最強：' + sorted[0].title + '</b><p>這代表客戶現在最容易說出口的是「' + sorted[0].topWords.slice(0,3).map(item => item.word).join('、') + '」。這是品牌前進的起點。</p></article><article class="verdict-card"><b>正在推進：' + sorted[1].title + '</b><p>如果這一軸持續成長，GA 就會從單一產品印象，慢慢變成客戶生活與健康節奏的一部分。</p></article><article class="verdict-card"><b>下週要觀察：' + sorted[sorted.length - 1].title + '</b><p>這一軸目前訊號較弱。若公司已經有做對應活動或關懷，要思考如何讓客戶更容易用這些字說出來。</p></article>';
+      if (verdict) verdict.innerHTML = '<article class="verdict-card"><b>目前起點：' + first.label + '</b><p>客戶最常說的是「' + first.topWords.slice(0,3).map(item => item.word).join('、') + '」。這代表產品入口已經清楚，但還不是終點。</p></article><article class="verdict-card"><b>目的地進度：' + last.label + '</b><p>能量站目前填滿 ' + last.progress + '%。每週觀察這一站是否上升，就能判斷 GA 是否更像行動與陪伴型品牌。</p></article><article class="verdict-card"><b>下週優先補強：' + weakest.label + '</b><p>這站目前訊號最弱。若公司已有活動或服務，下一步要讓客戶更容易用這類關鍵字說出來。</p></article>';
     }
     document.querySelectorAll('.word').forEach(word => {
       const key = wordToKey[word.textContent.trim()];
@@ -661,7 +637,7 @@
     });
     renderKeyword('taste');
     setOut('sales');
-    updateBrandRadar();
+    updateBrandJourney();
   </script>
 </body>
 </html>
