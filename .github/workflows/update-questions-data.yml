@@ -1,0 +1,30 @@
+name: Update Questions Dashboard
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "20 1 * * 1"
+
+permissions:
+  contents: write
+
+jobs:
+  update-questions-data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Recalculate questions dashboard data
+        run: node scripts/update-questions-data.mjs
+
+      - name: Commit updated questions data
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "自動更新關鍵五問洞察資料"
+          file_pattern: data/questions-data.json
