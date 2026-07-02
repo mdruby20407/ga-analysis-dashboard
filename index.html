@@ -74,10 +74,10 @@
     .w3 { font-size: clamp(34px, 4.2vw, 62px); color: var(--blue); }
     .w4 { font-size: clamp(25px, 3.1vw, 44px); color: var(--green); }
     .w5 { font-size: clamp(18px, 2.1vw, 30px); color: #746c60; }
-    .count-bubble { position: absolute; z-index: 8; display: none; min-width: 118px; padding: 10px 12px; border: 1px solid rgba(185,150,88,.42); background: rgba(17,17,15,.92); color: white; box-shadow: var(--shadow); pointer-events: none; }
+    .count-bubble { position: absolute; z-index: 8; display: none; min-width: 220px; max-width: 340px; padding: 12px 14px; border: 1px solid rgba(185,150,88,.42); background: rgba(17,17,15,.94); color: white; box-shadow: var(--shadow); pointer-events: none; line-height: 1.55; }
     .count-bubble.show { display: block; }
     .count-bubble b { display: block; color: var(--gold); font-size: 15px; margin-bottom: 3px; }
-    .count-bubble span { font-size: 13px; color: rgba(255,255,255,.8); }
+    .count-bubble span { display: block; font-size: 13px; color: rgba(255,255,255,.82); }
 
     .grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
     .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
@@ -258,11 +258,6 @@
       </div>
     </section>
 
-pan class="tag">入眠</span><span class="tag">白天精神</span><span class="tag">GABA</span></div></article>
-        <article class="card"><h3>品牌信任型</h3><p>會被推薦者、能見度、台灣品牌、用心與安心感打動。這群人需要看見口碑與品牌做事方式。</p><div class="tagrow"><span class="tag">推薦</span><span class="tag">安心</span><span class="tag">能見度</span></div></article>
-      </div>
-    </section>
-
         <section id="scripts">
       <div class="section-head"><h2>銷售話術庫</h2><p>原則：先問困擾，再接產品優勢；先讓客戶說出需求，再給解法。</p></div>
       <div class="card">
@@ -339,122 +334,127 @@ pan class="tag">入眠</span><span class="tag">白天精神</span><span class="t
     const wordToKey = { '好吃':'taste', '方便':'convenience', '有感':'effect', '有效':'effect', '運動補給':'sports', '續航力':'sports', '體力':'sports', '果膠':'sports', '葉黃素':'lutein', '眼睛':'lutein', '乾澀':'lutein', '飛蚊症':'lutein', '睡眠':'sleep', '小孩':'family', '接受度高':'family', '不便宜':'price', 'CP值':'price' };
     function detectAudience(text) {
       const value = text || '';
-      if (/跑|馬拉松|補給|果膠|騎車|三鐵|健身|續航|體力/.test(value)) return 'sports';
-      if (/價格|不便宜|高價|CP|cp|猶豫/.test(value)) return 'price';
-      if (/睡|入眠|精神|GABA|gaba|睿智/.test(value)) return 'sleep';
-      if (/葉黃素|眼睛|乾澀|飛蚊|螢幕/.test(value)) return 'lutein';
+      if (/力捷凍|跑|馬拉松|補給|果膠|騎車|三鐵|健身|續航|體力|團練/.test(value)) return 'sports';
+      if (/價格|不便宜|高價|CP|cp|猶豫|價值/.test(value)) return 'price';
+      if (/睡|入眠|精神|GABA|gaba|睿智|壓力/.test(value)) return 'sleep';
+      if (/葉黃素|眼睛|乾澀|飛蚊|螢幕|3C/.test(value)) return 'lutein';
       if (/小孩|孩子|家長|媽媽|爸爸|親子|不敢吞|長輩|照顧者|願意吃|主動吃/.test(value)) return 'family';
-      if (/方便|攜帶|不用配水|出門/.test(value)) return 'convenience';
+      if (/方便|攜帶|不用配水|出門|外出/.test(value)) return 'convenience';
       return 'taste';
     }
+    const productProfiles = {
+      sports: { name: '力捷凍', category: '運動補給果膠', bestFor: '跑團、馬拉松、自行車與長距離訓練', promise: '比賽或訓練中吃得下、補得到、比較容易撐過後段', hooks: ['長距離後段沒力', '補給吃不下', '怕腸胃不舒服', '團練試吃最有感'], proof: '用團練或賽前試吃取代空泛保證', caution: '不要承諾成績變快，改說協助補給節奏與體感觀察' },
+      lutein: { name: '葉黃素', category: '日常眼睛保健', bestFor: '親子、學生、3C 上班族與熟齡族', promise: '好入口，降低孩子或長輩抗拒，讓補充更容易持續', hooks: ['小孩願意吃', '眼睛乾澀', '螢幕族', '長輩不想吞膠囊'], proof: '先看接受度、是否願意每天吃，再談長期補充', caution: '避免把保健食品說成治療眼疾' },
+      sleep: { name: 'GABA／睿智相關產品', category: '睡眠與精神支持', bestFor: '高壓上班族、睡眠困擾與白天精神差族群', promise: '先分清楚入睡、睡眠品質、白天精神，再設觀察指標', hooks: ['不好入睡', '醒來仍累', '白天精神差', '壓力大'], proof: '用 7 天睡眠觀察表追蹤入睡時間、夜醒與精神', caution: '不要說替代藥物或保證治療失眠' },
+      family: { name: '好入口保健品', category: '家庭保健', bestFor: '小孩、長輩、照顧者與不喜歡吞膠囊的人', promise: '把保健從拉扯變成日常，重點是願意吃、吃得久', hooks: ['小孩願意吃', '長輩接受度', '沒有藥感', '照顧者不用每天勸'], proof: '小量試吃確認接受度，比一開始推大組合更穩', caution: '先談接受度與持續率，不要只講成分很強' },
+      price: { name: 'GA 黃金甲產品', category: '價值感溝通', bestFor: '猶豫客、比較型客戶、團購主與企業送禮', promise: '把好吃、方便、有感與使用情境說清楚，降低第一次購買風險', hooks: ['怕買貴', '怕沒感覺', '想先試', '需要送禮體面'], proof: '先小組合或試吃，再用回訪累積體感與回購理由', caution: '不要硬拗便宜，改用每次使用價值與持續率說明' },
+      taste: { name: 'GA 黃金甲產品', category: '好吃型保健食品', bestFor: '想開始保健但怕藥感、怕難吃、怕無法持續的人', promise: '好吃不是表面賣點，而是讓客戶願意開始與持續的關鍵', hooks: ['好吃', '沒有藥感', '方便', '持續吃'], proof: '用試吃與短天數體驗讓客戶自己感受', caution: '先問過去中斷原因，再推薦產品' },
+      convenience: { name: 'GA 黃金甲產品', category: '方便攜帶保健食品', bestFor: '上班族、外勤、跑者、媽媽與出差族', promise: '不用配水、好攜帶、獨立包裝，降低每天補充的阻力', hooks: ['不用配水', '外出方便', '獨立包裝', '不容易忘記'], proof: '用一週情境試用，觀察是否真的比較常吃', caution: '不要只說包裝方便，要連到使用頻率與持續率' }
+    };
     function extractQuoted(text) {
       const match = (text || '').match(/[「『](.*?)[」』]/);
       return match ? match[1] : (text || '').replace(/^請幫我把/, '').replace(/轉成.*$/, '').trim();
     }
     function parseNeed(text) {
       const raw = text || '';
-      const quote = extractQuoted(raw);
+      const quote = extractQuoted(raw) || raw || '客戶的真實需求';
       const audience = detectAudience(raw);
-      const target = /家長|媽媽|爸爸/.test(raw) ? '家長' : /長輩|照顧者/.test(raw) ? '照顧者' : /跑團|跑者|車友|運動/.test(raw) ? '運動族群' : /上班族|高壓/.test(raw) ? '上班族' : '目標客戶';
-      const product = /葉黃素/.test(raw) ? '葉黃素' : /果膠|補給/.test(raw) ? '運動補給' : /睡眠|GABA|gaba|睿智/.test(raw) ? '睡眠保健' : /保健品|保健食品/.test(raw) ? '保健品' : '產品';
+      const target = /家長|媽媽|爸爸/.test(raw) ? '家長' : /長輩|照顧者/.test(raw) ? '照顧者' : /跑團|跑者|車友|運動|馬拉松|團練/.test(raw) ? '運動族群' : /上班族|高壓|辦公/.test(raw) ? '上班族' : '目標客戶';
+      const profile = productProfiles[audience] || productProfiles.taste;
+      const product = /力捷凍/.test(raw) ? '力捷凍' : /葉黃素/.test(raw) ? '葉黃素' : /GABA|gaba/.test(raw) ? 'GABA' : /睿智/.test(raw) ? '睿智相關產品' : profile.name;
       const pains = [];
       if (/不喜歡吞|吞膠囊|不敢吞/.test(raw)) pains.push('不喜歡吞膠囊');
       if (/小孩|孩子|願意吃|主動吃/.test(raw)) pains.push('小孩願不願意吃');
       if (/好入口|沒有藥感|藥感/.test(raw)) pains.push('吃起來像不像藥、能不能入口');
       if (/持續|忘記|每天/.test(raw)) pains.push('能不能持續補充');
-      if (/續航|沒力|體力|補給/.test(raw)) pains.push('運動中能不能補得到、撐得住');
-      if (/睡|入眠|精神/.test(raw)) pains.push('睡眠品質與白天精神');
-      if (/價格|不便宜|高價/.test(raw)) pains.push('價格是否值得');
+      if (/跑|馬拉松|續航|沒力|體力|補給|團練/.test(raw)) pains.push('長距離後段能不能補得到、撐得住');
+      if (/睡|入眠|精神|壓力/.test(raw)) pains.push('睡眠品質與白天精神');
+      if (/價格|不便宜|高價|價值/.test(raw)) pains.push('價格是否值得');
       const corePain = pains.length ? pains.join('、') : keywordInsights[audience]?.need || '客戶是否真的願意使用並持續';
-      return { raw, quote, audience, target, product, corePain };
+      return { raw, quote, audience, target, product, profile, corePain };
     }
     function scenarioBase(audience, text) {
       const n = parseNeed(text);
-      if (n.target === '家長') return {
-        label: '家長葉黃素',
-        open: '我想先了解，你幫孩子補' + n.product + '時，最卡的是「' + n.corePain + '」哪一個？很多家長不是不知道要補，而是孩子不願意吃，最後就很難持續。',
-        ask: '如果孩子願意吃，你會更在意三件事裡的哪一個：口味接受度、成分安心，還是能不能每天固定補？',
-        value: '這句「' + n.quote + '」真正的重點是持續率。對家長來說，產品不是買回家就完成，而是孩子願意吃、家長不用每天拉扯，才真的補得到。',
-        objection: '如果家長說「我比較在意成分」，可以回：成分當然重要，但如果孩子不吃，再好的成分也進不了日常；所以我們會先解決接受度，再談長期補充。',
-        copy: '小孩願意吃，家長才真的補得到。好吃不是賣點而已，是讓保健能持續發生的第一步。',
-        follow: '下一步可以給小孩試吃，請家長觀察三件事：會不會抗拒、需不需要提醒、隔天還願不願意再吃。'
-      };
-      if (n.target === '照顧者') return {
-        label: '長輩照顧',
-        open: '家裡長輩最常卡在哪裡：不喜歡吞膠囊、覺得有藥味，還是需要你一直提醒？如果入口形式不對，照顧者其實會很辛苦。',
-        ask: '如果改成好入口、沒有藥感的形式，長輩願意固定吃的機會會不會比較高？你比較在意他願意吃，還是你不用天天勸？',
-        value: '你輸入的「' + n.quote + '」其實是在講照顧者負擔。真正要賣的不是口味，而是降低長輩抗拒，讓照顧變得比較順，補充才有機會持續。',
-        objection: '若客戶說「長輩很挑，應該還是不吃」，可以回：所以我們不建議一開始買多，先用小量試吃確認長輩願不願意入口，再談長期補充。',
+      const p = n.profile;
+      const hookList = p.hooks.join('、');
+      if (n.audience === 'sports') return {
+        label: '力捷凍跑團開發',
+        open: '我想先問你們跑團長距離時，最常卡的是後段沒力、補給吃不下，還是吃了胃不舒服？力捷凍比較適合從「團練中真的吃得下」切入。',
+        ask: '如果我們先給團練試吃，你最想觀察哪件事：10K 後還吃不吃得下、腸胃舒不舒服，還是後段續航感？',
+        value: '「' + n.quote + '」不能只講產品厲害，要講跑者現場痛點：' + hookList + '。業務開發時先拿團練試吃當敲門磚，比直接推成分更容易讓對方願意聊。',
+        objection: '如果對方說已有固定果膠，可以回：那很好，我們不取代你原本習慣，先測一包在後段是否更好入口、會不會膩或胃不舒服。',
+        copy: '補給不是放在口袋就有用，是後段還吃得下、補得到、撐得住。先用團練試吃讓跑者自己感受。',
+        follow: '下一步：找團長或配速員，提 10-20 份團練試吃；回收三個答案：口味、腸胃感、後段體感。' };
+      if (n.target === '家長' || n.audience === 'lutein') return {
+        label: '親子葉黃素',
+        open: '我想先了解，你幫孩子補' + n.product + '時，最卡的是孩子不願意吃、每天要提醒，還是擔心成分不安心？',
+        ask: '如果孩子願意吃，你會更在意口味接受度、成分安心，還是能不能每天固定補？',
+        value: '「' + n.quote + '」的重點不是把葉黃素講得多厲害，而是家長真正需要：小孩願意吃，保健才補得到。',
+        objection: '如果家長說比較在意成分，可以回：成分一定重要，但如果孩子不吃，再好的成分也進不了日常；所以我們會先解決接受度，再談長期補充。',
+        copy: '小孩願意吃，家長才真的補得到。好吃不是表面賣點，是讓保健能持續發生的第一步。',
+        follow: '下一步：先用試吃確認孩子是否抗拒、需不需要提醒、隔天還願不願意再吃。' };
+      if (n.target === '照顧者' || /長輩|吞膠囊/.test(n.raw)) return {
+        label: '長輩保健',
+        open: '家裡長輩最常卡在哪裡：不喜歡吞膠囊、覺得有藥味，還是需要你一直提醒？入口形式不對，照顧者其實會很辛苦。',
+        ask: '如果改成好入口、沒有藥感的形式，長輩願意固定吃的機會會不會比較高？',
+        value: '「' + n.quote + '」是在講照顧者負擔。真正要賣的不是口味，而是降低長輩抗拒，讓補充有機會持續。',
+        objection: '如果客戶說長輩很挑，可以回：所以不建議一開始買多，先用小量試吃確認願不願意入口，再談長期補充。',
         copy: '照顧長輩，有時不是多買一瓶，而是找到他願意每天吃的方式。好入口、沒有藥感，才可能真正持續。',
-        follow: '下一步可提供 3 天試吃，請照顧者記錄長輩是否抗拒、是否需要配水、是否願意第二次吃。'
-      };
-      if (audience === 'sports') return {
-        label: '運動補給',
-        open: '你們跑長距離時，最常遇到的是後段沒力、補給吃不下，還是吃了胃不舒服？',
-        ask: '如果只能先改善一件事，你會選續航力、口味好入口，還是比賽中方便撕開？',
-        value: '「' + n.quote + '」的重點不是補給品多厲害，而是比賽中吃得下、補得到、能持續，這才會影響後段表現。',
-        objection: '如果對方說「我有固定吃的果膠了」，可以問：你現在那款在後段還吃得下嗎？會不會膩、黏、或胃不舒服？',
-        copy: '補給不是放在口袋就有用，是後段還吃得下、補得到、撐得住。',
-        follow: '下一步可從團練試吃開始，讓跑者在 10K 後或長距離後段測口感與腸胃感受。'
-      };
-      if (audience === 'sleep') return {
+        follow: '下一步：提供 3 天試吃，記錄是否抗拒、是否需要配水、是否願意第二次吃。' };
+      if (n.audience === 'sleep') return {
         label: '睡眠上班族',
-        open: '你是比較難入睡，還是睡得著但醒來仍然累？這兩種狀況其實要分開看。',
-        ask: '你最想先改善哪個感受：比較快睡著、半夜少醒，還是白天精神比較穩？',
-        value: '「' + n.quote + '」要轉成銷售語言時，不能只說有助睡眠，要先讓客戶說清楚他是哪一種睡眠困擾。',
-        objection: '如果對方說「我吃過很多都沒用」，可以回：那我們先不要期待一次全解，只先設定一個觀察指標，例如入睡時間或隔天精神。',
-        copy: '睡不好不是一種問題。先分清楚入睡、深睡、白天精神，才知道怎麼選。',
-        follow: '下一步可設計 7 天觀察表：入睡時間、夜醒次數、隔天精神，讓有感變得可追蹤。'
-      };
-      if (audience === 'price') return {
+        open: '你是比較難入睡，還是睡得著但醒來仍然累？這兩種狀況要分開看，才不會一開始就講錯重點。',
+        ask: '你最想先改善哪個感受：比較快入睡、半夜少醒，還是白天精神比較穩？',
+        value: '「' + n.quote + '」要轉成銷售語言時，不能只說有助睡眠，要先讓客戶說清楚他是哪一種困擾，再用 7 天觀察指標建立信任。',
+        objection: '如果對方說吃過很多都沒用，可以回：那我們先不要期待一次全解，只先設定一個可觀察指標，例如入睡時間或隔天精神。',
+        copy: '睡不好不是一種問題。先分清楚入睡、睡眠品質、白天精神，才知道怎麼選。',
+        follow: '下一步：用 7 天觀察表追蹤入睡時間、夜醒次數、隔天精神。' };
+      if (n.audience === 'price') return {
         label: '價格猶豫',
         open: '你會在意價格很正常，所以我想先了解：你最怕的是買貴，還是買了沒感覺、最後放著？',
         ask: '如果這個產品能提高持續吃的機會，對你來說值不值得，會取決於口味、方便，還是體感？',
         value: '「' + n.quote + '」背後是價值感問題。不要硬說便宜，要把持續率、體感與使用場景講清楚。',
         objection: '如果客戶說太貴，可以回：理解，所以我不會先建議你買多；我們先找最有機會讓你有感、也吃得久的品項。',
         copy: '高價不是問題，價值感沒有被說清楚才是問題。買了會持續用，才值得。',
-        follow: '下一步先用單品或小組合降低第一次門檻，回訪時問是否好吃、方便、有感。'
-      };
+        follow: '下一步：先用單品或小組合降低第一次門檻，回訪是否好吃、方便、有感。' };
       return {
-        label: '通用保健需求',
-        open: '你目前找' + n.product + '，最想解決的是「' + n.corePain + '」，還是想先找一個比較容易持續的選擇？',
+        label: p.category,
+        open: '你目前看' + n.product + '，最想解決的是「' + n.corePain + '」，還是想先找一個比較容易持續的選擇？',
         ask: '你過去保健品沒有持續，通常是因為不好吃、麻煩，還是感覺不到差異？',
-        value: '「' + n.quote + '」可以轉成三個銷售重點：降低使用阻力、提高持續率、讓客戶有明確感受。',
+        value: '「' + n.quote + '」可以轉成三個銷售重點：' + p.promise + '。業務要先問情境，再接產品，不要一開口就背成分。',
         objection: '如果客戶還沒感覺需求急迫，可以先不要硬推產品，而是請他回想過去最常中斷保健的原因。',
         copy: '保健不是買了就有效，吃得下、記得吃、持續吃，才是關鍵。',
-        follow: '下一步用試吃或短天數體驗，先確認接受度，再談回購與組合。'
-      };
+        follow: '下一步：用試吃或短天數體驗，先確認接受度，再談回購與組合。' };
     }
     function buildFiveOutputs(mode, audience, text) {
       const base = scenarioBase(audience, text);
-      const prefix = mode === 'line' ? 'LINE 私訊版' : mode === 'content' ? '社群內容版' : mode === 'meeting' ? '內部簡報版' : '業務開發版';
       if (mode === 'line') return [
-        { title: '1. LINE 開場', body: base.open },
-        { title: '2. LINE 追問', body: base.ask },
-        { title: '3. 短版價值說法', body: base.value },
-        { title: '4. 客戶猶豫時回覆', body: base.objection },
-        { title: '5. 下一步邀請', body: base.follow }
+        { title: '1. 第一則私訊', body: base.open.replace('我想先問', '想先問你一下').replace('我想先了解', '想先了解你') },
+        { title: '2. 第二則追問', body: base.ask + ' 你回我一個最接近的就好。' },
+        { title: '3. 30 秒價值說法', body: base.copy },
+        { title: '4. 對方已讀或猶豫', body: base.objection },
+        { title: '5. 不壓迫收尾', body: base.follow + ' 若你不急，我也可以先幫你整理適合的情境再決定。' }
       ];
       if (mode === 'content') return [
-        { title: '1. 貼文標題', body: base.copy },
+        { title: '1. 社群貼文標題', body: base.copy },
         { title: '2. 開頭鉤子', body: base.open },
-        { title: '3. 洞察段落', body: base.value },
+        { title: '3. 內容主軸', body: base.value },
         { title: '4. 留言互動題', body: base.ask },
-        { title: '5. CTA', body: base.follow }
+        { title: '5. 貼文 CTA', body: base.follow + ' 歡迎留言你最卡的情境，我們用情境幫你挑。' }
       ];
       if (mode === 'meeting') return [
         { title: '1. 客戶洞察', body: base.value },
-        { title: '2. 痛點描述', body: base.open },
-        { title: '3. 業務追問', body: base.ask },
-        { title: '4. 風險或異議', body: base.objection },
-        { title: '5. 建議行動', body: base.follow }
+        { title: '2. 業務切入場景', body: base.open },
+        { title: '3. 現場提問', body: base.ask },
+        { title: '4. 風險提醒', body: base.objection + ' 另外記得不要做醫療或成績保證，用「觀察、體感、持續率」溝通。' },
+        { title: '5. 建議下一步', body: base.follow }
       ];
       return [
         { title: '1. 開場話術', body: base.open },
-        { title: '2. 追問問題', body: base.ask },
-        { title: '3. 價值說法', body: base.value },
+        { title: '2. 需求追問', body: base.ask },
+        { title: '3. 產品連結', body: base.value },
         { title: '4. 異議處理', body: base.objection },
-        { title: '5. 可直接使用文案', body: '[' + prefix + '] ' + base.copy + ' ' + base.follow }
+        { title: '5. 下一步成交動作', body: base.follow }
       ];
     }
     function renderOutputs(items) {
@@ -483,18 +483,37 @@ pan class="tag">入眠</span><span class="tag">白天精神</span><span class="t
       });
     });
     document.querySelectorAll('.keyword-button').forEach(btn => btn.addEventListener('click', () => renderKeyword(btn.dataset.key)));
+    const cloudExamples = {
+      '好吃': ['葉黃素好吃', '果膠好吃', '果凍好吃', '好吃又方便'],
+      '方便': ['方便攜帶', '不用配水', '獨立包裝方便', '拿了就走'],
+      '有感': ['睡眠有感', '體力有感', '眼睛有感', '吃了有感'],
+      '有效': ['有效補給', '有效改善精神', '有效續航', '有效率補充'],
+      '果膠': ['果膠好吃', '運動果膠', '果膠補給', '果膠方便'],
+      '葉黃素': ['葉黃素好吃', '小孩葉黃素', '葉黃素果凍', '葉黃素方便'],
+      '運動補給': ['跑步運動補給', '馬拉松運動補給', '運動補給方便', '運動補給果膠'],
+      '續航力': ['跑步續航力', '馬拉松續航力', '補給續航力', '體力續航力'],
+      '睡眠': ['睡眠品質', '幫助入眠', '白天精神', 'GABA 睡眠'],
+      '小孩': ['小孩願意吃', '小孩葉黃素', '小孩主動吃', '小孩接受度'],
+      '接受度高': ['小孩接受度高', '長輩接受度高', '口味接受度高', '保健品接受度高'],
+      '不敢吞膠囊': ['長輩不敢吞膠囊', '小孩不敢吞膠囊', '不敢吞膠囊保健品']
+    };
+    const cloudTotal = Array.from(document.querySelectorAll('.word')).reduce((sum, item) => sum + Number(item.dataset.count || 0), 0);
+    
     function showCountBubble(word) {
       const bubble = document.querySelector('#countBubble');
       const cloud = document.querySelector('#wordCloud');
       if (!bubble || !cloud) return;
       const label = word.textContent.trim();
-      bubble.querySelector('b').textContent = label + '：' + word.dataset.count + ' 次';
-      bubble.querySelector('span').textContent = '點選可查看應用方向';
+      const count = Number(word.dataset.count || 0);
+      const share = cloudTotal ? ((count / cloudTotal) * 100).toFixed(1) : '0.0';
+      const examples = cloudExamples[label] || [label + '好吃', label + '方便', label + '有感'];
+      bubble.querySelector('b').textContent = label + '：' + count + ' 次（佔全部 ' + share + '%）';
+      bubble.querySelector('span').textContent = '完整關鍵字例子：' + examples.slice(0, 5).join('、');
       const wordRect = word.getBoundingClientRect();
       const cloudRect = cloud.getBoundingClientRect();
       let left = wordRect.left - cloudRect.left + wordRect.width / 2 + 14;
       let top = wordRect.top - cloudRect.top - 18;
-      left = Math.max(12, Math.min(left, cloudRect.width - 140));
+      left = Math.max(12, Math.min(left, cloudRect.width - 350));
       top = Math.max(12, Math.min(top, cloudRect.height - 62));
       bubble.style.left = left + 'px';
       bubble.style.top = top + 'px';
