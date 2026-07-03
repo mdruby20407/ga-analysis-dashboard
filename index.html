@@ -50,7 +50,10 @@
     .hero-card span { color: rgba(255,255,255,.72); line-height: 1.65; }
     main { max-width: 1240px; margin: 0 auto; padding: 42px 24px 88px; }
     section { margin-top: 34px; scroll-margin-top: 92px; }
-    .section-head { display: flex; justify-content: space-between; gap: 24px; align-items: end; margin-bottom: 18px; }
+    .section-head { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 8px 18px; align-items: end; margin-bottom: 18px; }
+    .section-head h2 { grid-column: 1; }
+    .section-head p { grid-column: 1; grid-row: 2; }
+    .section-head .cycle-btn { grid-column: 2; grid-row: 1 / span 2; justify-self: end; align-self: center; }
     h2 { margin: 0; font-size: clamp(28px, 3vw, 42px); line-height: 1.15; }
     .section-head p { margin: 0; color: var(--muted); line-height: 1.75; max-width: 680px; }
     .panel { background: var(--paper); border: 1px solid var(--line); box-shadow: var(--shadow); }
@@ -157,7 +160,7 @@
       .hero, .grid2, .grid3, .ideas, .quote, .refine, .top3 { grid-template-columns: 1fr; }
       .hero { min-height: auto; }
       .hero-photo { min-height: 460px; }
-      .section-head { display: block; }
+      .section-head { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 8px 12px; align-items: end; } .section-head p { grid-column: 1 / -1; } .section-head .cycle-btn { grid-column: 2; grid-row: 1; justify-self: end; }
       .section-head p { margin-top: 10px; }
       .script { grid-template-columns: 1fr; }
 
@@ -168,6 +171,9 @@
 
     }
     @media (max-width: 560px) {
+      .section-head { grid-template-columns: 1fr auto; gap: 8px 12px; }
+      .section-head p { grid-column: 1 / -1; }
+      .section-head .cycle-btn { grid-column: 2; grid-row: 1; min-height: 36px; padding: 0 12px; }
       main { padding: 28px 16px 72px; }
       .hero-copy { padding: 42px 22px; }
       .hero-photo { min-height: 360px; }
@@ -182,17 +188,17 @@
     .journey-map { position: relative; min-height: 560px; padding: clamp(22px,3vw,34px); background: radial-gradient(circle at 85% 12%, rgba(185,150,88,.16), transparent 28%), linear-gradient(135deg, rgba(255,253,248,.08), rgba(255,253,248,.02)); border: 1px solid rgba(255,255,255,.12); overflow: hidden; }
     .journey-map:before { content:""; position:absolute; left: 8%; right: 8%; top: 50%; height: 2px; background: linear-gradient(90deg, rgba(185,150,88,.2), rgba(185,150,88,.95), rgba(255,255,255,.24)); transform: translateY(-50%); }
     .journey-map:after { content:""; position:absolute; right: 7%; top: calc(50% - 7px); width: 14px; height: 14px; border-top: 2px solid rgba(255,241,185,.9); border-right: 2px solid rgba(255,241,185,.9); transform: rotate(45deg); }
-    .journey-origin, .journey-destination { position:absolute; z-index:3; width:min(240px,38%); padding:16px; border:1px solid rgba(185,150,88,.45); background:rgba(255,253,248,.95); color:var(--ink); box-shadow:0 16px 34px rgba(0,0,0,.2); }
-    .journey-origin { left: 5%; top: 7%; }
-    .journey-destination { right: 5%; bottom: 7%; background:linear-gradient(135deg,#fff8dd,#b99658); }
+    .journey-origin, .journey-destination { position:relative; z-index:3; width:100%; padding:16px; border:1px solid rgba(185,150,88,.45); background:rgba(255,253,248,.95); color:var(--ink); box-shadow:0 16px 34px rgba(0,0,0,.16); }
+    .journey-origin { margin-bottom: 12px; }
+    .journey-destination { margin-bottom: 12px; background:linear-gradient(135deg,#fff8dd,#b99658); }
     .journey-origin b, .journey-destination b { display:block; margin-bottom:6px; color:var(--deep-gold); font-size:18px; }
     .journey-origin p, .journey-destination p { margin:0; color:var(--soft-ink); line-height:1.55; }
-    .journey-stops { position:relative; z-index:2; min-height: 500px; display:grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap: 12px; align-items:center; padding: 150px 0 96px; }
+    .journey-stops { position:relative; z-index:2; min-height: 420px; display:grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap: 12px; align-items:center; padding: 28px 0 72px; }
     .journey-stop { position:relative; display:grid; justify-items:center; gap:10px; }
     .journey-stop:nth-child(even) { transform: translateY(76px); }
     .stop-node { --fill: 0%; width:96px; height:96px; border-radius:50%; display:grid; place-items:center; text-align:center; color:white; font-weight:900; line-height:1.2; background: conic-gradient(#f1d38a var(--fill), rgba(255,255,255,.22) 0); border:1px solid rgba(255,255,255,.24); box-shadow:0 0 0 8px rgba(185,150,88,.08), 0 16px 40px rgba(0,0,0,.25); }
     .stop-node span { width:72px; height:72px; border-radius:50%; display:grid; place-items:center; background:#11110f; border:1px solid rgba(255,255,255,.16); font-size:13px; padding:8px; }
-    .journey-legend { position:absolute; z-index:4; left: clamp(22px,3vw,34px); bottom: 18px; display:flex; flex-wrap:wrap; gap:10px; align-items:center; color:rgba(255,255,255,.82); font-size:13px; font-weight:800; }
+    .journey-legend { position:relative; z-index:4; margin: 8px 0 0; display:flex; flex-wrap:wrap; gap:10px; align-items:center; color:rgba(255,255,255,.82); font-size:13px; font-weight:800; }
     .journey-legend span { display:inline-flex; align-items:center; gap:6px; }
     .journey-legend i { width:14px; height:14px; border-radius:50%; display:inline-block; border:1px solid rgba(255,255,255,.3); }
     .journey-legend .gold { background:#f1d38a; }
@@ -278,7 +284,7 @@
 
 
     <section id="keyword-lab">
-      <div class="section-head"><h2>關鍵字操作台</h2><p>同事不知道從哪裡看時，先點一個關鍵字。每個詞都整理成「客戶真正想解決什麼、業務去哪找、怎麼開口、可以產什麼內容」。</p></div>
+      <div class="section-head"><h2>關鍵字操作台</h2><p>同事不知道從哪裡看時，先點一個關鍵字。每個詞都整理成「客戶真正想解決什麼、業務去哪找、怎麼開口、可以產什麼內容」。</p><button class="cycle-btn" type="button" data-cycle="keyword">換一批</button></div>
       <div class="keyword-lab">
         <div class="card">
           <h3>先選一個切入點</h3>
@@ -299,40 +305,40 @@
     </section>
 
     <section id="where">
-      <div class="section-head"><h2>業務去哪裡找</h2><p>這裡用「勝率」幫業務排序：高＝痛點明確且容易試吃或見證；中＝需要找到對的人；培養＝適合鋪口碑與長期合作。</p></div>
+      <div class="section-head"><h2>業務去哪裡找</h2><p>這裡用「勝率」幫業務排序：高＝痛點明確且容易試吃或見證；中＝需要找到對的人；培養＝適合鋪口碑與長期合作。</p><button class="cycle-btn" type="button" data-cycle="where">換一批</button></div>
       <div class="where-map">
-        <div class="card place where-card"><div class="where-top"><h3>跑團／馬拉松賽事</h3><span class="win-rate high">高勝率</span></div><p>痛點最明確：後段沒力、補給吃不下、怕腸胃不舒服。最適合用果膠、續航力、半馬包切入。</p><div class="where-meta"><div class="where-line"><b>敲門磚</b><span>賽前補給小包、跑團試吃、半馬／全馬補給建議表。</span></div><div class="where-line"><b>破冰話術</b><span>你們團裡跑長距離時，最常遇到的是後段沒力，還是補給吃不下？</span></div></div></div>
-        <div class="card place where-card"><div class="where-top"><h3>自行車店／車友社群</h3><span class="win-rate high">高勝率</span></div><p>車友常有長時間續航需求，也重視攜帶、撕口、吃起來是否順。可從「騎乘中好不好補」切入。</p><div class="where-meta"><div class="where-line"><b>敲門磚</b><span>車店櫃台試吃、長騎補給組、車友團購。</span></div><div class="where-line"><b>破冰話術</b><span>長騎時你們比較怕沒力，還是補給吃了胃不舒服？</span></div></div></div>
-        <div class="card place where-card"><div class="where-top"><h3>親子／媽媽社團</h3><span class="win-rate high">高勝率</span></div><p>葉黃素與好吃關鍵字高度吻合。家長真正買的是「小孩願意吃，才補得到」。</p><div class="where-meta"><div class="where-line"><b>敲門磚</b><span>小孩接受度試吃、葉黃素情境貼文、親子團購。</span></div><div class="where-line"><b>破冰話術</b><span>你幫小孩補葉黃素時，最困擾的是不願意吃，還是每天都要提醒？</span></div></div></div>
-        <div class="card place where-card"><div class="where-top"><h3>企業福委／團購主</h3><span class="win-rate mid">中高</span></div><p>適合健康禮盒、生日禮、員工福利。勝率取決於是否能把「體面、方便分享、有話題」說清楚。</p><div class="where-meta"><div class="where-line"><b>敲門磚</b><span>健康禮盒提案、員工試吃包、節慶團購方案。</span></div><div class="where-line"><b>破冰話術</b><span>你們今年員工禮想走實用健康，還是有記憶點、大家會真的吃的方向？</span></div></div></div>
-        <div class="card place where-card"><div class="where-top"><h3>健身房／教練工作室</h3><span class="win-rate mid">中高</span></div><p>不是只賣運動補給，還可連到恢復、提神、日常訓練。關鍵是教練是否願意成為推薦者。</p><div class="where-meta"><div class="where-line"><b>敲門磚</b><span>教練試用組、課後恢復包、會員挑戰活動。</span></div><div class="where-line"><b>破冰話術</b><span>你們會員最常問的是訓練後恢復，還是運動中怎麼補才不會累？</span></div></div></div>
-        <div class="card place where-card"><div class="where-top"><h3>眼科／藥局／健康門市</h3><span class="win-rate mid">中高</span></div><p>眼睛乾澀、螢幕族、熟齡族都吻合，但需注意專業合規表述，避免誇大療效。</p><div class="where-meta"><div class="where-line"><b>敲門磚</b><span>葉黃素試吃、3C 族眼睛保健小卡、門市陳列。</span></div><div class="where-line"><b>破冰話術</b><span>來問眼睛保健的人，最常是螢幕看太久，還是家長想幫小孩補？</span></div></div></div>
-        <div class="card place where-card"><div class="where-top"><h3>上班族／高壓社群</h3><span class="win-rate mid">中</span></div><p>睡眠與精神需求明確，但族群分散。適合用「不好入睡、醒來累、白天精神差」分情境溝通。</p><div class="where-meta"><div class="where-line"><b>敲門磚</b><span>睡眠自評小測、辦公室團購、壓力族群內容。</span></div><div class="where-line"><b>破冰話術</b><span>你是不好入睡，還是睡得著但醒來還是覺得累？</span></div></div></div>
-        <div class="card place where-card"><div class="where-top"><h3>熟齡照顧者社群</h3><span class="win-rate mid">中</span></div><p>長輩接受度、不敢吞膠囊、沒有藥感是切入點。需要從照顧者負擔出發，不是只講產品好。</p><div class="where-meta"><div class="where-line"><b>敲門磚</b><span>長輩好入口試吃、照顧者分享文、家庭保健組合。</span></div><div class="where-line"><b>破冰話術</b><span>家裡長輩是不好吞膠囊，還是吃到有藥味就會抗拒？</span></div></div></div>
-        <div class="card place where-card"><div class="where-top"><h3>KOL／口碑見證</h3><span class="win-rate seed">培養</span></div><p>不一定立刻成交，但能放大「吃了就知道」「很多人推薦」的信任感。適合長期鋪品牌心智。</p><div class="where-meta"><div class="where-line"><b>敲門磚</b><span>真實使用心得、體驗包、賽事或親子情境合作。</span></div><div class="where-line"><b>破冰話術</b><span>我們想找的不是硬廣，而是你真實覺得哪個情境有感、願意分享。</span></div></div></div>
+        <div class="card place where-card" data-cycle-item="where"><div class="where-top"><h3>跑團／馬拉松賽事</h3><span class="win-rate high">高勝率</span></div><p>痛點最明確：後段沒力、補給吃不下、怕腸胃不舒服。最適合用果膠、續航力、半馬包切入。</p><div class="where-meta"><div class="where-line"><b>敲門磚</b><span>賽前補給小包、跑團試吃、半馬／全馬補給建議表。</span></div><div class="where-line"><b>破冰話術</b><span>你們團裡跑長距離時，最常遇到的是後段沒力，還是補給吃不下？</span></div></div></div>
+        <div class="card place where-card" data-cycle-item="where"><div class="where-top"><h3>自行車店／車友社群</h3><span class="win-rate high">高勝率</span></div><p>車友常有長時間續航需求，也重視攜帶、撕口、吃起來是否順。可從「騎乘中好不好補」切入。</p><div class="where-meta"><div class="where-line"><b>敲門磚</b><span>車店櫃台試吃、長騎補給組、車友團購。</span></div><div class="where-line"><b>破冰話術</b><span>長騎時你們比較怕沒力，還是補給吃了胃不舒服？</span></div></div></div>
+        <div class="card place where-card" data-cycle-item="where"><div class="where-top"><h3>親子／媽媽社團</h3><span class="win-rate high">高勝率</span></div><p>葉黃素與好吃關鍵字高度吻合。家長真正買的是「小孩願意吃，才補得到」。</p><div class="where-meta"><div class="where-line"><b>敲門磚</b><span>小孩接受度試吃、葉黃素情境貼文、親子團購。</span></div><div class="where-line"><b>破冰話術</b><span>你幫小孩補葉黃素時，最困擾的是不願意吃，還是每天都要提醒？</span></div></div></div>
+        <div class="card place where-card" data-cycle-item="where"><div class="where-top"><h3>企業福委／團購主</h3><span class="win-rate mid">中高</span></div><p>適合健康禮盒、生日禮、員工福利。勝率取決於是否能把「體面、方便分享、有話題」說清楚。</p><div class="where-meta"><div class="where-line"><b>敲門磚</b><span>健康禮盒提案、員工試吃包、節慶團購方案。</span></div><div class="where-line"><b>破冰話術</b><span>你們今年員工禮想走實用健康，還是有記憶點、大家會真的吃的方向？</span></div></div></div>
+        <div class="card place where-card" data-cycle-item="where"><div class="where-top"><h3>健身房／教練工作室</h3><span class="win-rate mid">中高</span></div><p>不是只賣運動補給，還可連到恢復、提神、日常訓練。關鍵是教練是否願意成為推薦者。</p><div class="where-meta"><div class="where-line"><b>敲門磚</b><span>教練試用組、課後恢復包、會員挑戰活動。</span></div><div class="where-line"><b>破冰話術</b><span>你們會員最常問的是訓練後恢復，還是運動中怎麼補才不會累？</span></div></div></div>
+        <div class="card place where-card" data-cycle-item="where"><div class="where-top"><h3>眼科／藥局／健康門市</h3><span class="win-rate mid">中高</span></div><p>眼睛乾澀、螢幕族、熟齡族都吻合，但需注意專業合規表述，避免誇大療效。</p><div class="where-meta"><div class="where-line"><b>敲門磚</b><span>葉黃素試吃、3C 族眼睛保健小卡、門市陳列。</span></div><div class="where-line"><b>破冰話術</b><span>來問眼睛保健的人，最常是螢幕看太久，還是家長想幫小孩補？</span></div></div></div>
+        <div class="card place where-card" data-cycle-item="where"><div class="where-top"><h3>上班族／高壓社群</h3><span class="win-rate mid">中</span></div><p>睡眠與精神需求明確，但族群分散。適合用「不好入睡、醒來累、白天精神差」分情境溝通。</p><div class="where-meta"><div class="where-line"><b>敲門磚</b><span>睡眠自評小測、辦公室團購、壓力族群內容。</span></div><div class="where-line"><b>破冰話術</b><span>你是不好入睡，還是睡得著但醒來還是覺得累？</span></div></div></div>
+        <div class="card place where-card" data-cycle-item="where"><div class="where-top"><h3>熟齡照顧者社群</h3><span class="win-rate mid">中</span></div><p>長輩接受度、不敢吞膠囊、沒有藥感是切入點。需要從照顧者負擔出發，不是只講產品好。</p><div class="where-meta"><div class="where-line"><b>敲門磚</b><span>長輩好入口試吃、照顧者分享文、家庭保健組合。</span></div><div class="where-line"><b>破冰話術</b><span>家裡長輩是不好吞膠囊，還是吃到有藥味就會抗拒？</span></div></div></div>
+        <div class="card place where-card" data-cycle-item="where"><div class="where-top"><h3>KOL／口碑見證</h3><span class="win-rate seed">培養</span></div><p>不一定立刻成交，但能放大「吃了就知道」「很多人推薦」的信任感。適合長期鋪品牌心智。</p><div class="where-meta"><div class="where-line"><b>敲門磚</b><span>真實使用心得、體驗包、賽事或親子情境合作。</span></div><div class="where-line"><b>破冰話術</b><span>我們想找的不是硬廣，而是你真實覺得哪個情境有感、願意分享。</span></div></div></div>
       </div>
     </section>
 
         <section id="scripts">
-      <div class="section-head"><h2>銷售話術庫</h2><p>原則：先問困擾，再接產品優勢；先讓客戶說出需求，再給解法。</p></div>
+      <div class="section-head"><h2>銷售話術庫</h2><p>原則：先問困擾，再接產品優勢；先讓客戶說出需求，再給解法。</p><button class="cycle-btn" type="button" data-cycle="scripts">換一批</button></div>
       <div class="card">
-        <div class="script"><b>好吃型</b><p>很多人不是不想保健，是吃不下去或常常忘記。這類產品先解決「願不願意持續吃」的問題。</p></div>
-        <div class="script"><b>運動型</b><p>你比較在意比賽中續航、補碳水，還是運動後恢復？如果運動中吃不下，再好的補給也很難發揮。</p></div>
-        <div class="script"><b>小孩型</b><p>如果小孩會主動吃，家長會輕鬆很多。這也是很多人把葉黃素變成日常習慣的原因。</p></div>
-        <div class="script"><b>睡眠型</b><p>你是不好入睡，還是睡了但醒來還是累？這兩種情境的溝通方式不一樣。</p></div>
-        <div class="script"><b>價格型</b><p>它不是最低價路線，重點是好吃、方便、有體感，讓你真的能持續使用，而不是買回去放著。</p></div>
+        <div class="script" data-cycle-item="scripts"><b>好吃型</b><p>很多人不是不想保健，是吃不下去或常常忘記。這類產品先解決「願不願意持續吃」的問題。</p></div>
+        <div class="script" data-cycle-item="scripts"><b>運動型</b><p>你比較在意比賽中續航、補碳水，還是運動後恢復？如果運動中吃不下，再好的補給也很難發揮。</p></div>
+        <div class="script" data-cycle-item="scripts"><b>小孩型</b><p>如果小孩會主動吃，家長會輕鬆很多。這也是很多人把葉黃素變成日常習慣的原因。</p></div>
+        <div class="script" data-cycle-item="scripts"><b>睡眠型</b><p>你是不好入睡，還是睡了但醒來還是累？這兩種情境的溝通方式不一樣。</p></div>
+        <div class="script" data-cycle-item="scripts"><b>價格型</b><p>它不是最低價路線，重點是好吃、方便、有體感，讓你真的能持續使用，而不是買回去放著。</p></div>
       </div>
     </section>
 
     <section>
-      <div class="section-head"><h2>內容題材庫</h2><p>可直接交給社群、EDM、官網文章或業務簡報使用。</p></div>
+      <div class="section-head"><h2>內容題材庫</h2><p>可直接交給社群、EDM、官網文章或業務簡報使用。</p><button class="cycle-btn" type="button" data-cycle="ideas">換一批</button></div>
       <div class="ideas">
-        <div class="idea">為什麼保健食品好吃很重要？</div><div class="idea">跑者補給不是只看成分，還要看吃不吃得下去。</div><div class="idea">小孩願意吃的葉黃素，家長才真的能持續補。</div><div class="idea">比賽後半段沒力，可能不是意志力問題。</div><div class="idea">不敢吞膠囊的人，也可以有保健選擇。</div><div class="idea">好吃、方便、有感，是回購的三個關鍵。</div><div class="idea">果凍劑型為什麼更容易被接受？</div><div class="idea">高價不是問題，價值感要說清楚。</div>
+        <div class="idea" data-cycle-item="ideas">為什麼保健食品好吃很重要？</div><div class="idea" data-cycle-item="ideas">跑者補給不是只看成分，還要看吃不吃得下去。</div><div class="idea" data-cycle-item="ideas">小孩願意吃的葉黃素，家長才真的能持續補。</div><div class="idea" data-cycle-item="ideas">比賽後半段沒力，可能不是意志力問題。</div><div class="idea" data-cycle-item="ideas">不敢吞膠囊的人，也可以有保健選擇。</div><div class="idea" data-cycle-item="ideas">好吃、方便、有感，是回購的三個關鍵。</div><div class="idea" data-cycle-item="ideas">果凍劑型為什麼更容易被接受？</div><div class="idea" data-cycle-item="ideas">高價不是問題，價值感要說清楚。</div>
       </div>
     </section>
 
     <section id="refine">
-      <div class="section-head"><h2>微調產出</h2><p>選一個範例或輸入自己的需求，一次產出 5 種可用內容，讓同事不用從空白開始。</p></div>
+      <div class="section-head"><h2>微調產出</h2><p>選一個範例或輸入自己的需求，一次產出 5 種可用內容，讓同事不用從空白開始。</p><button class="cycle-btn" type="button" data-cycle="refine">換一批範例</button></div>
       <div class="card refine-suite">
         <div>
           <h3>範例快速套用</h3>
@@ -649,6 +655,55 @@
       const verdict = document.querySelector('#brandDirectionVerdict');
       if (verdict) verdict.innerHTML = '<article class="verdict-card"><b>目前起點：' + first.label + '</b><p>客戶最常說的是「' + first.topWords.slice(0,3).map(item => item.word).join('、') + '」。這代表產品入口已經清楚，但還不是終點。</p></article><article class="verdict-card"><b>目的地進度：' + last.label + '</b><p>能量站目前填滿 ' + last.progress + '%。每週觀察這一站是否上升，就能判斷 GA 是否更像行動與陪伴型品牌。</p></article><article class="verdict-card"><b>下週優先補強：' + weakest.label + '</b><p>這站目前訊號最弱。若公司已有活動或服務，下一步要讓客戶更容易用這類關鍵字說出來。</p></article>';
     }
+
+    const cycleState = { keyword: 0, where: 0, scripts: 0, ideas: 0, refine: 0 };
+    const keywordCycleKeys = ['taste', 'convenience', 'effect', 'sports', 'lutein', 'sleep', 'family', 'price'];
+    const sampleCycleKeys = ['familyLutein', 'sportsGel', 'sleepOffice', 'priceValue', 'elderCare'];
+    function showCycleBatch(selector, stateKey, pageSize) {
+      const items = Array.from(document.querySelectorAll(selector));
+      if (!items.length) return;
+      const pages = Math.max(1, Math.ceil(items.length / pageSize));
+      const page = cycleState[stateKey] % pages;
+      items.forEach((item, index) => {
+        item.hidden = !(index >= page * pageSize && index < (page + 1) * pageSize);
+      });
+    }
+    function rotateKeywordBatch() {
+      cycleState.keyword = (cycleState.keyword + 1) % keywordCycleKeys.length;
+      renderKeyword(keywordCycleKeys[cycleState.keyword]);
+    }
+    function visibleSampleKeys(start) {
+      return Array.from({ length: 3 }, (_, index) => sampleCycleKeys[(start + index) % sampleCycleKeys.length]);
+    }
+    function rotateRefineSample() {
+      cycleState.refine = (cycleState.refine + 1) % sampleCycleKeys.length;
+      const key = sampleCycleKeys[cycleState.refine];
+      const visible = visibleSampleKeys(cycleState.refine);
+      document.querySelectorAll('.sample-card').forEach(item => {
+        item.hidden = !visible.includes(item.dataset.sample);
+        item.classList.toggle('active', item.dataset.sample === key);
+      });
+      const prompt = document.querySelector('#prompt');
+      if (prompt) prompt.value = samplePrompts[key] || samplePrompts.familyLutein;
+      setOut(document.querySelector('#mode')?.value || 'sales');
+    }
+    function initCycleControls() {
+      showCycleBatch('[data-cycle-item="where"]', 'where', 3);
+      showCycleBatch('[data-cycle-item="scripts"]', 'scripts', 3);
+      showCycleBatch('[data-cycle-item="ideas"]', 'ideas', 4);
+      document.querySelectorAll('.sample-card').forEach((item, index) => { item.hidden = index >= 3; });
+      document.querySelectorAll('[data-cycle]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const type = btn.dataset.cycle;
+          if (type === 'keyword') return rotateKeywordBatch();
+          if (type === 'refine') return rotateRefineSample();
+          cycleState[type] = (cycleState[type] || 0) + 1;
+          if (type === 'where') showCycleBatch('[data-cycle-item="where"]', 'where', 3);
+          if (type === 'scripts') showCycleBatch('[data-cycle-item="scripts"]', 'scripts', 3);
+          if (type === 'ideas') showCycleBatch('[data-cycle-item="ideas"]', 'ideas', 4);
+        });
+      });
+    }
     document.querySelectorAll('.word').forEach(word => {
       const key = wordToKey[word.textContent.trim()];
       const countText = word.dataset.count ? '｜出現 ' + word.dataset.count + ' 次' : '';
@@ -665,6 +720,7 @@
     renderKeyword('taste');
     setOut('sales');
     updateBrandJourney();
+    initCycleControls();
   </script>
 </body>
 </html>
