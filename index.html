@@ -662,10 +662,10 @@
     function showCycleBatch(selector, stateKey, pageSize) {
       const items = Array.from(document.querySelectorAll(selector));
       if (!items.length) return;
-      const pages = Math.max(1, Math.ceil(items.length / pageSize));
-      const page = cycleState[stateKey] % pages;
+      const start = (cycleState[stateKey] * pageSize) % items.length;
+      const visible = new Set(Array.from({ length: Math.min(pageSize, items.length) }, (_, offset) => (start + offset) % items.length));
       items.forEach((item, index) => {
-        item.hidden = !(index >= page * pageSize && index < (page + 1) * pageSize);
+        item.hidden = !visible.has(index);
       });
     }
     function rotateKeywordBatch() {
