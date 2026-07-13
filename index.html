@@ -399,8 +399,6 @@
     <!-- pages-refresh-legend -->
     <p class="source">品牌風格參考：GA黃金甲官網。此頁為內部洞察用途；文字雲已依雲端表格客戶反饋欄重新統計，下一版可接 Google Sheets 自動更新。</p>
   </main>
-
-  <div class="feedback" id="fb"><div class="fbpanel"><strong>意見回報</strong><p style="color:var(--muted);line-height:1.6">同事可以記下想補的分類、話術或場域，下一版再整理進去。</p><textarea placeholder="例如：想新增自行車店開發話術"></textarea></div><button class="bubble" onclick="document.querySelector('#fb').classList.toggle('open')">回</button></div>
   <script>
     const samplePrompts = {
       familyLutein: '請幫我把「小孩願意吃的葉黃素，家長才真的能持續補。」轉成業務可以對家長使用的開場話術。',
@@ -725,6 +723,9 @@
 
   <script id="real-cycle-upgrade">
     (() => {
+      const one = selector => document.querySelector(selector);
+      const all = selector => Array.from(document.querySelectorAll(selector));
+      const escapeText = value => String(value || '').replace(/[&<>"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
       const byCycle = type => document.querySelector('[data-cycle="' + type + '"]');
       function replaceButton(type, label, handler) {
         const old = byCycle(type);
@@ -734,127 +735,220 @@
         old.replaceWith(btn);
         btn.addEventListener('click', handler);
       }
-      function cardWhere(item) {
-        return '<div class="card place where-card"><div class="where-top"><h3>' + item.title + '</h3><span class="win-rate ' + item.cls + '">' + item.rate + '</span></div><p>' + item.desc + '</p><div class="where-meta"><div class="where-line"><b>敲門磚</b><span>' + item.door + '</span></div><div class="where-line"><b>破冰話術</b><span>' + item.ice + '</span></div></div></div>';
+      const productProfiles = [
+        { key:'gel', name:'力捷凍／GA GEL', aliases:['力捷凍','捷','GA GEL','果膠','小金膠','金膠','小銀膠','銀膠','大紅膠','紅膠','半馬包','全馬包'], audience:'跑者、車友、三鐵、登山與長時間運動族群', promise:'運動中好入口、方便撕開、補給節奏更容易持續', opener:'你長距離最怕的是後段沒力、吃不下，還是補給讓胃不舒服？', proof:'客戶常提到好吃、方便、續航力、半馬包與全馬包。' },
+        { key:'lutein', name:'葉黃素果凍／遠見葉黃素飲', aliases:['葉黃素果凍','葉黃素飲','葉黃素','遠見葉黃素','遠見葉黃素飲','眼睛','乾澀','飛蚊症'], audience:'家長、學生、上班族、長時間用眼與熟齡族群', promise:'把眼睛保健做成更好入口、較容易持續的日常習慣', opener:'你是自己眼睛乾澀疲勞，還是想找小孩也願意吃的葉黃素？', proof:'客戶常提到小孩願意吃、好吃、眼睛乾澀與方便攜帶。' },
+        { key:'sleep', name:'明日活力定', aliases:['明日活力定','盛','活力定','活力錠','睡眠','入睡','精神','GABA'], audience:'睡不好、壓力大、白天精神差的上班族與照顧者', promise:'先從入睡、醒來精神與白天狀態三個生活訊號觀察', opener:'你比較像不好入睡，還是睡得著但醒來仍然覺得累？', proof:'客戶常提到睡眠、白天精神、提神與狀態改善。' },
+        { key:'resveratrol', name:'白藜蘆醇飲', aliases:['白藜蘆醇飲','春','白藜蘆醇'], audience:'重視循環、代謝與熟齡日常保養的客戶', promise:'用飲品形式降低保養門檻，適合想長期做日常管理的人', opener:'你現在比較想改善的是日常保養習慣，還是想找比較好入口的熟齡保健？', proof:'適合放在熟齡、送禮、家庭保健與日常管理情境。' },
+        { key:'collagen', name:'冰晶膠原凍／全潤', aliases:['冰晶膠原凍','潤','全潤','膠原','膠原凍'], audience:'重視保養、口感、方便攜帶與女性保健族群', promise:'把保養做成像日常小點心，降低持續吃的阻力', opener:'你比較在意保養有感，還是希望產品不要像藥、比較容易天天吃？', proof:'可連到好吃、果凍劑型、方便與持續保養。' },
+        { key:'smart', name:'睿智膏／萃菇精／心之友達', aliases:['睿智膏','睿','萃菇精','菇精','心之友達','心'], audience:'熟齡、照顧者、家庭保健與想做長期保養的人', promise:'先從家庭照顧與日常支持切入，不急著推很多品項', opener:'家裡現在最想照顧的是精神體力、日常保養，還是長輩願不願意吃？', proof:'適合用尊重客戶、最多三項推薦與家人原則建立信任。' },
+        { key:'vitamin', name:'維生素果凍／B 群果凍', aliases:['維生素果凍','小橘凍','B群果凍','B群'], audience:'忙碌上班族、外勤、學生與想找輕量保健的人', promise:'用果凍劑型把每日補充變得更順手', opener:'你補充維生素最常卡住的是忘記吃，還是覺得錠劑不好入口？', proof:'可搭配方便、好入口、獨立包裝與日常持續。' },
+        { key:'eol', name:'停產品：W3益生菌／V12', aliases:['W3益生菌','益生菌','W3','V12'], audience:'曾使用過舊品、詢問腸胃道或排便期待的客戶', promise:'先承接舊品記憶，再引導到目前可服務的需求，不硬接不存在的品項', opener:'你之前喜歡的是腸胃感受、口味，還是方便吃的形式？我先幫你看目前最接近的需求。', proof:'此類需求適合記錄為產品機會，不要誤導成現售品。' }
+      ];
+      function productFromText(text) {
+        const source = String(text || '');
+        return productProfiles.find(p => p.aliases.some(alias => source.includes(alias))) || null;
       }
+      function inferNeed(text) {
+        const source = String(text || '');
+        if (/跑|馬拉松|半馬|全馬|補給|果膠|騎車|續航|體力|三鐵|登山/.test(source)) return {key:'sports', label:'運動補給／續航需求', pain:'怕後段沒力、賽中吃不下、補給不好帶或吃了胃不舒服'};
+        if (/葉黃素|眼睛|乾澀|飛蚊|小孩|家長|媽媽|親子/.test(source)) return {key:'lutein', label:'家長與用眼保健', pain:'小孩不願意吃、用眼壓力大、想找更好入口的葉黃素'};
+        if (/睡|入眠|入睡|精神|壓力|上班|疲勞|提神/.test(source)) return {key:'sleep', label:'睡眠與精神狀態', pain:'入睡困難、醒來仍累、白天精神下滑'};
+        if (/價格|不便宜|價值|CP|cp|貴/.test(source)) return {key:'price', label:'價格與價值感', pain:'擔心花錢但沒有持續吃、沒有感覺或買錯品項'};
+        if (/長輩|熟齡|吞膠囊|照顧|藥感/.test(source)) return {key:'elder', label:'熟齡照顧與吞嚥門檻', pain:'長輩不愛吞膠囊、怕藥味、需要照顧者每天提醒'};
+        if (/方便|攜帶|獨立包裝|出門|外出|忘記/.test(source)) return {key:'convenience', label:'方便持續與日常攜帶', pain:'保健品麻煩、常忘記、不方便帶出門'};
+        return {key:'general', label:'一般保健需求', pain:'想更健康，但還沒有把需求講得很明確'};
+      }
+      function pickProduct(text) {
+        const direct = productFromText(text);
+        if (direct) return direct;
+        const need = inferNeed(text).key;
+        if (need === 'sports') return productProfiles[0];
+        if (need === 'lutein') return productProfiles[1];
+        if (need === 'sleep') return productProfiles[2];
+        if (need === 'elder') return productProfiles[5];
+        if (need === 'convenience') return productProfiles[6];
+        return { name:'先不急著指定產品', audience:'依客戶需求再挑 1 到 3 項產品', promise:'先理解生活情境，再用最少品項解決最核心阻力', opener:'你現在最想先改善的是好入口、方便持續，還是某個具體體感？', proof:'符合 GA 尊重客戶：不一次推很多，只挑真正適合的。' };
+      }
+      function cardWhere(item) {
+        return '<div class="card place where-card"><div class="where-top"><h3>' + item.title + '</h3><span class="win-rate ' + item.cls + '">' + item.rate + '</span></div><p>' + item.desc + '</p><div class="where-meta"><div class="where-line"><b>敲門磚</b><span>' + item.door + '</span></div><div class="where-line"><b>破冰話術</b><span>' + item.ice + '</span></div><div class="where-line"><b>適合切入</b><span>' + item.product + '</span></div></div></div>';
+      }
+      const keywordVariants = {
+        taste:[
+          ['客戶不是單純說口味好，而是在說這個保健品不像藥，第一次嘗試門檻低，也比較可能每天吃。','親子社群、團購、熟齡照護、辦公室下午茶與曾買保健品但沒吃完的人。','你以前買保健品最後沒持續，是因為忘記，還是吃起來太像藥？','主題：買了沒吃完不是你不自律，而是產品沒有讓你願意繼續。'],
+          ['好吃背後是降低抗拒。小孩、長輩、怕膠囊的人，願意入口才有後面的成分與體感。','媽媽社團、親子活動、長輩照顧者、禮盒團購，主打不用說服也吃得下。','如果成分很好，但小孩或長輩每天都抗拒，你覺得這樣補得下去嗎？','主題：保健食品的回購，常常從願意吃第二次開始。'],
+          ['「好吃」也代表社交分享門檻低，業務可以從試吃與推薦感切入。','跑團補給桌、企業試吃、社群團購、活動伴手禮都適合。','你會願意推薦給朋友的保健品，通常要先符合什麼條件？','主題：好吃是品牌被分享的第一個理由。']
+        ],
+        convenience:[
+          ['方便代表客戶不用重新安排生活：不用配水、不用分裝、放包包就能帶走。','外勤、上班族、跑者、媽媽包、出差族與公司團購。','你平常保健品最常卡在忘記吃、懶得配水，還是不方便帶出門？','主題：保健品不是買了就有效，能不能被每天帶著走才是關鍵。'],
+          ['客戶其實在買省心：少一個步驟，就多一點持續的可能。','企業抽屜、健身包、賽事補給包、親子外出包。','如果保健品可以像拿一包零食一樣簡單，你會不會比較願意每天吃？','主題：方便不是包裝話術，而是提高持續率的設計。']
+        ],
+        effect:[
+          ['有感要說成生活變化，不要說成誇大療效。重點是客戶能觀察到什麼不同。','回購客、VIP、跑者、睡眠困擾與用眼族群。','你希望先觀察哪個變化：體力、睡眠、眼睛，還是日常精神？','主題：七天有感不是神奇承諾，而是讓客戶知道怎麼觀察自己。'],
+          ['有效的語言要接到具體情境，例如後段不掉速、醒來精神、眼睛比較舒服。','適合用客服回訪、KOC 見證、體驗包與一週觀察表。','如果先不要看成分，你最希望生活中哪一件事變輕鬆？','主題：把有感翻成客戶聽得懂的日常訊號。']
+        ],
+        sports:[
+          ['運動族群核心是比賽中吃得下、補得到、後段不要掉太快。','跑團、三鐵、自行車、登山補給、賽事攤位。','你長距離最怕撞牆、補給吃不下，還是吃了胃不舒服？','主題：運動補給不是只看成分，而是看最累的時候還吃不吃得下。'],
+          ['跑者買的不是果膠本身，而是安全感：知道後段還有一包可以補。','團練補給桌、配速列車、跑步教練、車隊長。','你們團練現在怎麼安排補給？有沒有固定測過賽中吃得下的品項？','主題：賽前沒有測過的補給，比賽當天就是風險。']
+        ],
+        lutein:[
+          ['葉黃素不是只賣眼睛保健，而是解決家長每天叫小孩吃的阻力。','媽媽社團、學生家長、3C 高使用族、眼鏡行與親子活動。','你是自己眼睛乾澀疲勞，還是想找小孩也願意吃的葉黃素？','主題：小孩願意吃，家長才有機會把葉黃素變成日常。'],
+          ['用眼需求要先分情境：乾澀、螢幕久、學生用眼、熟齡保養。','上班族、設計師、工程師、學生族與長時間滑手機族。','你眼睛困擾比較像乾澀疲勞，還是長時間看螢幕後不舒服？','主題：眼睛保養的第一步，是知道自己是哪一種用眼情境。']
+        ],
+        sleep:[
+          ['睡眠不能只講睡得好，要拆成入睡、睡醒、白天精神。','高壓上班族、照顧者、創業者、輪班族。','你比較困擾的是躺下睡不著，還是睡醒仍然覺得累？','主題：睡不好不是一種問題，先分清楚才知道怎麼溝通。'],
+          ['客戶要的是白天狀態回來，不只是晚上吃一個產品。','辦公室團購、壓力社群、女性社群、熟齡照顧者。','如果一週後只能改善一件事，你最希望是入睡快、醒來舒服，還是白天有精神？','主題：把睡眠保健說成一週生活狀態觀察。']
+        ],
+        family:[
+          ['家人接受度是很強的購買理由，代表客戶不是只為自己買。','親子群、熟齡家庭、送禮、家庭保健組合。','這個產品是你自己要吃，還是家人也要一起接受？','主題：家人願意吃，才是家庭保健能不能持續的關鍵。'],
+          ['家長真正買的是少一點拉鋸戰，照顧者買的是少一點提醒負擔。','媽媽社團、照顧者社群、長輩活動與家庭會員。','你現在最困擾的是小孩不吃，還是長輩不願意吞？','主題：保健品設計，也是在降低家人的照顧成本。']
+        ],
+        price:[
+          ['價格猶豫不代表沒興趣，而是價值感還沒對上使用情境。','曾詢價未購、團購主、企業禮、回購猶豫客。','你會覺得不便宜很正常，那我們先看哪一項最可能真的吃完、最不浪費。','主題：買了不吃才最貴，先從最可能持續的一項開始。'],
+          ['談價格時不要硬辯，要回到好吃、方便、有感與是否能持續。','LINE 私訊、門市試吃、活動現場與客服回訪。','如果先不一次買多，你最想先驗證口味、體感，還是方便性？','主題：高價要用低風險開始，而不是用話術壓過疑慮。']
+        ]
+      };
       const whereBatches = [
         [
-          { title:'跑團／馬拉松賽事', rate:'高勝率', cls:'high', desc:'痛點最明確：後段沒力、補給吃不下、怕腸胃不舒服。最適合用果膠、續航力、半馬包切入。', door:'賽前補給小包、跑團試吃、半馬／全馬補給建議表。', ice:'你們團裡跑長距離時，最常遇到的是後段沒力，還是補給吃不下？' },
-          { title:'自行車店／車友社群', rate:'高勝率', cls:'high', desc:'車友重視長時間續航、好攜帶與吃起來是否順口，可從「騎乘中好不好補」切入。', door:'車店櫃台試吃、長騎補給組、車友團購。', ice:'長騎時你們比較怕沒力，還是補給吃了胃不舒服？' },
-          { title:'親子／媽媽社團', rate:'高勝率', cls:'high', desc:'葉黃素與好吃關鍵字高度吻合。家長真正買的是「小孩願意吃，才補得到」。', door:'小孩接受度試吃、葉黃素情境貼文、親子團購。', ice:'你幫小孩補葉黃素時，最困擾的是不願意吃，還是每天都要提醒？' }
+          {title:'跑團／馬拉松賽事', rate:'高勝率', cls:'high', desc:'痛點最明確：後段沒力、補給吃不下、怕腸胃不舒服。', door:'團練試吃、半馬／全馬補給建議表、賽前小包。', ice:'你們團裡跑長距離時，最常遇到後段沒力，還是補給吃不下？', product:'力捷凍／GA GEL、半馬包、全馬包'},
+          {title:'自行車店／車友社群', rate:'高勝率', cls:'high', desc:'長騎族群重視續航、撕口、好入口與口袋好攜帶。', door:'車店櫃台試吃、長騎補給組、車友團購。', ice:'長騎時你們比較怕沒力，還是補給吃了胃不舒服？', product:'力捷凍、紅膠、金膠、銀膠'},
+          {title:'親子／媽媽社團', rate:'高勝率', cls:'high', desc:'家長真正買的是小孩願意吃，才補得到。', door:'小孩接受度試吃、葉黃素情境貼文、親子團購。', ice:'你幫小孩補葉黃素時，最困擾的是不願意吃，還是每天都要提醒？', product:'葉黃素果凍、遠見葉黃素飲'}
         ],
         [
-          { title:'企業福委／團購主', rate:'中高', cls:'mid', desc:'適合健康禮盒、生日禮、員工福利。勝率取決於是否能把「體面、方便分享、有話題」說清楚。', door:'健康禮盒提案、員工試吃包、節慶團購方案。', ice:'你們今年員工禮想走實用健康，還是有記憶點、大家會真的吃的方向？' },
-          { title:'健身房／教練工作室', rate:'中高', cls:'mid', desc:'可以連到恢復、提神、日常訓練。關鍵是教練是否願意成為推薦者。', door:'教練試用組、課後恢復包、會員挑戰活動。', ice:'你們會員最常問的是訓練後恢復，還是運動中怎麼補才不會累？' },
-          { title:'眼科／藥局／健康門市', rate:'中高', cls:'mid', desc:'眼睛乾澀、螢幕族、熟齡族都吻合，但需注意專業合規表述，避免誇大療效。', door:'葉黃素試吃、3C 族眼睛保健小卡、門市陳列。', ice:'你們客人比較常問眼睛乾澀、螢幕久，還是小孩葉黃素接受度？' }
+          {title:'企業福委／團購主', rate:'中高', cls:'mid', desc:'適合健康禮盒、生日禮、員工福利，重點是體面且真的會被吃掉。', door:'員工試吃盒、健康禮盒提案、節慶團購方案。', ice:'你們今年員工禮想走實用健康，還是有記憶點、大家會真的吃的方向？', product:'全系列試吃組、葉黃素、維生素果凍、膠原凍'},
+          {title:'健身房／教練工作室', rate:'中高', cls:'mid', desc:'可從課後恢復、日常訓練、運動中補給切入，關鍵是教練願不願意先試。', door:'教練試用組、課後恢復包、會員挑戰活動。', ice:'你們會員最常問訓練後恢復，還是運動中怎麼補才不會累？', product:'力捷凍、活力定、白藜蘆醇飲'},
+          {title:'眼科／藥局／健康門市', rate:'中高', cls:'mid', desc:'眼睛乾澀、螢幕族、熟齡族都吻合，但需注意合規，不誇大療效。', door:'3C 族眼睛保健小卡、門市試吃、家庭保健組合。', ice:'來問眼睛保健的人，最常是螢幕看太久，還是家長想幫小孩補？', product:'葉黃素果凍、遠見葉黃素飲'}
         ],
         [
-          { title:'登山／戶外活動社群', rate:'中高', cls:'mid', desc:'戶外族群在意輕量、方便、補給不中斷，適合把方便攜帶與行動能量連在一起。', door:'登山補給清單、輕量試吃包、戶外活動合作。', ice:'你們上山最怕帶太重，還是走到後段沒力、補不到？' },
-          { title:'辦公室高壓族群', rate:'中', cls:'mid', desc:'睡眠、精神、眼睛與方便都能切入，但要用生活困擾開場，不能一開始就像推銷。', door:'午休健康小卡、辦公室試吃盒、壓力睡眠自評表。', ice:'你們辦公室最常見的是眼睛累、睡不好，還是下午精神掉下來？' },
-          { title:'照顧者／熟齡家庭', rate:'培養', cls:'low', desc:'一旦談到長輩不吞膠囊、怕藥感，就能用好入口與持續率切入。', door:'長輩好入口試吃、家庭保健清單、照顧者社群分享。', ice:'你幫長輩準備保健品時，最難的是吞嚥、味道，還是每天提醒？' }
+          {title:'登山／戶外活動社群', rate:'中高', cls:'mid', desc:'戶外族群在意輕量、方便、補給不中斷，適合連到行動能量。', door:'登山補給清單、輕量試吃包、戶外活動合作。', ice:'你們上山最怕帶太重，還是走到後段沒力、補不到？', product:'力捷凍、維生素果凍'},
+          {title:'辦公室高壓族群', rate:'中', cls:'mid', desc:'睡眠、精神、眼睛與方便都能切入，但要從生活困擾開場。', door:'午休健康小卡、辦公室試吃盒、睡眠自評表。', ice:'你們辦公室最常見的是眼睛累、睡不好，還是下午精神掉下來？', product:'活力定、葉黃素、維生素果凍'},
+          {title:'照顧者／熟齡家庭', rate:'培養', cls:'low', desc:'長輩不吞膠囊、怕藥感，是好入口與家人原則的切入點。', door:'長輩好入口試吃、家庭保健清單、照顧者社群分享。', ice:'你幫長輩準備保健品時，最難的是吞嚥、味道，還是每天提醒？', product:'白藜蘆醇飲、睿智膏、萃菇精、膠原凍'}
+        ],
+        [
+          {title:'露營／親友聚會', rate:'培養', cls:'low', desc:'不是直接成交場，而是讓品牌從產品變成生活陪伴的入口。', door:'露營健康小點、親友分享包、出遊補給清單。', ice:'你們出遊時會準備保健或補給嗎？最怕麻煩、忘記，還是沒人想吃？', product:'維生素果凍、力捷凍、葉黃素'},
+          {title:'KOC／會員真實見證', rate:'培養', cls:'low', desc:'不一定立刻成交，但能放大吃了就知道、朋友推薦與信任感。', door:'真實使用心得模板、體驗包、賽事或親子情境合作。', ice:'我們想找的不是硬廣，而是你真實覺得哪個情境有感、願意分享。', product:'依見證情境挑 1 項，不一次塞滿'},
+          {title:'停產品舊客回訪', rate:'機會紀錄', cls:'low', desc:'W3、益生菌、V12 需求可轉成新品機會，不要誤導成現售品。', door:'舊品回憶訪談、腸胃道需求紀錄、替代需求分類。', ice:'你以前喜歡 W3／V12 的哪一點？是口感、感受，還是方便？', product:'先記錄需求，再由現有品項或新品規劃承接'}
         ]
       ];
+      const scriptLabels = [['好吃型','taste'],['運動型','sports'],['小孩型','family'],['睡眠型','sleep'],['價格型','price']];
       const scriptBatches = [
-        { taste:'很多人不是不想保健，是吃不下去或常常忘記。這類產品先解決「願不願意持續吃」的問題。', sports:'你比較在意比賽中續航、補碳水，還是運動後恢復？如果運動中吃不下，再好的補給也很難發揮。', family:'如果小孩會主動吃，家長會輕鬆很多。這也是很多人把葉黃素變成日常習慣的原因。', sleep:'你是不好入睡，還是睡了但醒來還是累？這兩種情境的溝通方式不一樣。', price:'它不是最低價路線，重點是好吃、方便、有體感，讓你真的能持續使用，而不是買回去放著。' },
-        { taste:'我不會只跟你說口味好，真正重要的是：如果它不像藥、吃起來沒壓力，你才可能每天真的吃。', sports:'補給最怕比賽當天才測。你可以先在團練試一次，看後段吃不吃得下、胃會不會不舒服。', family:'家長最累的不是買不到產品，是每天要哄小孩吃。先讓孩子願意吃，成分才有機會發揮。', sleep:'睡眠我會先問清楚，你是腦袋停不下來，還是睡醒仍然累？不同狀況要用不同方式觀察。', price:'你會覺得價格高很正常，所以我們先不要一次買很多，先看哪一項最符合你的痛點。' },
-        { taste:'如果你以前買過保健品但沒吃完，通常不是你不自律，而是產品沒有讓你願意繼續。', sports:'跑到後面吃不下，常常不是意志力問題，是補給沒有先測過入口感和節奏。', family:'如果一個產品能讓大人小孩都比較願意吃，保健就不用每天變成拉鋸戰。', sleep:'我會建議你先觀察一週：入睡、醒來精神、白天專注，哪一個最有差。', price:'與其問貴不貴，不如先問：這個產品有沒有真的降低你的使用阻力。買了不吃才最貴。' }
+        { taste:'先問：你以前保健品沒吃完，通常是味道不喜歡，還是吃起來像藥？再接：我們會先讓你試好不好入口，因為能持續才有後面的體感。', sports:'先問：你後段比較常沒力、吃不下，還是補給讓胃不舒服？再接：力捷凍要先在團練測，確認比賽中吃得下。', family:'先問：這是你自己吃，還是小孩也要吃？再接：葉黃素如果孩子不願意吃，家長每天都會很辛苦。', sleep:'先問：你是不好入睡，還是醒來仍然累？再接：我們先用一週觀察入睡、醒來、白天精神三件事。', price:'先認同：你會覺得不便宜很正常。再接：所以不建議一次買多，先挑最符合痛點、最可能吃完的一項。' },
+        { taste:'朋友式說法：買保健品最怕買回去放著。我們先不談多厲害，先確認你會不會願意每天吃。', sports:'跑團說法：賽事當天不要測新品，先在團練確認入口感、撕口、後段能不能補得下去。', family:'家長說法：家長不是只買成分，是希望孩子不用哄也願意吃，這樣才比較能持續。', sleep:'上班族說法：睡眠不是只有睡著，要看醒來精神跟白天狀態；我們先抓你最想改善的那一段。', price:'價值說法：不是便宜才划算，買了沒吃才浪費。先找你最可能持續的方案。' },
+        { taste:'試吃收尾：你不用先相信我說的，先試口味跟入口感；如果你願意吃第二次，才值得往下談。', sports:'教練收尾：我可以幫你做一份半馬／長騎補給節奏，先讓團員在訓練日測，不要比賽日才賭。', family:'親子收尾：如果你願意，我會先抓孩子最容易接受的一款，不會一次推薦很多。', sleep:'觀察收尾：先不要追求神奇效果，這週只記三件事：入睡、醒來、白天精神。', price:'低風險收尾：我們先從小包裝或最單一需求開始，確認有用再回購。' }
       ];
-      const ideas = [
-        ['為什麼保健食品好吃很重要？','跑者補給不是只看成分，還要看吃不吃得下去。','小孩願意吃的葉黃素，家長才真的能持續補。','比賽後半段沒力，可能不是意志力問題。','不敢吞膠囊的人，也可以有保健選擇。','好吃、方便、有感，是回購的三個關鍵。','果凍劑型為什麼更容易被接受？','高價不是問題，價值感要說清楚。'],
-        ['保健食品界的 Red Bull：不是提神口號，而是陪你行動。','買了沒吃完的保健品，才是真正的浪費。','從「我不想吞藥」到「我願意每天吃」的產品設計。','跑團試吃為什麼比廣告更有說服力？','一包能帶出門的保健品，如何進入客戶生活。','家長真正需要的不是成分表，是孩子願意吃。','睡不好要先分：入睡、睡醒、白天精神。','企業禮品怎麼從體面變成真的被使用？'],
-        ['七天有感怎麼說才不誇大？用可觀察生活訊號取代神奇承諾。','從客服關懷到品牌信任：為什麼不在電話中銷售。','運動補給清單：半馬新手最容易漏掉的三件事。','葉黃素不是只有大人需要，家庭接受度才是關鍵。','為什麼「方便」比「便宜」更容易帶來回購？','熟齡保健的第一關：不要讓長輩覺得自己在吃藥。','KOC 見證怎麼整理才真實？從一句生活變化開始。','尊重客戶的銷售：最多推薦三項產品的原因。']
+      const ideaBatches = [
+        ['買了沒吃完，才是最貴的保健品。','為什麼「好吃」是保健食品能不能持續的第一關？','跑者補給不是只看成分，還要看最累時吃不吃得下。','小孩願意吃的葉黃素，家長才真的能持續補。','半馬包為什麼像新手懶人包？','好吃、方便、有感，是回購的三個關鍵。','不敢吞膠囊的人，也可以有保健選擇。','高價不是問題，價值感要說清楚。'],
+        ['保健食品界的 Red Bull：不是口號，而是陪你行動。','七天有感怎麼說才不誇大？用生活訊號取代神奇承諾。','從客服關懷到品牌信任：為什麼電話中不銷售。','企業禮品怎麼從體面變成真的被使用？','葉黃素不只給大人，家庭接受度才是關鍵。','一包能帶出門的保健品，如何進入客戶生活。','睡不好要先分：入睡、睡醒、白天精神。','尊重客戶的銷售：最多推薦三項產品的原因。'],
+        ['跑團試吃為什麼比廣告更有說服力？','熟齡保健第一關：不要讓長輩覺得自己在吃藥。','KOC 見證怎麼整理才真實？從一句生活變化開始。','方便不是偷懶，是讓健康習慣少一個阻力。','從果膠好吃到品牌信任：客戶語言怎麼一路升級。','運動補給清單：新手最容易漏掉的三件事。','親友推薦為什麼比功能文更有力？','停產品需求也有價值：把 W3／V12 詢問整理成新品洞察。'],
+        ['LINE 短文：你不是不自律，是產品沒有放進你的生活。','短影音：跑者補給包裡到底該放什麼？','貼文：家長每天叫小孩吃保健品，為什麼會累？','EDM：從好吃、方便、有感，找到你的第一項保健習慣。','業務小卡：問對三個問題，不要一開口就推產品。','活動攤位：用試吃把陌生客變成可對話客。','官網文章：GA 為什麼堅持家人原則與七天有感？','客服回訪：不銷售的電話，怎麼累積品牌信任？']
       ];
-      const kwVariants = {
-        taste:[['客戶不是單純稱讚口味，而是在說：這個保健品不像藥，第一次嘗試門檻低，也比較可能每天吃。','先找曾買保健品但沒持續的人：親子社群、團購、熟齡照護、辦公室下午茶場景。','你之前買保健品，最後沒持續吃，是因為忘記，還是因為吃起來太像藥？','好吃不是加分題，是保健食品能不能進入日常的第一關。'],['好吃背後是降低抗拒：小孩、長輩、怕膠囊的人，願意入口才有後面的成分與體感。','可切媽媽社團、親子活動、長輩照顧者、禮盒團購，主打「不用說服也吃得下」。','如果產品成分很好，但小孩或長輩每天都抗拒，你覺得這樣補得下去嗎？','保健品的回購，常常不是從成分開始，而是從「願意吃第二次」開始。']],
-        convenience:[['方便代表客戶不用重新安排生活：不用配水、不用分裝、可以放包包，才可能被真的吃掉。','外勤、上班族、跑者、媽媽包、出差族都是高匹配族群。','你平常保健品最常卡在哪裡：忘記吃、懶得配水，還是不方便帶出門？','保健品不是買了就有效，能不能被每天帶著走才是關鍵。'],['客戶其實在買省心：少一個步驟，就多一點持續的可能。','企業抽屜、健身包、賽事補給包、親子外出包，都能變成場景入口。','如果保健品可以像拿一包零食一樣簡單，你會不會比較願意每天吃？','方便不是包裝話術，而是提高持續率的設計。']],
-        sports:[['運動族群的核心是比賽中吃得下、補得到、後段不要掉太快。','跑團、三鐵、自行車、登山補給、賽事攤位，勝率最高。','你長距離最怕的是撞牆、補給吃不下，還是吃了胃不舒服？','運動補給不是只看成分，而是看你在最累的時候還吃不吃得下。'],['跑者買的不是果膠本身，而是安全感：知道後段還有一包可以補。','找團練補給桌、配速列車、跑步教練、車隊長，從試吃進入。','你們團練現在都怎麼安排補給？有沒有固定測過賽中吃得下的品項？','賽前沒有測過的補給，比賽當天就是風險。']],
-        lutein:[['葉黃素不是只賣眼睛保健，而是解決家長每天叫小孩吃的阻力。','媽媽社團、學生家長、3C 高使用族、眼鏡行與親子活動。','你是在找自己吃的葉黃素，還是小孩也願意吃的葉黃素？','小孩願意吃，家長才有機會把葉黃素變成日常。'],['客戶常把眼睛乾澀、螢幕久、飛蚊困擾放在一起，需要先分類。','上班族、設計師、工程師、學生族、長時間滑手機族。','你眼睛困擾比較像乾澀疲勞，還是長時間看螢幕後不舒服？','眼睛保養的第一步，是先知道自己是哪一種用眼情境。']]
-      };
-      let whereIndex = 0, scriptIndex = 0, ideaIndex = 0, kwIndex = 0, refineIndex = 0;
-      function currentKeywordKey() {
-        const active = document.querySelector('.keyword-button.active');
-        return active?.dataset.key || 'taste';
-      }
-      function renderKeywordVariant() {
+      let whereIndex = 0, scriptIndex = 0, ideaIndex = 0, keywordIndex = 0, refineIndex = 0;
+      function currentKeywordKey() { return one('.keyword-button.active')?.dataset.key || 'taste'; }
+      function renderKeywordVariant(reset) {
+        if (reset) keywordIndex = 0;
         const key = currentKeywordKey();
-        const data = typeof keywordInsights !== 'undefined' ? (keywordInsights[key] || keywordInsights.taste) : null;
+        const data = (typeof keywordInsights !== 'undefined' && keywordInsights[key]) ? keywordInsights[key] : keywordInsights?.taste;
         if (!data) return;
-        const pack = kwVariants[key] || kwVariants.taste;
-        const v = pack[kwIndex % pack.length];
-        const result = document.querySelector('#keywordResult');
+        const variants = keywordVariants[key] || keywordVariants.taste;
+        const v = variants[keywordIndex % variants.length];
+        const result = one('#keywordResult');
         if (!result) return;
-        result.innerHTML = '<h3>' + data.title + '</h3><p class="hint">' + data.hint + '</p><div class="result-grid"><div class="result-box"><b>客戶真正想解決</b><p>' + v[0] + '</p></div><div class="result-box"><b>業務去哪裡找</b><p>' + v[1] + '</p></div><div class="result-box"><b>開場話術</b><p>' + v[2] + '</p></div><div class="result-box"><b>內容題材</b><p>' + v[3] + '</p></div></div><div class="example-strip">' + data.examples.map(item => '<button class="example-chip" type="button">' + item + '</button>').join('') + '</div>';
+        result.innerHTML = '<h3>' + data.title + '</h3><p class="hint">' + data.hint + '</p><div class="result-grid"><div class="result-box"><b>客戶真正想解決</b><p>' + v[0] + '</p></div><div class="result-box"><b>業務去哪裡找</b><p>' + v[1] + '</p></div><div class="result-box"><b>開場話術</b><p>' + v[2] + '</p></div><div class="result-box"><b>內容題材</b><p>' + v[3] + '</p></div></div><div class="example-strip">' + (data.examples || []).map(item => '<button class="example-chip" type="button">' + item + '</button>').join('') + '</div>';
       }
       function renderWhere() {
-        const wrap = document.querySelector('#where .where-map');
+        const wrap = one('#where .where-map');
         if (wrap) wrap.innerHTML = whereBatches[whereIndex % whereBatches.length].map(cardWhere).join('');
       }
       function renderScripts() {
-        const wrap = document.querySelector('#scripts .card');
-        const b = scriptBatches[scriptIndex % scriptBatches.length];
-        if (wrap) wrap.innerHTML = [['好吃型','taste'],['運動型','sports'],['小孩型','family'],['睡眠型','sleep'],['價格型','price']].map(([label,key]) => '<div class="script"><b>' + label + '</b><p>' + b[key] + '</p></div>').join('');
+        const wrap = one('#scripts .card');
+        const batch = scriptBatches[scriptIndex % scriptBatches.length];
+        if (wrap) wrap.innerHTML = scriptLabels.map(([label,key]) => '<div class="script"><b>' + label + '</b><p>' + batch[key] + '</p></div>').join('');
       }
-      function ensureIdeasSection() {
-        const h = [...document.querySelectorAll('h2')].find(x => x.textContent.trim() === '內容題材庫');
+      function ensureIdeasWrap() {
+        const h = all('h2').find(node => node.textContent.trim() === '內容題材庫');
         const section = h?.closest('section');
         if (section && !section.id) section.id = 'ideas';
         return section?.querySelector('.ideas');
       }
       function renderIdeas() {
-        const wrap = ensureIdeasSection();
-        if (wrap) wrap.innerHTML = ideas[ideaIndex % ideas.length].map(x => '<div class="idea">' + x + '</div>').join('');
+        const wrap = ensureIdeasWrap();
+        if (wrap) wrap.innerHTML = ideaBatches[ideaIndex % ideaBatches.length].map(text => '<div class="idea">' + text + '</div>').join('');
       }
-      function detectRefine(text) {
-        if (/跑|馬拉松|補給|果膠|騎車|續航|體力/.test(text)) return '運動族群';
-        if (/葉黃素|眼睛|小孩|家長|媽媽|親子/.test(text)) return '家長／葉黃素族群';
-        if (/睡|入眠|精神|壓力|上班/.test(text)) return '睡眠與壓力族群';
-        if (/價格|不便宜|價值|CP|cp/.test(text)) return '價格猶豫客';
-        if (/長輩|吞膠囊|照顧/.test(text)) return '照顧者／熟齡家庭';
-        return '一般保健需求客戶';
+      function fiveOutputs(mode, text, variant) {
+        const need = inferNeed(text);
+        const product = pickProduct(text);
+        const quoteMatch = String(text || '').match(/「([^」]+)」|"([^"]+)"/);
+        const core = quoteMatch ? (quoteMatch[1] || quoteMatch[2]) : String(text || '').trim();
+        const safeCore = core || need.pain;
+        const variants = {
+          sales: [
+            [ ['1. 客戶洞察','這段需求屬於「' + need.label + '」。先不要急著推產品，先抓住客戶卡住的是：' + need.pain + '。'], ['2. 破冰問題', product.opener], ['3. 產品切入','可優先連到「' + product.name + '」。說法重點是：' + product.promise + '。'], ['4. 異議處理','如果客戶擔心價格或效果，先降低風險：不一次推薦很多，只挑最符合情境的一項，並設定一週可觀察的生活訊號。'], ['5. 收尾動作','請客戶選一個最想改善的情境，再提供試吃、小組合或一週觀察方式。'] ],
+            [ ['1. 開場定位','把「' + safeCore + '」轉成朋友式關心：你不是缺更多保健品，而是想找真的放得進生活的方法。'], ['2. 追問順序','先問使用阻力，再問期待感受，最後才問是否需要產品建議。'], ['3. 推薦原則','最多只選 1 到 3 項，主推「' + product.name + '」，其他先不要塞，避免客戶覺得被銷售。'], ['4. 信任句','我們先不急著成交，先確認這是不是你真的會持續使用的形式。'], ['5. 下一步','把客戶回答記成：痛點、使用情境、最在意的阻力、可接受的開始方式。'] ],
+            [ ['1. 場景判斷','這不是單純產品需求，而是「' + need.label + '」的生活場景。'], ['2. 業務第一句','我先問一個比較實際的：你現在最想省掉的是麻煩、抗拒，還是沒有感覺的風險？'], ['3. 產品理由', product.name + ' 的溝通重點不是硬講成分，而是 ' + product.promise + '。'], ['4. 證據補強', product.proof], ['5. 成交前確認','如果只先選一項，你最想先驗證口味、方便性，還是體感？'] ]
+          ],
+          line: [
+            [ ['1. LINE 開場','我先不急著推薦，想先確認你這次比較在意的是「' + need.pain + '」哪一個部分？'], ['2. 需求追問','你之前有沒有買過保健品最後沒吃完？通常是味道、麻煩，還是沒感覺？'], ['3. 產品回覆','如果你的重點是這個，我會先看 ' + product.name + '，因為它比較適合「' + product.promise + '」的情境。'], ['4. 降低壓力','不用一次買很多，我會先幫你挑最可能持續的一項就好。'], ['5. 行動收尾','你回我：自己用／家人用／運動用，我就幫你抓最適合的開始方式。'] ],
+            [ ['1. LINE 短訊','我懂，你說的「' + safeCore + '」其實不是小問題，很多人就是卡在持續不了。'], ['2. 補一句關心','所以我會先看你平常生活怎麼使用，而不是直接丟一堆產品給你。'], ['3. 建議方向','目前比較接近的是 ' + product.name + '，但我會先確認你能不能接受口味與使用方式。'], ['4. 信任句','GA 的原則不是賣越多越好，是先挑真的適合你的。'], ['5. 收尾','你方便的話回我目前最常發生的情境，我幫你縮小到一個選擇。'] ],
+            [ ['1. LINE 破冰','你這個狀況我會先拆成：需求、使用阻力、願不願意持續。'], ['2. LINE 問題','如果滿分 10 分，你現在最想改善這件事的急迫度大概幾分？'], ['3. LINE 產品句','若急迫度高，可以先從 ' + product.name + ' 試起，觀察點是：' + product.promise + '。'], ['4. LINE 異議','如果你擔心不適合，我們就先用低風險方式開始，不要一次買太多。'], ['5. LINE CTA','我可以幫你整理成一個「先試哪個、怎麼觀察」的小建議。'] ]
+          ],
+          content: [
+            [ ['1. 貼文主題','為什麼「' + need.label + '」不是買更多保健品，而是找到能持續的入口？'], ['2. 第一段鉤子','你不是不想健康，很多時候是產品沒有放進你的生活。'], ['3. 內容主軸','用「' + safeCore + '」切入，延伸到 ' + product.name + ' 的使用場景：' + product.promise + '。'], ['4. 短影音腳本','畫面一：買了沒吃完；畫面二：出門一包帶走；畫面三：一週後回顧自己有沒有持續。'], ['5. CTA','留言你的使用情境，我們幫你判斷先從哪一項開始最不浪費。'] ],
+            [ ['1. 社群標題','買保健品前，先問自己：我真的吃得下去、帶得出門、記得起來嗎？'], ['2. 內容角度','把客戶語言「' + safeCore + '」翻成三個檢查點：入口、方便、體感。'], ['3. 品牌連結','GA 想做的不是推最多品項，而是陪你找到一個能持續的健康習慣。'], ['4. 圖文架構','第 1 張痛點，第 2 張生活情境，第 3 張產品如何降低阻力，第 4 張一週觀察方式。'], ['5. CTA','把這篇交給業務當破冰素材，讓客戶先說自己的困擾。'] ],
+            [ ['1. 內容系列','一週一個客戶關鍵字：從「好吃、方便、有感」拆出真正的購買理由。'], ['2. 本篇切入','本篇可用「' + need.label + '」做主題，避免只寫產品介紹。'], ['3. 產品露出','產品只放第二層：' + product.name + ' 適合誰、解決什麼阻力。'], ['4. 信任補強','加入家人原則、最多三項推薦、不在關懷電話銷售，讓品牌價值進入內容。'], ['5. CTA','不是問要不要買，而是問：你現在卡在哪一個健康習慣？'] ]
+          ]
+        };
+        return variants[mode]?.[variant % variants[mode].length] || variants.sales[0];
       }
-      function renderSmartOutput() {
-        const input = document.querySelector('#prompt')?.value || '客戶想找好吃、方便、能持續的保健品';
-        const mode = document.querySelector('#mode')?.value || 'sales';
-        const out = document.querySelector('#out');
-        const target = detectRefine(input);
-        const versions = [
-          ['1. 客戶洞察','這段需求可先判斷為「' + target + '」。不要急著推產品，先抓住客戶真正卡住的是：吃不下、帶不走、沒感覺，還是不知道值不值得。','2. 開場話術','我先不急著推薦，想先確認：你現在最困擾的是使用不方便、口味接受度，還是希望先看到某一種體感？','3. 產品連結','如果重點是持續，就從好入口與方便開始說；如果重點是運動或眼睛，再把產品成分放到第二段補強。','4. 異議處理','你會擔心價格或效果很正常，所以我會建議先從一個最符合情境的品項開始，不需要一次買很多。','5. 下一步','請對方選一個最想改善的情境，再提供試吃、小組合或一週觀察方式。'],
-          ['1. 破冰角度','把這段話轉成朋友式關心：你不是缺保健品，而是想找一個真的放得進生活的做法。','2. 追問問題','你以前有沒有買過保健品最後沒吃完？是因為味道、麻煩，還是沒感覺？','3. 說服主軸','GA 的切入不是賣最多，而是幫你挑最可能持續的一項；健康除了補充，更重要是生活節奏能不能做到。','4. 可用短句','買了不吃才最貴；吃得下、帶得走、感受得到，才是真的有價值。','5. 收尾動作','整理成 LINE 回覆時，用「我先幫你挑一個最不浪費的開始方式」收尾。'],
-          ['1. 內容題材','這可以延伸成一篇貼文：為什麼客戶不是不想健康，而是過去的保健品沒有讓他願意持續。','2. 社群鉤子','你家裡是不是也有買了但沒吃完的保健品？問題可能不是你懶，而是它沒有進入你的生活。','3. 業務提示','現場話術不要先講產品多厲害，先問客戶一天中哪個時間最可能吃。','4. 信任補強','可以補一句：我們不會一次推薦很多，最多只選最符合你的 1 到 3 項。','5. CTA','留言或回覆你的使用情境，我們幫你判斷先從哪一項開始最不浪費。']
-        ];
-        const v = versions[refineIndex % versions.length];
-        if (out) out.innerHTML = [0,2,4,6,8].map((i,idx) => '<div class="output-card' + (idx === 4 ? ' wide' : '') + '"><b>' + v[i] + '</b><p>' + v[i+1] + '</p></div>').join('');
+      function renderSmartOutput(advance) {
+        if (advance) refineIndex += 1;
+        const input = one('#prompt')?.value || '';
+        const mode = one('#mode')?.value || 'sales';
+        const cards = fiveOutputs(mode, input, refineIndex);
+        const out = one('#out');
+        if (!out) return;
+        out.innerHTML = cards.map((card, index) => '<div class="output-card' + (index === 4 ? ' wide' : '') + '"><b>' + escapeText(card[0]) + '</b><p>' + escapeText(card[1]) + '</p></div>').join('');
       }
-      replaceButton('keyword', '換一批', () => { kwIndex += 1; renderKeywordVariant(); });
-      document.querySelectorAll('.keyword-button').forEach(old => {
+      replaceButton('keyword', '換一批洞察', () => { keywordIndex += 1; renderKeywordVariant(false); });
+      all('.keyword-button').forEach(old => {
         const btn = old.cloneNode(true);
         old.replaceWith(btn);
-        btn.addEventListener('click', () => { document.querySelectorAll('.keyword-button').forEach(x => x.classList.toggle('active', x === btn)); kwIndex = 0; renderKeywordVariant(); });
+        btn.addEventListener('click', () => {
+          all('.keyword-button').forEach(item => item.classList.toggle('active', item === btn));
+          renderKeywordVariant(true);
+        });
       });
-      replaceButton('where', '換一批', () => { whereIndex += 1; renderWhere(); });
-      replaceButton('scripts', '換一批', () => { scriptIndex += 1; renderScripts(); });
-      replaceButton('ideas', '換一批', () => { ideaIndex += 1; renderIdeas(); });
-      replaceButton('refine', '換一批產出', () => { refineIndex += 1; renderSmartOutput(); });
-      const genBtn = [...document.querySelectorAll('button')].find(b => b.textContent.trim() === '產出 5 個內容');
-      if (genBtn) { const clone = genBtn.cloneNode(true); clone.removeAttribute('onclick'); genBtn.replaceWith(clone); clone.addEventListener('click', () => { refineIndex = 0; renderSmartOutput(); }); }
-      document.querySelectorAll('.sample-card').forEach(old => {
+      replaceButton('where', '換一批場域', () => { whereIndex += 1; renderWhere(); });
+      replaceButton('scripts', '換一批話術', () => { scriptIndex += 1; renderScripts(); });
+      replaceButton('ideas', '換一批題材', () => { ideaIndex += 1; renderIdeas(); });
+      replaceButton('refine', '換一批產出', () => renderSmartOutput(true));
+      const genBtn = all('button').find(btn => btn.textContent.trim() === '產出 5 個內容');
+      if (genBtn) {
+        const clone = genBtn.cloneNode(true);
+        clone.removeAttribute('onclick');
+        genBtn.replaceWith(clone);
+        clone.addEventListener('click', () => renderSmartOutput(true));
+      }
+      all('.sample-card').forEach(old => {
         old.hidden = false;
         const btn = old.cloneNode(true);
         old.replaceWith(btn);
         btn.addEventListener('click', () => {
-          document.querySelectorAll('.sample-card').forEach(x => x.classList.toggle('active', x === btn));
-          const prompts = typeof samplePrompts !== 'undefined' ? samplePrompts : {};
-          const prompt = document.querySelector('#prompt');
-          if (prompt) prompt.value = prompts[btn.dataset.sample] || prompt.value;
+          all('.sample-card').forEach(item => item.classList.toggle('active', item === btn));
+          const prompt = one('#prompt');
+          if (prompt && typeof samplePrompts !== 'undefined') prompt.value = samplePrompts[btn.dataset.sample] || prompt.value;
           refineIndex = 0;
-          renderSmartOutput();
+          renderSmartOutput(false);
         });
       });
-      renderKeywordVariant();
+      const mode = one('#mode');
+      if (mode) mode.addEventListener('change', () => { refineIndex = 0; renderSmartOutput(false); });
+      const prompt = one('#prompt');
+      if (prompt) prompt.addEventListener('input', () => { refineIndex = 0; });
+      renderKeywordVariant(true);
       renderWhere();
       renderScripts();
       renderIdeas();
-      renderSmartOutput();
+      renderSmartOutput(false);
     })();
   </script>
 </body>
