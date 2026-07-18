@@ -190,6 +190,24 @@ async function buildQuestionsData() {
 
 const outputPath = process.argv[2] || "data/questions-data.json";
 const data = await buildQuestionsData();
+
+const guard = {
+  minSourceRows: 20000,
+  minRecords: 3000,
+  minMonths: 24
+};
+if (data.sourceRows < guard.minSourceRows || data.records.length < guard.minRecords || data.months.length < guard.minMonths) {
+  throw new Error(
+    "五問資料量異常，停止覆蓋正式資料：" +
+    JSON.stringify({
+      sourceRows: data.sourceRows,
+      records: data.records.length,
+      months: data.months.length,
+      expected: guard
+    })
+  );
+}
+
 await fs.mkdir(outputPath.split("/").slice(0, -1).join("/") || ".", { recursive: true });
 await fs.writeFile(outputPath, JSON.stringify(data), "utf8");
 console.log("Updated questions data:", data.records.length, "records");
