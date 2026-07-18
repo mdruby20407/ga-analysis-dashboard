@@ -141,6 +141,22 @@ async function main() {
   const texts = getTexts(rows);
   let html = await fs.readFile(indexPath, "utf8");
   const labels = [...html.matchAll(/<span class="word [^"]+"[^>]*>([^<]+)<\/span>/g)].map((match) => match[1].trim());
+  const guard = {
+    minSourceRows: 1000,
+    minFeedbackRows: 1000,
+    minCloudWords: 40
+  };
+  if ((rows.length - 1) < guard.minSourceRows || texts.length < guard.minFeedbackRows || labels.length < guard.minCloudWords) {
+    throw new Error(
+      "關鍵字資料量異常，停止覆蓋首頁統計：" +
+      JSON.stringify({
+        sourceRows: rows.length - 1,
+        feedbackRows: texts.length,
+        cloudWords: labels.length,
+        expected: guard
+      })
+    );
+  }
   const stats = Object.fromEntries(labels.map((label) => [label, countLabel(texts, label)]));
   html = html.replace(/<div class="top3">[\s\S]*?<\/div>\s*<\/section>/, '<div class="top3">\n        ' + buildTop3(stats) + '\n      </div>\n    </section>');
   html = html.replace(/以雲端表格「客戶反饋關鍵字」欄 \d+ 筆重算；好吃、好吃又方便、好吃的果膠都計入「好吃」。/, '以雲端表格「客戶反饋關鍵字」欄 ' + texts.length + ' 筆重算；好吃、好吃又方便、好吃的果膠都計入「好吃」。');
