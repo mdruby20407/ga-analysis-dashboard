@@ -140,6 +140,24 @@
     .example-chip { border: 1px solid rgba(185,150,88,.42); background: #fffaf0; color: var(--deep-gold); padding: 8px 10px; font-size: 13px; font-weight: 900; cursor: pointer; }
     .word { cursor: pointer; transition: transform .16s ease, opacity .16s ease; }
     .word:hover { transform: translateY(-2px); opacity: .78; }
+    .source-insight { margin-top: 18px; padding: 24px; background: var(--paper); border: 1px solid var(--line); box-shadow: var(--shadow); }
+    .source-insight-head { display: flex; gap: 18px; align-items: end; justify-content: space-between; margin-bottom: 18px; }
+    .source-insight-head h3 { margin: 0; font-size: 22px; }
+    .source-insight-head p { margin: 6px 0 0; color: var(--muted); line-height: 1.7; }
+    .source-filter { display: flex; flex-wrap: wrap; gap: 8px; }
+    .source-filter button { border: 1px solid var(--line); background: #fffaf0; color: var(--ink); min-height: 38px; padding: 7px 10px; font: inherit; font-size: 13px; font-weight: 900; cursor: pointer; }
+    .source-filter button:hover, .source-filter button.active { background: var(--black); color: white; border-color: var(--black); }
+    .source-filter button span { margin-left: 5px; color: var(--deep-gold); }
+    .source-filter button.active span { color: var(--gold); }
+    .source-keywords { margin-top: 18px; border-top: 1px solid var(--line); padding-top: 18px; }
+    .source-keywords-top { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+    .source-keywords-top p { margin: 0; color: var(--muted); line-height: 1.65; }
+    .source-keywords-top b { color: var(--deep-gold); }
+    .source-next { flex: 0 0 auto; min-height: 38px; border: 1px solid var(--gold); background: var(--gold); color: white; padding: 0 12px; font: inherit; font-weight: 900; cursor: pointer; }
+    .source-next:disabled { opacity: .42; cursor: default; }
+    .source-keyword-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .source-keyword-list span { display: inline-flex; align-items: baseline; gap: 6px; border: 1px solid rgba(185,150,88,.38); background: #fbf5e9; color: var(--deep-gold); padding: 9px 11px; font-weight: 900; }
+    .source-keyword-list small { color: var(--muted); font-size: 12px; }
 
 
     .refine-suite { display: grid; gap: 16px; }
@@ -301,6 +319,11 @@
           </div>
         </div>
         <div class="keyword-result" id="keywordResult" aria-live="polite"></div>
+      </div>
+      <div class="source-insight" id="sourceInsight" aria-live="polite">
+        <div class="source-insight-head"><div><h3>依來源切入</h3><p>從客戶認識 GA 的入口，看各客群最常說出的關鍵字。</p></div></div>
+        <div class="source-filter" id="sourceFilter"></div>
+        <div class="source-keywords" id="sourceKeywords"></div>
       </div>
     </section>
 
@@ -529,7 +552,7 @@
       });
     });
     document.querySelectorAll('.keyword-button').forEach(btn => btn.addEventListener('click', () => renderKeyword(btn.dataset.key)));
-    const cloudExamples = {
+      const cloudExamples = {
       '好吃': ['好吃的葉黃素', '最好吃的保健食品。', '方便好吃、團購優惠多。', '很好吃的保健品', '好吃有感的保健食品'],
       '方便': ['方便好吃、團購優惠多。', '方便攜帶的葉黃素。', '方便好食用的運動補給。', '方便好攜帶的運動補給。', '品質好，考量到運動補給，方便攜帶。'],
       '有感': ['真的有感的保健食品', '很有感的葉黃素。', '好吃有感的保健食品', '有感', '真正有感'],
@@ -582,6 +605,9 @@
       '保健食品': ['真的有感的保健食品', '最好吃的保健食品。', '好吃有感的保健食品', '很用心做出好吃的保健食品，沒有藥物感，接受度很高。', '好吃的保健食品。']
     };
     const cloudTotal = 1608; // 雲端表格「客戶反饋關鍵字」有效筆數
+    /* sourceKeywordData:start */
+    const sourceKeywordData = [{"name":"KOL","count":734,"keywords":[{"label":"好吃","count":263},{"label":"方便","count":118},{"label":"葉黃素","count":93},{"label":"果凍","count":51},{"label":"保健食品","count":46},{"label":"小孩","count":37},{"label":"接受度高","count":33},{"label":"攜帶方便","count":33},{"label":"有感","count":26},{"label":"推薦","count":25},{"label":"有效","count":24},{"label":"果膠","count":23},{"label":"用心","count":20},{"label":"睡眠","count":20},{"label":"運動補給","count":18},{"label":"安心","count":13},{"label":"放心","count":11},{"label":"品質","count":11},{"label":"包裝","count":10},{"label":"不便宜","count":9},{"label":"沒有藥感","count":9},{"label":"好入口","count":8},{"label":"信任","count":8},{"label":"眼睛","count":7},{"label":"提神","count":7},{"label":"續航力","count":6},{"label":"體力","count":6},{"label":"適口性","count":5},{"label":"獨立包裝","count":5},{"label":"專業","count":4},{"label":"精神","count":4},{"label":"恢復","count":3},{"label":"好撕","count":2},{"label":"安全","count":2},{"label":"成分","count":2},{"label":"跑步","count":2},{"label":"新手友善","count":2},{"label":"不死甜","count":1},{"label":"半馬包","count":1},{"label":"台灣品牌","count":1},{"label":"全馬包","count":1},{"label":"足量","count":1},{"label":"飛蚊症","count":1},{"label":"能見度","count":1},{"label":"乾澀","count":1}]},{"name":"合作","count":221,"keywords":[{"label":"好吃","count":58},{"label":"果膠","count":56},{"label":"運動補給","count":44},{"label":"體力","count":17},{"label":"方便","count":14},{"label":"續航力","count":14},{"label":"不死甜","count":9},{"label":"安心","count":6},{"label":"恢復","count":6},{"label":"有感","count":5},{"label":"好入口","count":4},{"label":"有效","count":4},{"label":"跑步","count":4},{"label":"新手友善","count":4},{"label":"睡眠","count":4},{"label":"葉黃素","count":4},{"label":"包裝","count":3},{"label":"品質","count":3},{"label":"能見度","count":3},{"label":"攜帶方便","count":3},{"label":"用心","count":2},{"label":"好撕","count":2},{"label":"果凍","count":2},{"label":"保健食品","count":2},{"label":"專業","count":2},{"label":"接受度高","count":2},{"label":"提神","count":2},{"label":"精神","count":2},{"label":"適口性","count":2},{"label":"騎車","count":2},{"label":"小孩","count":1},{"label":"半馬包","count":1},{"label":"台灣品牌","count":1},{"label":"全馬包","count":1},{"label":"成分","count":1},{"label":"放心","count":1},{"label":"信任","count":1},{"label":"馬拉松","count":1},{"label":"推薦","count":1},{"label":"獨立包裝","count":1},{"label":"賽事","count":1},{"label":"CP值","count":1}]},{"name":"親友推薦","count":176,"keywords":[{"label":"好吃","count":51},{"label":"果膠","count":31},{"label":"運動補給","count":25},{"label":"方便","count":16},{"label":"葉黃素","count":11},{"label":"體力","count":9},{"label":"有效","count":8},{"label":"好入口","count":7},{"label":"果凍","count":7},{"label":"續航力","count":6},{"label":"不死甜","count":5},{"label":"包裝","count":5},{"label":"小孩","count":4},{"label":"用心","count":4},{"label":"品質","count":4},{"label":"不便宜","count":3},{"label":"安心","count":3},{"label":"保健食品","count":3},{"label":"接受度高","count":3},{"label":"推薦","count":3},{"label":"睡眠","count":3},{"label":"攜帶方便","count":3},{"label":"好撕","count":2},{"label":"有感","count":2},{"label":"信任","count":2},{"label":"提神","count":2},{"label":"精神","count":2},{"label":"適口性","count":2},{"label":"獨立包裝","count":2},{"label":"賽事","count":2},{"label":"台灣品牌","count":1},{"label":"安全","count":1},{"label":"放心","count":1},{"label":"恢復","count":1},{"label":"新手友善","count":1}]},{"name":"網路看到","count":171,"keywords":[{"label":"好吃","count":46},{"label":"果膠","count":43},{"label":"運動補給","count":26},{"label":"方便","count":13},{"label":"續航力","count":13},{"label":"體力","count":10},{"label":"好入口","count":8},{"label":"葉黃素","count":6},{"label":"果凍","count":5},{"label":"包裝","count":4},{"label":"有效","count":4},{"label":"小孩","count":3},{"label":"半馬包","count":3},{"label":"接受度高","count":3},{"label":"新手友善","count":3},{"label":"賽事","count":3},{"label":"用心","count":2},{"label":"全馬包","count":2},{"label":"好撕","count":2},{"label":"安心","count":2},{"label":"品質","count":2},{"label":"恢復","count":2},{"label":"能見度","count":2},{"label":"乾澀","count":2},{"label":"專業","count":2},{"label":"眼睛","count":2},{"label":"跑步","count":2},{"label":"睡眠","count":2},{"label":"精神","count":2},{"label":"適口性","count":2},{"label":"不死甜","count":1},{"label":"不便宜","count":1},{"label":"有感","count":1},{"label":"放心","count":1},{"label":"保健食品","count":1},{"label":"提神","count":1},{"label":"騎車","count":1},{"label":"攜帶方便","count":1}]},{"name":"數字力學員","count":99,"keywords":[{"label":"好吃","count":22},{"label":"安心","count":10},{"label":"信任","count":8},{"label":"方便","count":7},{"label":"接受度高","count":6},{"label":"放心","count":5},{"label":"小孩","count":4},{"label":"用心","count":4},{"label":"保健食品","count":4},{"label":"睡眠","count":4},{"label":"葉黃素","count":4},{"label":"品質","count":3},{"label":"有感","count":2},{"label":"果膠","count":2},{"label":"推薦","count":2},{"label":"提神","count":2},{"label":"運動補給","count":2},{"label":"攜帶方便","count":2},{"label":"包裝","count":1},{"label":"半馬包","count":1},{"label":"好入口","count":1},{"label":"安全","count":1},{"label":"成分","count":1},{"label":"有效","count":1},{"label":"足量","count":1},{"label":"果凍","count":1},{"label":"恢復","count":1},{"label":"能見度","count":1},{"label":"精神","count":1},{"label":"適口性","count":1},{"label":"續航力","count":1},{"label":"體力","count":1}]},{"name":"ＣＴ","count":39,"keywords":[{"label":"果膠","count":6},{"label":"運動補給","count":6},{"label":"好吃","count":5},{"label":"方便","count":3},{"label":"體力","count":3},{"label":"用心","count":2},{"label":"好入口","count":2},{"label":"有感","count":2},{"label":"攜帶方便","count":2},{"label":"續航力","count":2},{"label":"包裝","count":1},{"label":"台灣品牌","count":1},{"label":"好撕","count":1},{"label":"果凍","count":1},{"label":"信任","count":1},{"label":"恢復","count":1},{"label":"睡眠","count":1},{"label":"賽事","count":1}]},{"name":"IG","count":28,"keywords":[{"label":"果膠","count":9},{"label":"好吃","count":5},{"label":"包裝","count":4},{"label":"續航力","count":3},{"label":"好入口","count":2},{"label":"運動補給","count":2},{"label":"方便","count":1},{"label":"安心","count":1},{"label":"有效","count":1},{"label":"有感","count":1},{"label":"放心","count":1},{"label":"果凍","count":1},{"label":"品質","count":1},{"label":"恢復","count":1},{"label":"能見度","count":1},{"label":"專業","count":1},{"label":"提神","count":1},{"label":"新手友善","count":1},{"label":"體力","count":1}]},{"name":"其他","count":25,"keywords":[{"label":"方便","count":8},{"label":"好吃","count":7},{"label":"小孩","count":2},{"label":"包裝","count":2},{"label":"果膠","count":2},{"label":"接受度高","count":2},{"label":"運動補給","count":2},{"label":"攜帶方便","count":2},{"label":"不死甜","count":1},{"label":"安心","count":1},{"label":"有效","count":1},{"label":"有感","count":1},{"label":"放心","count":1},{"label":"果凍","count":1},{"label":"恢復","count":1},{"label":"葉黃素","count":1},{"label":"續航力","count":1},{"label":"體力","count":1}]},{"name":"FB","count":22,"keywords":[{"label":"運動補給","count":7},{"label":"好吃","count":6},{"label":"果膠","count":4},{"label":"方便","count":3},{"label":"體力","count":2},{"label":"不死甜","count":1},{"label":"半馬包","count":1},{"label":"用心","count":1},{"label":"有效","count":1},{"label":"有感","count":1},{"label":"保健食品","count":1},{"label":"恢復","count":1},{"label":"專業","count":1},{"label":"接受度高","count":1},{"label":"提神","count":1},{"label":"跑步","count":1},{"label":"新手友善","count":1},{"label":"適口性","count":1},{"label":"賽事","count":1}]},{"name":"MJ粉絲團","count":21,"keywords":[{"label":"方便","count":4},{"label":"好吃","count":3},{"label":"安心","count":3},{"label":"小孩","count":2},{"label":"用心","count":2},{"label":"有效","count":2},{"label":"保健食品","count":2},{"label":"信任","count":2},{"label":"專業","count":2},{"label":"葉黃素","count":2},{"label":"攜帶方便","count":2},{"label":"安全","count":1},{"label":"放心","count":1},{"label":"接受度高","count":1},{"label":"賽事","count":1},{"label":"CP值","count":1}]},{"name":"未標註來源","count":16,"keywords":[{"label":"好吃","count":7},{"label":"果膠","count":7},{"label":"運動補給","count":2},{"label":"體力","count":2},{"label":"不死甜","count":1},{"label":"方便","count":1},{"label":"台灣品牌","count":1},{"label":"果凍","count":1},{"label":"睡眠","count":1},{"label":"攜帶方便","count":1}]},{"name":"無法問到","count":16,"keywords":[{"label":"葉黃素","count":3},{"label":"方便","count":1},{"label":"用心","count":1},{"label":"好吃","count":1},{"label":"果凍","count":1},{"label":"恢復","count":1},{"label":"飛蚊症","count":1},{"label":"接受度高","count":1},{"label":"眼睛","count":1},{"label":"運動補給","count":1},{"label":"騎車","count":1},{"label":"續航力","count":1}]},{"name":"廣告","count":11,"keywords":[{"label":"好吃","count":3},{"label":"好撕","count":1},{"label":"安心","count":1},{"label":"放心","count":1},{"label":"品質","count":1},{"label":"睡眠","count":1},{"label":"運動補給","count":1},{"label":"騎車","count":1}]},{"name":"CT","count":8,"keywords":[{"label":"好吃","count":3},{"label":"方便","count":1},{"label":"包裝","count":1},{"label":"用心","count":1},{"label":"果凍","count":1},{"label":"保健食品","count":1},{"label":"葉黃素","count":1},{"label":"獨立包裝","count":1},{"label":"攜帶方便","count":1}]},{"name":"麗芳社群","count":7,"keywords":[{"label":"小孩","count":2},{"label":"好吃","count":2},{"label":"方便","count":1},{"label":"安心","count":1},{"label":"接受度高","count":1},{"label":"睡眠","count":1},{"label":"葉黃素","count":1},{"label":"精神","count":1}]},{"name":"MJ朋友","count":6,"keywords":[{"label":"好吃","count":3},{"label":"小孩","count":1},{"label":"方便","count":1}]},{"name":"運動員推薦","count":5,"keywords":[{"label":"方便","count":1},{"label":"好吃","count":1},{"label":"果膠","count":1},{"label":"恢復","count":1}]},{"name":"員工親友","count":1,"keywords":[{"label":"有效","count":1}]},{"name":"團購","count":1,"keywords":[]},{"name":"龍舟隊","count":1,"keywords":[{"label":"方便","count":1},{"label":"接受度高","count":1}]}];
+    /* sourceKeywordData:end */
     
     function showCountBubble(word) {
       const bubble = document.querySelector('#countBubble');
@@ -843,6 +869,38 @@
         ['LINE 短文：你不是不自律，是產品沒有放進你的生活。','短影音：跑者補給包裡到底該放什麼？','貼文：家長每天叫小孩吃保健品，為什麼會累？','EDM：從好吃、方便、有感，找到你的第一項保健習慣。','業務小卡：問對三個問題，不要一開口就推產品。','活動攤位：用試吃把陌生客變成可對話客。','官網文章：GA 為什麼堅持家人原則與七天有感？','客服回訪：不銷售的電話，怎麼累積品牌信任？']
       ];
       let whereIndex = 0, scriptIndex = 0, ideaIndex = 0, keywordIndex = 0, refineIndex = 0;
+      let sourcePage = 0;
+      let activeSourceIndex = 0;
+      function renderSourceInsight(resetPage) {
+        const filters = one('#sourceFilter');
+        const result = one('#sourceKeywords');
+        const sources = Array.isArray(sourceKeywordData) ? sourceKeywordData : [];
+        if (!filters || !result) return;
+        if (!sources.length) {
+          filters.innerHTML = '';
+          result.innerHTML = '<p>目前尚無可顯示的來源資料。</p>';
+          return;
+        }
+        if (resetPage) sourcePage = 0;
+        if (activeSourceIndex >= sources.length) activeSourceIndex = 0;
+        const selected = sources[activeSourceIndex];
+        const keywords = selected.keywords || [];
+        const pageCount = Math.max(1, Math.ceil(keywords.length / 10));
+        if (sourcePage >= pageCount) sourcePage = 0;
+        const batch = keywords.slice(sourcePage * 10, sourcePage * 10 + 10);
+        filters.innerHTML = sources.map((source, index) => '<button type="button" class="' + (index === activeSourceIndex ? 'active' : '') + '" data-source-index="' + index + '">' + escapeText(source.name) + '<span>' + source.count + ' 則</span></button>').join('');
+        all('#sourceFilter button').forEach(button => button.addEventListener('click', () => {
+          activeSourceIndex = Number(button.dataset.sourceIndex || 0);
+          renderSourceInsight(true);
+        }));
+        const keywordMarkup = batch.length
+          ? batch.map(item => '<span>' + escapeText(item.label) + '<small>' + item.count + ' 次</small></span>').join('')
+          : '<p>這個來源目前還沒有落在 50 詞文字雲內的關鍵字。</p>';
+        const canAdvance = keywords.length > 10;
+        result.innerHTML = '<div class="source-keywords-top"><p><b>' + escapeText(selected.name) + '</b> 累積 ' + selected.count + ' 則關鍵字。以下為第 ' + (sourcePage + 1) + '／' + pageCount + ' 組高頻關鍵字。</p><button class="source-next" type="button" ' + (canAdvance ? '' : 'disabled') + '>換一批</button></div><div class="source-keyword-list">' + keywordMarkup + '</div>';
+        const next = one('#sourceKeywords .source-next');
+        if (next && canAdvance) next.addEventListener('click', () => { sourcePage = (sourcePage + 1) % pageCount; renderSourceInsight(false); });
+      }
       function currentKeywordKey() { return one('.keyword-button.active')?.dataset.key || 'taste'; }
       function renderKeywordVariant(reset) {
         if (reset) keywordIndex = 0;
@@ -949,6 +1007,7 @@
       renderScripts();
       renderIdeas();
       renderSmartOutput(false);
+      renderSourceInsight(true);
     })();
   </script>
 </body>
