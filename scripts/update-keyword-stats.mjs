@@ -75,11 +75,40 @@ function parseCsv(text) {
   return rows;
 }
 
-function getTexts(rows) {
+function getRecords(rows) {
   const header = rows[0] || [];
   const feedbackIndex = header.indexOf("客戶反饋關鍵字");
   if (feedbackIndex === -1) throw new Error("找不到「客戶反饋關鍵字」欄位，請確認 Google Sheet 表頭沒有改名。");
-  return rows.slice(1).map((row) => (row[feedbackIndex] || "").trim()).filter(Boolean);
+  const sourceIndex = header.findIndex((value) => {
+    const normalized = String(value || "").replace(/[\s()（）]/g, "").toLowerCase();
+    return normalized.includes("如何得知ga") || normalized === "來源";
+  });
+  return rows.slice(1).map((row) => {
+    const text = (row[feedbackIndex] || "").trim();
+    const source = sourceIndex === -1 ? "未標註來源" : ((row[sourceIndex] || "").trim() || "未標註來源");
+    return { text, source };
+  }).filter((record) => record.text);
+}
+
+function buildSourceKeywordData(records, labels) {
+  const groups = new Map();
+  for (const record of records) {
+    const items = groups.get(record.source) || [];
+    items.push(record.text);
+    groups.set(record.source, items);
+  }
+  const sources = [...groups.entries()]
+    .map(([name, texts]) => ({
+      name,
+      count: texts.length,
+      keywords: labels
+        .map((label) => ({ label, count: countLabel(texts, label).count }))
+        .filter((item) => item.count > 0)
+        .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label, "zh-Hant"))
+    }))
+    .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, "zh-Hant"));
+  const payload = JSON.stringify(sources).replace(/</g, "\\u003c");
+  return "/* sourceKeywordData:start */\n    const sourceKeywordData = " + payload + ";\n    /* sourceKeywordData:end */";
 }
 
 function countLabel(texts, label) {
@@ -138,7 +167,8 @@ async function main() {
   const response = await fetch(url);
   if (!response.ok) throw new Error("Google Sheet 讀取失敗：" + response.status);
   const rows = parseCsv(await response.text());
-  const texts = getTexts(rows);
+  const records = getRecords(rows);
+  const texts = records.map((record) => record.text);
   let html = await fs.readFile(indexPath, "utf8");
   const labels = [...html.matchAll(/<span class="word [^"]+"[^>]*>([^<]+)<\/span>/g)].map((match) => match[1].trim());
   const guard = {
@@ -166,6 +196,7 @@ async function main() {
   });
   html = html.replace(/const cloudExamples = \{[\s\S]*?\n    \};/, buildExamples(stats));
   html = html.replace(/const cloudTotal = \d+; \/\/[^\n]*/, 'const cloudTotal = ' + texts.length + '; // ' + TOTAL_NOTE);
+  html = html.replace(/\/\* sourceKeywordData:start \*\/[\s\S]*?\/\* sourceKeywordData:end \*\//, buildSourceKeywordData(records, labels));
   await fs.writeFile(indexPath, html, "utf8");
   console.log("Updated keyword stats from " + texts.length + " feedback rows.");
 }
