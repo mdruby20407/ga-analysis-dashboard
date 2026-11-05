@@ -18,6 +18,7 @@ const productAliases = {
   "心之友達": ["心之友達", "心"],
   "萃菇精": ["萃菇精", "菇精"],
   "維生素果凍": ["維生素果凍", "小橘凍", "B群果凍"],
+  "乾杯凍": ["乾杯凍"],
   "W3益生菌(EOL)": ["W3益生菌", "益生菌", "W3"],
   "V12(EOL)": ["V12"]
 };
@@ -211,3 +212,4 @@ if (data.sourceRows < guard.minSourceRows || data.records.length < guard.minReco
 await fs.mkdir(outputPath.split("/").slice(0, -1).join("/") || ".", { recursive: true });
 await fs.writeFile(outputPath, JSON.stringify(data), "utf8");
 console.log("Updated questions data:", data.records.length, "records");
+
