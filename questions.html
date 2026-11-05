@@ -307,7 +307,7 @@ function init(data){
   document.querySelector('#dataNote').textContent='已排除無效電話與單純通知；B欄年月空白已沿用上一筆年月。來源 '+data.sourceRows+' 筆，納入 '+data.records.length+' 筆匿名摘要。';
   data.months.forEach(m=>{option(startMonth,m,m);option(endMonth,m,m)});
   startMonth.value=data.months.at(-6)||data.months[0]||'';endMonth.value=data.months.at(-1)||'';
-  data.products.forEach(p=>{const label=document.createElement('label');label.className='check-item';label.innerHTML='<input type="checkbox" value="'+escapeHtml(p)+'" checked> <span>'+escapeHtml(p)+'</span>';productChecks.appendChild(label)});
+  [...new Set([...(data.products||[]),'乾杯凍'])].forEach(p=>{const label=document.createElement('label');label.className='check-item';label.innerHTML='<input type="checkbox" value="'+escapeHtml(p)+'" checked> <span>'+escapeHtml(p)+'</span>';productChecks.appendChild(label)});
   ['change','input'].forEach(ev=>document.addEventListener(ev,e=>{if(e.target.closest('#filters')){questionPage=0;quotePage=0;render()}}));
   document.querySelector('#selectAllProducts').addEventListener('click',()=>{productChecks.querySelectorAll('input').forEach(i=>i.checked=true);questionPage=0;quotePage=0;render()});
   document.querySelector('#clearProducts').addEventListener('click',()=>{productChecks.querySelectorAll('input').forEach(i=>i.checked=false);questionPage=0;quotePage=0;render()});
@@ -319,3 +319,4 @@ fetch('data/questions-data.json?v='+Date.now()).then(r=>r.json()).then(init).cat
 </script>
 </body>
 </html>
+
