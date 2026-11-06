@@ -128,6 +128,11 @@ function pickContextAnswer(contact, words) {
   return pick(contact, words);
 }
 
+function pickContextPattern(contact, pattern) {
+  const parts = String(contact || "").split(/[。！？!?；;\n]/).map((item) => item.trim()).filter(Boolean);
+  return rawCompact(parts.find((part) => pattern.test(part)) || "");
+}
+
 function tags(text) {
   const result = [];
   if (/好吃|好入口|不甜|適口|藥感|難吃|苦/.test(text)) result.push("口味接受度");
@@ -143,7 +148,7 @@ function findQuestionAnswers(values) {
   // Q、R、P 是明確填答欄；第 3、5 題僅從 J 的原話擷取有明確依據的句子。
   const q1 = rawCompact(values.like);
   const q2 = rawCompact(values.dislike);
-  const q3 = pickContextAnswer(values.contact, ["創辦人", "改變", "建議", "改善", "希望", "新增", "增加", "推出", "開發", "可以"]);
+  const q3 = pickContextPattern(values.contact, /創辦人|改變|建議|改善|新增|增加|推出|開發|希望(?:能|有|做|出|增加|推出|改善)|可以(?:增加|推出|開發|改善)/);
   const q4 = rawCompact(values.keywords);
   const q5 = pickContextAnswer(values.contact, ["解決", "痛點", "改善", "幫助", "有感", "不累", "恢復", "體力", "睡眠", "精神", "眼睛", "方便", "吃得下", "吞", "排便", "腸胃"]);
   return { q1, q2, q3, q4, q5 };
