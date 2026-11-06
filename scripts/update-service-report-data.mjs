@@ -158,7 +158,8 @@ async function buildData() {
       questions: questionFlags(contact, like, dislike, keywords),
       answerThemes,
       phs,
-      detractorReasons: topicLabels([dislike, contact].join(" "), "q2"),
+      // Keep the customer's improvement wording for detractors; do not turn it into inferred categories.
+      detractorQuote: nps === "X" ? (dislike || "未留下改善原因") : "",
       futureThemes: topicLabels([expected, future].join(" "), "future"),
       themes: { taste: hasAny(combined, /好吃|不甜|好入口|甜度|口味/), convenience: hasAny(combined, /方便|攜帶|好撕|包裝|設計|帥|好看/), effect: hasAny(combined, /有感|不累|恢復|體力|睡眠|精神|眼睛/), trust: hasAny(combined, /安心|信任|推薦|品牌|用心/) },
       scene: sceneSignals(combined), expected: Boolean(expected || future), event: Boolean(event),
