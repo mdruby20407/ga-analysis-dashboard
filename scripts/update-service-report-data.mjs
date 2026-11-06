@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 
 const SHEET_ID = "16zmrzjKdAc458Xso-tQHAu8qhBE6-4hs";
 const GID = "1714313965";
+const ORDER_GID = "1418544570";
 
 const productAliases = {
   "力捷凍": ["力捷凍", "捷"], "GA GEL": ["GA GEL", "果膠"], "小金膠": ["小金膠", "金膠"],
@@ -40,6 +41,19 @@ function cleanMonth(value) { const match = clean(value).match(/(20\d{2})\D+(\d{1
 function cleanDate(value) {
   const match = clean(value).match(/(20\d{2})\D+(\d{1,2})\D+(\d{1,2})/);
   return match ? `${match[1]}-${String(Number(match[2])).padStart(2, "0")}-${String(Number(match[3])).padStart(2, "0")}` : "";
+}
+function normalizePhone(value) {
+  let digits = clean(value).replace(/\D/g, "");
+  if (digits.startsWith("886") && digits.length >= 11) digits = `0${digits.slice(3)}`;
+  return digits.length >= 9 ? digits.slice(-10) : "";
+}
+function daysBetween(start, end) {
+  return Math.floor((Date.parse(`${end}T00:00:00Z`) - Date.parse(`${start}T00:00:00Z`)) / 86400000);
+}
+function shiftDate(date, days) {
+  const value = new Date(`${date}T00:00:00Z`);
+  value.setUTCDate(value.getUTCDate() + days);
+  return value.toISOString().slice(0, 10);
 }
 function detectProducts(text) {
   const haystack = clean(text).toLowerCase();
@@ -102,10 +116,13 @@ async function loadGlobalKeywordTop() {
 }
 
 async function buildData() {
-  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${GID}`;
-  const response = await fetch(url);
-  if (!response.ok) throw new Error(`Google Sheet 讀取失敗：${response.status}`);
-  const rows = parseCsv(await response.text());
+  async function loadSheet(gid, label) {
+    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${gid}`;
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`${label} Google Sheet 讀取失敗：${response.status}`);
+    return parseCsv(await response.text());
+  }
+  const rows = await loadSheet(GID, "電話紀錄");
   const headers = rows[0] || [];
   const columns = {
     month: findColumn(headers, "年/月", ["年/月"]), date: findColumn(headers, "撥打日期", ["撥打日期"]),
@@ -122,7 +139,7 @@ async function buildData() {
     const row = rows[i]; const explicitMonth = cleanMonth(row[columns.month]); if (explicitMonth) currentMonth = explicitMonth;
     const date = cleanDate(row[columns.date]); const month = explicitMonth || currentMonth;
     if (!date || !month) continue;
-    const phone = clean(row[columns.phone]).replace(/\D/g, "");
+    const phone = normalizePhone(row[columns.phone]);
     const customerKey = phone ? (customerKeys.get(phone) || (customerKeys.set(phone, nextCustomerKey), nextCustomerKey++)) : null;
     const status = clean(row[columns.status]); const contact = clean(row[columns.contact]);
     const like = clean(row[columns.like]); const dislike = clean(row[columns.dislike]); const keywords = clean(row[columns.keywords]);
@@ -144,11 +161,64 @@ async function buildData() {
       detractorReasons: topicLabels([dislike, contact].join(" "), "q2"),
       futureThemes: topicLabels([expected, future].join(" "), "future"),
       themes: { taste: hasAny(combined, /好吃|不甜|好入口|甜度|口味/), convenience: hasAny(combined, /方便|攜帶|好撕|包裝|設計|帥|好看/), effect: hasAny(combined, /有感|不累|恢復|體力|睡眠|精神|眼睛/), trust: hasAny(combined, /安心|信任|推薦|品牌|用心/) },
-      scene: sceneSignals(combined), expected: Boolean(expected || future), event: Boolean(event)
+      scene: sceneSignals(combined), expected: Boolean(expected || future), event: Boolean(event),
+      internalPhone: phone,
+      repurchase: { mature30: false, mature60: false, mature90: false, orders30: 0, orders60: 0, orders90: 0, amount30: 0, amount60: 0, amount90: 0, days30: [], days60: [], days90: [] }
     });
   }
+  const orderRows = await loadSheet(ORDER_GID, "訂單紀錄");
+  const orderHeaders = orderRows[0] || [];
+  const orderColumns = {
+    date: findColumn(orderHeaders, "訂單日期", ["訂單日期"]),
+    phone: findColumn(orderHeaders, "電話號碼", ["電話號碼"]),
+    amount: findColumn(orderHeaders, "付款總金額", ["付款總金額", "訂單金額"])
+  };
+  const orders = orderRows.slice(1).map((row) => ({
+    date: cleanDate(row[orderColumns.date]),
+    phone: normalizePhone(row[orderColumns.phone]),
+    amount: Number(String(row[orderColumns.amount] || "").replace(/[^\d.-]/g, "")) || 0
+  })).filter((order) => order.date && order.phone).sort((a, b) => a.date.localeCompare(b.date));
+  const orderMaxDate = orders.at(-1)?.date || "";
+  const callsByPhone = new Map();
+  records.forEach((record) => {
+    if (!record.internalPhone) return;
+    const calls = callsByPhone.get(record.internalPhone) || [];
+    calls.push(record);
+    callsByPhone.set(record.internalPhone, calls);
+  });
+  callsByPhone.forEach((calls) => calls.sort((a, b) => a.date.localeCompare(b.date) || a.id - b.id));
+  orders.forEach((order) => {
+    const calls = callsByPhone.get(order.phone) || [];
+    let attributedCall = null;
+    for (let index = calls.length - 1; index >= 0; index -= 1) {
+      const candidate = calls[index];
+      const days = daysBetween(candidate.date, order.date);
+      if (days <= 0) continue;
+      if (days > 90) break;
+      attributedCall = candidate;
+      break;
+    }
+    if (!attributedCall) return;
+    const days = daysBetween(attributedCall.date, order.date);
+    [30, 60, 90].forEach((window) => {
+      if (days > window) return;
+      attributedCall.repurchase[`orders${window}`] += 1;
+      attributedCall.repurchase[`amount${window}`] += order.amount;
+      attributedCall.repurchase[`days${window}`].push(days);
+    });
+  });
+  records.forEach((record) => {
+    if (!orderMaxDate) return;
+    [30, 60, 90].forEach((window) => { record.repurchase[`mature${window}`] = record.date <= shiftDate(orderMaxDate, -window); });
+    delete record.internalPhone;
+  });
   const globalKeywords = await loadGlobalKeywordTop();
-  return { updatedAt: new Date().toISOString(), sourceRows: rows.length - 1, dateRange: { min: records[0]?.date || "", max: records.at(-1)?.date || "" }, globalKeywords, records, products: Object.keys(productAliases) };
+  return {
+    updatedAt: new Date().toISOString(), sourceRows: rows.length - 1,
+    dateRange: { min: records[0]?.date || "", max: records.at(-1)?.date || "" },
+    orderMeta: { sourceRows: orderRows.length - 1, minDate: orders[0]?.date || "", maxDate: orderMaxDate, attribution: "訂單歸給訂單前 90 天內最近一次外撥；同日訂單不計入。" },
+    globalKeywords, records, products: Object.keys(productAliases)
+  };
 }
 
 const outputPath = process.argv[2] || "data/service-report-data.json";
