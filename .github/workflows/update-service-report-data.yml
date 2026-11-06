@@ -1,0 +1,31 @@
+name: Update Service Report Data
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 9 * * 5"
+
+permissions:
+  contents: write
+
+jobs:
+  update-service-report-data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Recalculate service report data
+        run: node scripts/update-service-report-data.mjs
+
+      - name: Commit updated service report data
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "自動更新客服工作回報資料"
+          file_pattern: data/service-report-data.json
+
