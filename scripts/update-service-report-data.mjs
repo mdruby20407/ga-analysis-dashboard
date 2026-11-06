@@ -27,6 +27,7 @@ function parseCsv(text) {
 }
 
 function clean(value) { return String(value || "").replace(/\s+/g, " ").trim(); }
+function normalizeNps(value) { return clean(value).toUpperCase().replace(/Ｖ/g, "V").replace(/Ｏ/g, "O").replace(/Ｘ/g, "X"); }
 function normalHeader(value) { return clean(value).replace(/[\s\n\r/（）()]/g, "").toLowerCase(); }
 function findColumn(headers, label, aliases) {
   const wanted = aliases.map(normalHeader);
@@ -98,7 +99,7 @@ async function buildData() {
     const like = clean(row[columns.like]); const dislike = clean(row[columns.dislike]); const keywords = clean(row[columns.keywords]);
     const usage = clean(row[columns.usage]); const expected = clean(row[columns.expected]); const future = clean(row[columns.future]); const event = clean(row[columns.event]);
     const combined = [contact, usage, keywords, like, dislike, expected, future, event].join(" ");
-    const nps = clean(row[columns.nps]).toUpperCase();
+    const nps = normalizeNps(row[columns.nps]);
     records.push({
       id: i, customerKey, date, month, status: status || "未填", statusGroup: statusGroup(status),
       newOld: clean(row[columns.newOld]) || "未填", gender: clean(row[columns.gender]) || "未填", vip: clean(row[columns.vip]) || "未填", source: clean(row[columns.source]) || "未填",
