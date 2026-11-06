@@ -102,10 +102,30 @@ function detectProducts(text) {
   return [...new Set(found)];
 }
 
+function rawCompact(value, max = 160) {
+  const text = sanitize(value);
+  return text.length > max ? text.slice(0, max - 1) + "…" : text;
+}
+
 function pick(text, words) {
   const parts = String(text || "").split(/[。！？!?；;\n]/).map((item) => item.trim()).filter(Boolean);
   const found = parts.find((part) => words.some((word) => part.includes(word)));
-  return compact(found || "");
+  return rawCompact(found || "");
+}
+
+function normalHeader(value) {
+  return String(value || "").replace(/[\s\n\r/（）()]/g, "").toLowerCase();
+}
+
+function findColumn(headers, label, aliases) {
+  const normalizedAliases = aliases.map(normalHeader);
+  const index = headers.findIndex((header) => normalizedAliases.includes(normalHeader(header)));
+  if (index === -1) throw new Error("找不到必要欄位：" + label);
+  return index;
+}
+
+function pickContextAnswer(contact, words) {
+  return pick(contact, words);
 }
 
 function tags(text) {
@@ -119,12 +139,13 @@ function tags(text) {
   return [...new Set(result)];
 }
 
-function findQuestionAnswers(row, combined) {
-  const q1 = compact(row[23] || pick(combined, ["喜歡", "最喜歡", "安心", "信任", "好吃", "不甜", "方便", "有感", "願意推薦", "設計", "包裝", "面子", "恢復", "不累", "好入口", "有效", "體感"]));
-  const q2 = compact(row[24] || row[26] || pick(combined, ["討厭", "不喜歡", "太甜", "太貴", "不便宜", "苦", "難吃", "沒效", "無感", "麻煩", "不好撕", "膩", "不方便", "停止購買"]));
-  const q3 = compact(row[25] || row[28] || row[29] || row[32] || row[33] || pick(combined, ["改變", "建議", "希望", "期待", "開發", "如果", "創辦人", "兒童", "市場", "活動", "優惠", "服務", "產品"]));
-  const q4 = compact(row[22] || pick(combined, ["關鍵字", "形容", "安心", "信任", "品牌", "推薦"]));
-  const q5 = compact(row[21] || pick(combined, ["解決", "痛點", "有感", "不累", "恢復", "睡眠", "體力", "眼睛", "方便"]));
+function findQuestionAnswers(values) {
+  // Q、R、P 是明確填答欄；第 3、5 題僅從 J 的原話擷取有明確依據的句子。
+  const q1 = rawCompact(values.like);
+  const q2 = rawCompact(values.dislike);
+  const q3 = pickContextAnswer(values.contact, ["創辦人", "改變", "建議", "改善", "希望", "新增", "增加", "推出", "開發", "可以"]);
+  const q4 = rawCompact(values.keywords);
+  const q5 = pickContextAnswer(values.contact, ["解決", "痛點", "改善", "幫助", "有感", "不累", "恢復", "體力", "睡眠", "精神", "眼睛", "方便", "吃得下", "吞", "排便", "腸胃"]);
   return { q1, q2, q3, q4, q5 };
 }
 
@@ -133,26 +154,47 @@ async function buildQuestionsData() {
   const response = await fetch(url);
   if (!response.ok) throw new Error("Google Sheet 讀取失敗：" + response.status);
   const rows = parseCsv(await response.text());
+  const headers = rows[0] || [];
+  const columns = {
+    month: findColumn(headers, "年/月", ["年/月"]),
+    status: findColumn(headers, "狀態", ["狀態"]),
+    gender: findColumn(headers, "性別", ["性別"]),
+    vip: findColumn(headers, "是否 VIP", ["是否 VIP", "是否VIP"]),
+    contact: findColumn(headers, "聯繫狀況（內容）", ["聯繫狀況（內容）", "聯繫狀況(內容)"]),
+    usage: findColumn(headers, "使用體感", ["使用體感"]),
+    keywords: findColumn(headers, "其他建議／關鍵字", ["其他建議/關鍵字", "其他建議／關鍵字"]),
+    like: findColumn(headers, "最喜歡", ["最喜歡"]),
+    dislike: findColumn(headers, "最討厭／改變", ["最討厭/改變", "最討厭／改變"]),
+    expected: findColumn(headers, "期待方向", ["期待方向"])
+  };
   const records = [];
   const skipped = { invalid: 0, notice: 0, noMonth: 0, noInsight: 0 };
   let currentMonth = "";
 
   for (let i = 1; i < rows.length; i += 1) {
     const row = rows[i];
-    const explicitMonth = cleanMonth(row[1]);
+    const explicitMonth = cleanMonth(row[columns.month]);
     if (explicitMonth) currentMonth = explicitMonth;
     const month = explicitMonth || currentMonth;
     if (!month) { skipped.noMonth += 1; continue; }
 
-    const status = sanitize(row[5]);
+    const status = sanitize(row[columns.status]);
     if (invalidStatus(status)) { skipped.invalid += 1; continue; }
 
-    const contact = sanitize(row[16]);
-    const insightText = [row[21], row[22], row[23], row[24], row[25], row[26], row[27], row[28], row[29], row[30], row[31], row[32], row[33]].map(sanitize).join(" ");
+    const contact = sanitize(row[columns.contact]);
+    const values = {
+      contact,
+      usage: sanitize(row[columns.usage]),
+      keywords: sanitize(row[columns.keywords]),
+      like: sanitize(row[columns.like]),
+      dislike: sanitize(row[columns.dislike]),
+      expected: sanitize(row[columns.expected])
+    };
+    const insightText = Object.values(values).join(" ");
     if (noticeOnly(contact, insightText)) { skipped.notice += 1; continue; }
 
-    const combined = [contact, insightText].join(" ");
-    const answers = findQuestionAnswers(row, combined);
+    const combined = insightText;
+    const answers = findQuestionAnswers(values);
     if (!Object.values(answers).some(Boolean)) { skipped.noInsight += 1; continue; }
 
     const products = detectProducts(combined);
@@ -160,8 +202,8 @@ async function buildQuestionsData() {
       id: i,
       month,
       status: status || "未填",
-      gender: sanitize(row[6]) || "未填",
-      vip: sanitize(row[18]) || "未填",
+      gender: sanitize(row[columns.gender]) || "未填",
+      vip: sanitize(row[columns.vip]) || "未填",
       products: products.length ? products : ["未標記產品"],
       tags: tags(combined),
       ...answers
