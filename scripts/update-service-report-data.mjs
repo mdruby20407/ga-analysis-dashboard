@@ -12,6 +12,7 @@ const productAliases = {
   "萃菇精": ["萃菇精", "菇精"], "維生素果凍": ["維生素果凍", "小橘凍", "B群果凍"],
   "乾杯凍": ["乾杯凍"], "W3益生菌(EOL)": ["W3益生菌", "益生菌", "W3"], "V12(EOL)": ["V12"]
 };
+const sourceDetailAliases = ["隱時", "美樂蒂", "蕾蕾"];
 
 function parseCsv(text) {
   const rows = []; let row = []; let cell = ""; let quoted = false;
@@ -122,6 +123,7 @@ async function buildData() {
       id: i, customerKey, date, month, status: status || "未填", statusGroup: statusGroup(status),
       newOld: clean(row[columns.newOld]) || "未填", gender: clean(row[columns.gender]) || "未填", vip: clean(row[columns.vip]) || "未填", source: clean(row[columns.source]) || "未填",
       nps: ["V", "O", "X"].includes(nps) ? nps : "", products: detectProducts(combined),
+      sourceDetails: sourceDetailAliases.filter((name) => combined.includes(name)),
       questions: questionFlags(contact, like, dislike, keywords),
       answerThemes,
       phs,
