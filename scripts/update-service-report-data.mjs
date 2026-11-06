@@ -12,7 +12,7 @@ const productAliases = {
   "萃菇精": ["萃菇精", "菇精"], "維生素果凍": ["維生素果凍", "小橘凍", "B群果凍"],
   "乾杯凍": ["乾杯凍"], "W3益生菌(EOL)": ["W3益生菌", "益生菌", "W3"], "V12(EOL)": ["V12"]
 };
-const sourceDetailAliases = ["隱時", "美樂蒂", "蕾蕾"];
+const sourceDetailAliases = ["隱時", "美樂蒂", "蕾蕾", "dodomen"];
 
 function parseCsv(text) {
   const rows = []; let row = []; let cell = ""; let quoted = false;
@@ -88,6 +88,18 @@ function questionFlags(contact, like, dislike, keywords) {
     q5: hasAny(contact, /解決|痛點|改善|幫助|有感|不累|恢復|體力|睡眠|精神|眼睛|吃得下|吞|排便|腸胃/)
   };
 }
+function originalPhrases(value) {
+  return clean(value).split(/[\n、，,；;／/]+/).map(clean).filter((item) => item.length >= 2 && item.length <= 80);
+}
+async function loadGlobalKeywordTop() {
+  const indexHtml = await fs.readFile("index.html", "utf8");
+  const top = [...indexHtml.matchAll(/<article class="rank"><small>RANK \d+｜(\d+) 次｜([\d.]+)%<\/small><h3>([^<]+)<\/h3>/g)]
+    .slice(0, 3)
+    .map((match) => ({ keyword: clean(match[3]), count: Number(match[1]), share: Number(match[2]) }));
+  const total = Number((indexHtml.match(/const cloudTotal = (\d+)/) || [])[1] || 0);
+  if (top.length !== 3 || !total) throw new Error("無法讀取已發布的關鍵字分析統計");
+  return { total, top };
+}
 
 async function buildData() {
   const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${GID}`;
@@ -123,7 +135,9 @@ async function buildData() {
       id: i, customerKey, date, month, status: status || "未填", statusGroup: statusGroup(status),
       newOld: clean(row[columns.newOld]) || "未填", gender: clean(row[columns.gender]) || "未填", vip: clean(row[columns.vip]) || "未填", source: clean(row[columns.source]) || "未填",
       nps: ["V", "O", "X"].includes(nps) ? nps : "", products: detectProducts(combined),
-      sourceDetails: sourceDetailAliases.filter((name) => combined.includes(name)),
+      sourceDetails: sourceDetailAliases.filter((name) => [clean(row[columns.source]), combined].some((text) => text.toLowerCase().includes(name.toLowerCase()))),
+      keywordRaw: originalPhrases(keywords),
+      activityPhrases: originalPhrases(event).filter((item) => /跑|騎|登山|露營|親子|講座|運動|聚|活動|賽|瑜伽|健身|旅遊|戶外/.test(item)),
       questions: questionFlags(contact, like, dislike, keywords),
       answerThemes,
       phs,
@@ -133,7 +147,8 @@ async function buildData() {
       scene: sceneSignals(combined), expected: Boolean(expected || future), event: Boolean(event)
     });
   }
-  return { updatedAt: new Date().toISOString(), sourceRows: rows.length - 1, dateRange: { min: records[0]?.date || "", max: records.at(-1)?.date || "" }, records, products: Object.keys(productAliases) };
+  const globalKeywords = await loadGlobalKeywordTop();
+  return { updatedAt: new Date().toISOString(), sourceRows: rows.length - 1, dateRange: { min: records[0]?.date || "", max: records.at(-1)?.date || "" }, globalKeywords, records, products: Object.keys(productAliases) };
 }
 
 const outputPath = process.argv[2] || "data/service-report-data.json";
