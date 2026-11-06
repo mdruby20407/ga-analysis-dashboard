@@ -178,6 +178,7 @@ async function buildData() {
     phone: normalizePhone(row[orderColumns.phone]),
     amount: Number(String(row[orderColumns.amount] || "").replace(/[^\d.-]/g, "")) || 0
   })).filter((order) => order.date && order.phone).sort((a, b) => a.date.localeCompare(b.date));
+  const orderMinDate = orders[0]?.date || "";
   const orderMaxDate = orders.at(-1)?.date || "";
   const callsByPhone = new Map();
   records.forEach((record) => {
@@ -208,15 +209,18 @@ async function buildData() {
     });
   });
   records.forEach((record) => {
-    if (!orderMaxDate) return;
-    [30, 60, 90].forEach((window) => { record.repurchase[`mature${window}`] = record.date <= shiftDate(orderMaxDate, -window); });
+    if (!orderMinDate || !orderMaxDate) return;
+    [30, 60, 90].forEach((window) => {
+      // A cohort is valid only when the order file covers its entire observation window.
+      record.repurchase[`mature${window}`] = record.date >= orderMinDate && record.date <= shiftDate(orderMaxDate, -window);
+    });
     delete record.internalPhone;
   });
   const globalKeywords = await loadGlobalKeywordTop();
   return {
     updatedAt: new Date().toISOString(), sourceRows: rows.length - 1,
     dateRange: { min: records[0]?.date || "", max: records.at(-1)?.date || "" },
-    orderMeta: { sourceRows: orderRows.length - 1, minDate: orders[0]?.date || "", maxDate: orderMaxDate, attribution: "訂單歸給訂單前 90 天內最近一次外撥；同日訂單不計入。" },
+    orderMeta: { sourceRows: orderRows.length - 1, minDate: orderMinDate, maxDate: orderMaxDate, attribution: "訂單歸給訂單前 90 天內最近一次外撥；同日訂單不計入。" },
     globalKeywords, records, products: Object.keys(productAliases)
   };
 }
