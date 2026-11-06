@@ -2,8 +2,12 @@ name: Update Questions Dashboard
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - 'scripts/update-questions-data.mjs'
+      - '.github/workflows/update-questions-data.yml'
   schedule:
-    - cron: "20 1 * * 5"
+    - cron: "0 9 * * 5"
 
 permissions:
   contents: write
