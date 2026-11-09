@@ -13,7 +13,7 @@ const productAliases = {
   "萃菇精": ["萃菇精", "菇精"], "維生素果凍": ["維生素果凍", "小橘凍", "B群果凍"],
   "乾杯凍": ["乾杯凍"], "W3益生菌(EOL)": ["W3益生菌", "益生菌", "W3"], "V12(EOL)": ["V12"]
 };
-const sourceDetailAliases = ["隱時", "美樂蒂", "蕾蕾", "dodomen"];
+const sourceDetailAliases = ["隱時", "美樂蒂", "美樂", "蕾蕾", "dodomen", "33", "鬧著玩"];
 
 function parseCsv(text) {
   const rows = []; let row = []; let cell = ""; let quoted = false;
@@ -105,6 +105,52 @@ function questionFlags(contact, like, dislike, keywords) {
 function originalPhrases(value) {
   return clean(value).split(/[\n、，,；;／/]+/).map(clean).filter((item) => item.length >= 2 && item.length <= 80);
 }
+function unique(values) { return [...new Set(values.filter(Boolean))]; }
+function usableSourceDetail(value) {
+  const detail = clean(value).replace(/[。．]+$/g, "").replace(/(?:才|就|後|也|都)$/g, "");
+  return detail && detail.length >= 2 && !/^(?:不知道|忘記|未填|無|沒有|不清楚|待補|哪裡|上|下|這裡|那裡|網路(?:看到|滑到)?(?:有人推薦)?|朋友(?:推薦)?|親友(?:推薦)?)$/i.test(detail);
+}
+function extractSourceDetails(source, contact) {
+  const details = [];
+  const text = clean(contact);
+  // Newer records use this clear label, so it always takes priority.
+  for (const match of text.matchAll(/來源細節\s*[:：]\s*([^。；;\n]+)/g)) {
+    const detail = clean(match[1]);
+    if (usableSourceDetail(detail)) details.push(detail);
+  }
+  // Older notes do not always have a label. Keep named people, channels and teams that
+  // are explicitly present in the note, without trying to infer a source from context.
+  sourceDetailAliases.forEach((name) => {
+    if (`${source} ${text}`.toLowerCase().includes(name.toLowerCase())) details.push(name);
+  });
+  for (const match of text.matchAll(/(?:從|透過|經由|由)\s*([^，。；;\n]{1,24}?)(?:得知|知道|認識|接觸|看到|看見|聽到|聽說|介紹|推薦)/g)) {
+    const detail = clean(match[1]).replace(/^(?:朋友|親友|網路|IG|臉書|FB)\s*/i, "").replace(/(?:才|就|後|也|都)$/g, "");
+    if (usableSourceDetail(detail)) details.push(detail);
+  }
+  return unique(details)
+    .map((detail) => detail.replace(/^(?:從|透過|經由|由)\s*/, ""))
+    .filter(usableSourceDetail)
+    .slice(0, 3);
+}
+function summarizeDetractorFeedback(contact) {
+  const text = clean(contact);
+  if (!text) return "未留下原因";
+  const negative = /沒有效果|沒什麼效果|沒效果|無感|沒感覺|無效|不舒服|太甜|難吃|不好吃|不喜歡|不方便|不好撕|撕不開|難吞|太大顆|太大|太貴|價格太高|價格偏高|失望|困擾/;
+  const units = text.split(/[。！？；;\n]/).flatMap((sentence) => sentence.split(/[，,]/)).map(clean).filter(Boolean);
+  const selected = units.filter((unit) => negative.test(unit) && !/不方便講電話|沒空講電話|忙著|正在忙|不方便留|推薦.*不方便|朋友不喜歡被打擾/.test(unit)).slice(0, 2);
+  return selected.length ? selected.join("；").slice(0, 96) : "未提到明確不推薦原因";
+}
+function conversationSignals(text) {
+  const rules = [
+    ["產品體感未達期待", /沒有效果|沒什麼效果|沒效果|無感|沒感覺|無效/],
+    ["睡眠連續性困擾", /半夜.*醒|夜醒|不好入眠|睡不好|睡眠/],
+    ["運動後恢復與續航", /運動.*不累|跑步.*不累|恢復|續航|體力/],
+    ["口味與入口接受度", /好吃|不甜|口味|好入口|難吃|太甜/],
+    ["攜帶與使用便利", /方便|攜帶|好撕|撕不開|不方便/],
+    ["親子或家人共用", /小孩|兒童|家人|長輩|爸媽/]
+  ];
+  return rules.filter(([, pattern]) => pattern.test(text)).map(([label]) => label);
+}
 async function loadGlobalKeywordTop() {
   const indexHtml = await fs.readFile("index.html", "utf8");
   const top = [...indexHtml.matchAll(/<article class="rank"><small>RANK \d+｜(\d+) 次｜([\d.]+)%<\/small><h3>([^<]+)<\/h3>/g)]
@@ -152,14 +198,15 @@ async function buildData() {
       id: i, customerKey, date, month, status: status || "未填", statusGroup: statusGroup(status),
       newOld: clean(row[columns.newOld]) || "未填", gender: clean(row[columns.gender]) || "未填", vip: clean(row[columns.vip]) || "未填", source: clean(row[columns.source]) || "未填",
       nps: ["V", "O", "X"].includes(nps) ? nps : "", products: detectProducts(combined),
-      sourceDetails: sourceDetailAliases.filter((name) => [clean(row[columns.source]), combined].some((text) => text.toLowerCase().includes(name.toLowerCase()))),
+      sourceDetails: extractSourceDetails(clean(row[columns.source]), contact),
       keywordRaw: originalPhrases(keywords),
       activityPhrases: originalPhrases(event).filter((item) => /跑|騎|登山|露營|親子|講座|運動|聚|活動|賽|瑜伽|健身|旅遊|戶外/.test(item)),
       questions: questionFlags(contact, like, dislike, keywords),
       answerThemes,
       phs,
-      // NPS objections are recorded in the call conversation, not the separate improvement question.
-      detractorQuote: nps === "X" ? (contact || "未留下不推薦原因") : "",
+      // NPS objections are recorded in J. Publish only a short, anonymous reason rather than the full call note.
+      detractorQuote: nps === "X" ? summarizeDetractorFeedback(contact) : "",
+      conversationSignals: conversationSignals(contact),
       futureThemes: topicLabels([expected, future].join(" "), "future"),
       themes: { taste: hasAny(combined, /好吃|不甜|好入口|甜度|口味/), convenience: hasAny(combined, /方便|攜帶|好撕|包裝|設計|帥|好看/), effect: hasAny(combined, /有感|不累|恢復|體力|睡眠|精神|眼睛/), trust: hasAny(combined, /安心|信任|推薦|品牌|用心/) },
       scene: sceneSignals(combined), expected: Boolean(expected || future), event: Boolean(event),
