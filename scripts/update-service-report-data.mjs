@@ -105,6 +105,24 @@ function questionFlags(contact, like, dislike, keywords) {
 function originalPhrases(value) {
   return clean(value).split(/[\n、，,；;／/]+/).map(clean).filter((item) => item.length >= 2 && item.length <= 80);
 }
+function compactOriginal(value) {
+  return clean(value)
+    .replace(/^(?:最喜歡|使用\/?改善|最討厭|品牌關鍵字|創辦人建議|解決痛點)\s*[:：]\s*/i, "")
+    .replace(/(?:本通結果|推薦意願|期待未來產品|活動偏好|其他回饋|備註)\s*[:：][\s\S]*$/i, "")
+    .replace(/\b09\d{8}\b/g, "")
+    .slice(0, 110)
+    .trim();
+}
+function extractQuestionAnswer(contact, number) {
+  const labels = number === 3 ? "創辦人建議|如果是創辦人[^:：]{0,18}" : "解決痛點|解決(?:最大)?(?:的)?痛點[^:：]{0,18}";
+  const match = clean(contact).match(new RegExp(`(?:五問重點[:：]\\s*)?${number}\\s*[.、．]\\s*(?:${labels})\\s*[:：]\\s*([^。；;]{2,160})`, "i"));
+  return compactOriginal(match?.[1] || "");
+}
+function samplesForAnswer(value, group) {
+  const text = compactOriginal(value);
+  if (!text) return [];
+  return topicLabels(text, group).map((theme) => ({ theme, text }));
+}
 function unique(values) { return [...new Set(values.filter(Boolean))]; }
 function usableSourceDetail(value) {
   const detail = clean(value).replace(/[。．]+$/g, "").replace(/(?:才|就|後|也|都)$/g, "");
@@ -192,7 +210,13 @@ async function buildData() {
     const usage = clean(row[columns.usage]); const expected = clean(row[columns.expected]); const future = clean(row[columns.future]); const event = clean(row[columns.event]);
     const combined = [contact, usage, keywords, like, dislike, expected, future, event].join(" ");
     const nps = normalizeNps(row[columns.nps]);
+    const q3Answer = extractQuestionAnswer(contact, 3);
+    const q5Answer = extractQuestionAnswer(contact, 5);
     const answerThemes = { q1: topicLabels(like, "q1"), q2: topicLabels(dislike, "q2"), q3: topicLabels(contact, "q3"), q4: topicLabels(keywords, "q4"), q5: topicLabels(contact, "q5") };
+    const answerSamples = {
+      q1: samplesForAnswer(like, "q1"), q2: samplesForAnswer(dislike, "q2"), q3: samplesForAnswer(q3Answer, "q3"),
+      q4: samplesForAnswer(keywords, "q4"), q5: samplesForAnswer(q5Answer, "q5")
+    };
     const phs = phsLabels(combined);
     records.push({
       id: i, customerKey, date, month, status: status || "未填", statusGroup: statusGroup(status),
@@ -203,6 +227,7 @@ async function buildData() {
       activityPhrases: originalPhrases(event).filter((item) => /跑|騎|登山|露營|親子|講座|運動|聚|活動|賽|瑜伽|健身|旅遊|戶外/.test(item)),
       questions: questionFlags(contact, like, dislike, keywords),
       answerThemes,
+      answerSamples,
       phs,
       // NPS objections are recorded in J. Publish only a short, anonymous reason rather than the full call note.
       detractorQuote: nps === "X" ? summarizeDetractorFeedback(contact) : "",
