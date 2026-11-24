@@ -109,14 +109,71 @@ const newCustomer=7217,repeatBuckets=[['30 天內回購',411],['31–60 天回�
 const repeatSection=document.createElement('section');repeatSection.className='section';repeatSection.id='new-repeat';repeatSection.innerHTML=`<h2>新客回購分析</h2><p class="desc">以 F 欄會員等級空白標示的首購訂單為新客起點；追蹤至資料最新日 2026/11/13。</p><div class="metric-grid"><div class="metric-tile"><small>可辨識首購會員</small><strong>${formatNumber(newCustomer)} 人</strong><span>可計算回購觀察期</span></div><div class="metric-tile"><small>目前尚未觀察到回購</small><strong>${formatNumber(repeatBuckets[5][1])} 人</strong><span>占可辨識首購會員 ${(repeatBuckets[5][1]/newCustomer*100).toFixed(1)}%</span></div><div class="metric-tile"><small>已觀察到再次消費</small><strong>${formatNumber(newCustomer-repeatBuckets[5][1])} 人</strong><span>首購後至少再消費一次</span></div></div><h3 class="section-title">首購至第二次消費間隔</h3><div class="metric-grid">${repeatBuckets.map(([label,count])=>`<div class="metric-tile"><small>${label}</small><strong>${formatNumber(count)} 人</strong><span>${(count/newCustomer*100).toFixed(1)}% 的首購會員</span></div>`).join('')}</div><h3 class="section-title">完整觀察期回購率</h3><div class="rates-grid">${rates.map(([days,eligible,repurchased])=>`<div class="rate-card"><small>${days} 內回購率</small><strong>${(repurchased/eligible*100).toFixed(1)}%</strong><span>${formatNumber(repurchased)} / ${formatNumber(eligible)} 位已完整觀察 ${days}</span></div>`).join('')}</div><p class="note">回購率分母只包含首購後至少經過該觀察天數的會員，避免把觀察時間不足的新客算成未回購。此處的回購從 F 欄首購標記起算。</p>`;
 allSections[3].after(activitySection);activitySection.after(repeatSection);
 const frequencyRows=[
- {label:'1 次',values:[{members:2579,orders:2579,revenue:7916967},{members:112,orders:112,revenue:1663604},{members:23,orders:23,revenue:830256}]},
- {label:'2 次',values:[{members:326,orders:652,revenue:1922266},{members:125,orders:250,revenue:1840176},{members:27,orders:54,revenue:1169306}]},
- {label:'3 次以上',values:[{members:44,orders:139,revenue:304287},{members:188,orders:741,revenue:3406603},{members:99,orders:650,revenue:5751229}]}
+  {
+    "label": "1 次",
+    "values": [
+      {
+        "members": 2146,
+        "orders": 2146,
+        "revenue": 5091696
+      },
+      {
+        "members": 545,
+        "orders": 545,
+        "revenue": 4488875
+      },
+      {
+        "members": 23,
+        "orders": 23,
+        "revenue": 830256
+      }
+    ]
+  },
+  {
+    "label": "2～3 次",
+    "values": [
+      {
+        "members": 121,
+        "orders": 252,
+        "revenue": 399387
+      },
+      {
+        "members": 454,
+        "orders": 1022,
+        "revenue": 5019132
+      },
+      {
+        "members": 54,
+        "orders": 135,
+        "revenue": 2426893
+      }
+    ]
+  },
+  {
+    "label": "4 次以上",
+    "values": [
+      {
+        "members": 1,
+        "orders": 4,
+        "revenue": 3107
+      },
+      {
+        "members": 107,
+        "orders": 504,
+        "revenue": 2051706
+      },
+      {
+        "members": 72,
+        "orders": 569,
+        "revenue": 4493642
+      }
+    ]
+  }
 ];
 const frequencyCell=d=>{const aov=d.orders?d.revenue/d.orders:0;return `<div class="cell freq-cell"><div class="tier-count">${formatNumber(d.members)} 位會員</div><div class="tier-amount">${formatMoney(d.revenue)}</div><div class="freq-detail">${formatNumber(d.orders)} 筆訂單 · 客單價 ${formatMoney(aov)}</div></div>`;};
 const frequencySection=document.createElement('section');frequencySection.className='section';frequencySection.id='annual-frequency-spend';
-frequencySection.innerHTML='<h2>2026 年消費九宮格</h2><p class="desc">橫向比較年度累計消費級距，縱向比較購買次數；每格列出會員人數、訂單筆數、營收與客單價。</p><div class="matrix" id="frequencyMatrix"></div><p class="note">統計期間：2026/01/01 至 2026/11/13。消費金額級距依每位會員 2026 年累計消費：一般消費未滿 NT$10,000、中消費 NT$10,000–29,999、高消費 NT$30,000 以上。客單價 = 該格營收 ÷ 該格訂單數。年度 2026 數字為截至資料最新日的累計。</p>';
-matrixBuild(frequencySection.querySelector('.matrix'),'購買次數',tierNames.map(x=>`${x[1]}<br>${x[2]}`),frequencyRows,frequencyCell);
+frequencySection.innerHTML='<h2>2026 年消費九宮格</h2><p class="desc">橫向比較年度累計消費級距，縱向比較購買次數；每格列出會員人數、訂單筆數、營收與客單價。</p><div class="matrix" id="frequencyMatrix"></div><p class="note">統計期間：2026/01/01 至 2026/11/13。消費金額級距依每位會員 2026 年累計消費：一般消費 NT$4,800 以下（含）、中消費 NT$4,801–29,999、高消費 NT$30,000 以上。客單價 = 該格營收 ÷ 該格訂單數。年度 2026 數字為截至資料最新日的累計。</p>';
+matrixBuild(frequencySection.querySelector('.matrix'),'購買次數',['一般消費<br>4,800 元以下','中消費<br>4,801～29,999 元','高消費<br>30,000 元以上'],frequencyRows,frequencyCell);
 repeatSection.after(frequencySection);
 document.querySelector('.source').textContent='資料來源：雲端客服紀錄表訂單資料，最新訂單日 2026/11/13。有效訂單 15,678 筆、可辨識會員 8,083 位；47 筆手機格式異常未納入會員統計。37 組（76 筆）疑似重複資料保留計算並列為待確認。頁面只呈現彙總統計，不提供會員名單或資料匯出。';
 </script></body></html>
